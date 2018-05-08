@@ -12,6 +12,7 @@ cc_library(
         "jwt.h",
         "verify.h",
     ],
+    visibility = ["//visibility:public"],
     deps = [
         "//external:abseil_strings",
         "//external:rapidjson",
