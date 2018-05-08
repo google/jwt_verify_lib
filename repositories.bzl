@@ -7,12 +7,7 @@ def boringssl_repositories(bind=True):
 
     if bind:
         native.bind(
-            name = "boringssl_crypto",
-            actual = "@boringssl//:crypto",
-        )
-
-        native.bind(
-            name = "libssl",
+            name = "ssl",
             actual = "@boringssl//:ssl",
         )
 
@@ -42,7 +37,7 @@ def googletest_repositories(bind=True):
 
 def rapidjson_repositories(bind=True):
     native.new_git_repository(
-        name = "rapidjson_git",
+        name = "com_github_tencent_rapidjson",
         build_file = "rapidjson.BUILD",
         commit = "f54b0e47a08782a6131cc3d60f94d038fa6e0a51",
         remote = "https://github.com/tencent/rapidjson.git",
@@ -51,23 +46,18 @@ def rapidjson_repositories(bind=True):
     if bind:
         native.bind(
             name = "rapidjson",
-            actual = "@rapidjson_git//:rapidjson",
+            actual = "@com_github_tencent_rapidjson//:rapidjson",
         )
 
 def abseil_repositories(bind=True):
     native.git_repository(
-        name = "abseil_git",
+        name = "com_google_absl",
         commit = "787891a3882795cee0364e8a0f0dda315578d155",
         remote = "https://github.com/abseil/abseil-cpp",
     )
 
     if bind:
         native.bind(
-            name = "abseil_base",
-            actual = "@abseil_git//absl/base:base",
-        )
-        
-        native.bind(
             name = "abseil_strings",
-            actual = "@abseil_git//absl/strings:strings",
+            actual = "@com_google_absl//absl/strings:strings",
         )
