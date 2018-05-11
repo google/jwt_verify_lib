@@ -16,7 +16,7 @@
 
 #include "absl/strings/escaping.h"
 #include "absl/strings/str_split.h"
-#include "jwt.h"
+#include "include/jwt_verify_lib/jwt.h"
 #include "rapidjson/document.h"
 
 namespace google {

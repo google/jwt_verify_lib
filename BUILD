@@ -1,16 +1,16 @@
 cc_library(
-    name = "jwt_lib",
+    name = "jwt_verify_lib",
     srcs = [
-        "jwks.cc",
-        "jwt.cc",
-        "status.cc",
-        "status.h",
-        "verify.cc",
+        "src/jwks.cc",
+        "src/jwt.cc",
+        "src/status.cc",
+        "src/verify.cc",
     ],
     hdrs = [
-        "jwks.h",
-        "jwt.h",
-        "verify.h",
+        "include/jwt_verify_lib/jwks.h",
+        "include/jwt_verify_lib/jwt.h",
+        "include/jwt_verify_lib/status.h",
+        "include/jwt_verify_lib/verify.h",
     ],
     visibility = ["//visibility:public"],
     deps = [
@@ -23,7 +23,7 @@ cc_library(
 cc_test(
     name = "jwt_test",
     srcs = [
-        "jwt_test.cc",
+        "src/jwt_test.cc",
     ],
     linkopts = [
         "-lm",
@@ -31,7 +31,7 @@ cc_test(
     ],
     linkstatic = 1,
     deps = [
-        ":jwt_lib",
+        ":jwt_verify_lib",
         "//external:googletest_main",
     ],
 )
@@ -39,7 +39,7 @@ cc_test(
 cc_test(
     name = "jwks_test",
     srcs = [
-        "jwks_test.cc",
+        "src/jwks_test.cc",
     ],
     linkopts = [
         "-lm",
@@ -47,7 +47,7 @@ cc_test(
     ],
     linkstatic = 1,
     deps = [
-        ":jwt_lib",
+        ":jwt_verify_lib",
         "//external:googletest_main",
     ],
 )
@@ -55,7 +55,7 @@ cc_test(
 cc_test(
     name = "verify_pem_test",
     srcs = [
-        "verify_pem_test.cc",
+        "src/verify_pem_test.cc",
     ],
     linkopts = [
         "-lm",
@@ -63,7 +63,7 @@ cc_test(
     ],
     linkstatic = 1,
     deps = [
-        ":jwt_lib",
+        ":jwt_verify_lib",
         "//external:googletest_main",
     ],
 )
@@ -71,7 +71,7 @@ cc_test(
 cc_test(
     name = "verify_jwk_rsa_test",
     srcs = [
-        "verify_jwk_rsa_test.cc",
+        "src/verify_jwk_rsa_test.cc",
     ],
     linkopts = [
         "-lm",
@@ -79,7 +79,7 @@ cc_test(
     ],
     linkstatic = 1,
     deps = [
-        ":jwt_lib",
+        ":jwt_verify_lib",
         "//external:googletest_main",
     ],
 )
@@ -87,7 +87,7 @@ cc_test(
 cc_test(
     name = "verify_jwk_ec_test",
     srcs = [
-        "verify_jwk_ec_test.cc",
+        "src/verify_jwk_ec_test.cc",
     ],
     linkopts = [
         "-lm",
@@ -95,7 +95,7 @@ cc_test(
     ],
     linkstatic = 1,
     deps = [
-        ":jwt_lib",
+        ":jwt_verify_lib",
         "//external:googletest_main",
     ],
 )

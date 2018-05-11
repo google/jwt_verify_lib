@@ -17,7 +17,7 @@
 #include <string>
 #include <vector>
 
-#include "status.h"
+#include "include/jwt_verify_lib/status.h"
 
 #include "openssl/ec.h"
 #include "openssl/evp.h"

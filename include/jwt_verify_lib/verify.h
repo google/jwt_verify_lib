@@ -14,9 +14,9 @@
 
 #pragma once
 
-#include "jwks.h"
-#include "jwt.h"
-#include "status.h"
+#include "include/jwt_verify_lib/jwks.h"
+#include "include/jwt_verify_lib/jwt.h"
+#include "include/jwt_verify_lib/status.h"
 
 namespace google {
 namespace jwt_verify {

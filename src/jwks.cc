@@ -15,7 +15,7 @@
 #include <assert.h>
 #include <iostream>
 
-#include "jwks.h"
+#include "include/jwt_verify_lib/jwks.h"
 
 #include "absl/strings/escaping.h"
 #include "rapidjson/document.h"
