@@ -14,7 +14,7 @@
 
 #include <map>
 
-#include "include/jwt_verify_lib/status.h"
+#include "jwt_verify_lib/status.h"
 
 namespace google {
 namespace jwt_verify {

@@ -7,10 +7,10 @@ cc_library(
         "src/verify.cc",
     ],
     hdrs = [
-        "include/jwt_verify_lib/jwks.h",
-        "include/jwt_verify_lib/jwt.h",
-        "include/jwt_verify_lib/status.h",
-        "include/jwt_verify_lib/verify.h",
+        "jwt_verify_lib/jwks.h",
+        "jwt_verify_lib/jwt.h",
+        "jwt_verify_lib/status.h",
+        "jwt_verify_lib/verify.h",
     ],
     visibility = ["//visibility:public"],
     deps = [
