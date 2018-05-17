@@ -14,6 +14,7 @@
 
 #pragma once
 
+#include <memory>
 #include <set>
 #include <string>
 #include <vector>
@@ -45,6 +46,8 @@ class CheckAudience {
   // configured audiences;
   std::set<std::string> config_audiences_;
 };
+
+typedef std::unique_ptr<CheckAudience> CheckAudiencePtr;
 
 }  // namespace jwt_verify
 }  // namespace google
