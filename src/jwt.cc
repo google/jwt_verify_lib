@@ -22,7 +22,15 @@
 namespace google {
 namespace jwt_verify {
 
+// Maximum Jwt size to prevent JSON parser attack:
+// stack overflow crash if a document contains heavily nested arrays.
+// [[... repeat 100,000 times ... [[[0]]]]]]]]]]]]]]]]]]]]]]]]]]]..
+const size_t kMaxJwtSize = 8096;
+
 Status Jwt::parseFromString(const std::string& jwt) {
+  if (jwt.size() >= kMaxJwtSize) {
+    return Status::JwtBadFormat;
+  }
   // jwt must have exactly 2 dots
   if (std::count(jwt.begin(), jwt.end(), '.') != 2) {
     return Status::JwtBadFormat;

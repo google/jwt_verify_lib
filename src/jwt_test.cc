@@ -66,6 +66,13 @@ TEST(JwtParseTest, EmptyJwt) {
   ASSERT_EQ(jwt.parseFromString(""), Status::JwtBadFormat);
 }
 
+TEST(JwtParseTest, TooLargeJwt) {
+  Jwt jwt;
+  // string > 8096 of MaxJwtSize
+  std::string jwt_str(10240, 'c');
+  ASSERT_EQ(jwt.parseFromString(jwt_str), Status::JwtBadFormat);
+}
+
 TEST(JwtParseTest, BadJsonHeader) {
   /*
    * jwt with header replaced by
