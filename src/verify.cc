@@ -33,7 +33,10 @@ inline const uint8_t* castToUChar(const absl::string_view& str) {
 bool verifySignatureRSA(EVP_PKEY* key, const EVP_MD* md,
                         const uint8_t* signature, size_t signature_len,
                         const uint8_t* signed_data, size_t signed_data_len) {
-  if (key == nullptr) return false;
+  if (key == nullptr || md == nullptr || signature == nullptr ||
+      signed_data == nullptr) {
+    return false;
+  }
   bssl::UniquePtr<EVP_MD_CTX> md_ctx(EVP_MD_CTX_create());
 
   EVP_DigestVerifyInit(md_ctx.get(), nullptr, md, nullptr, key);
@@ -51,7 +54,9 @@ bool verifySignatureRSA(EVP_PKEY* key, const EVP_MD* md,
 bool verifySignatureEC(EC_KEY* key, const uint8_t* signature,
                        size_t signature_len, const uint8_t* signed_data,
                        size_t signed_data_len) {
-  if (key == nullptr) return false;
+  if (key == nullptr || signature == nullptr || signed_data == nullptr) {
+    return false;
+  }
   // ES256 signature should be 64 bytes.
   if (signature_len != 2 * 32) {
     return false;
