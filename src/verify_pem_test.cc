@@ -14,6 +14,7 @@
 
 #include "jwt_verify_lib/verify.h"
 #include "gtest/gtest.h"
+#include "src/test_common.h"
 
 namespace google {
 namespace jwt_verify {
@@ -49,6 +50,10 @@ TEST(VerifyPemTest, OKPem) {
   EXPECT_EQ(jwks->getStatus(), Status::Ok);
 
   EXPECT_EQ(verifyJwt(jwt, *jwks), Status::Ok);
+
+  fuzzJwtSignature(jwt, [&jwks](const Jwt& jwt) {
+    EXPECT_EQ(verifyJwt(jwt, *jwks), Status::JwtVerificationFail);
+  });
 }
 
 }  // namespace

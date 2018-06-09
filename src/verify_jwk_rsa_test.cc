@@ -14,6 +14,7 @@
 
 #include "jwt_verify_lib/verify.h"
 #include "gtest/gtest.h"
+#include "src/test_common.h"
 
 namespace google {
 namespace jwt_verify {
@@ -196,18 +197,30 @@ TEST_F(VerifyJwkRsaTest, NoKidOK) {
   Jwt jwt;
   EXPECT_EQ(jwt.parseFromString(JwtTextNoKid), Status::Ok);
   EXPECT_EQ(verifyJwt(jwt, *jwks_), Status::Ok);
+
+  fuzzJwtSignature(jwt, [this](const Jwt& jwt) {
+    EXPECT_EQ(verifyJwt(jwt, *jwks_), Status::JwtVerificationFail);
+  });
 }
 
 TEST_F(VerifyJwkRsaTest, NoKidLongExpOK) {
   Jwt jwt;
   EXPECT_EQ(jwt.parseFromString(JwtTextNoKidLongExp), Status::Ok);
   EXPECT_EQ(verifyJwt(jwt, *jwks_), Status::Ok);
+
+  fuzzJwtSignature(jwt, [this](const Jwt& jwt) {
+    EXPECT_EQ(verifyJwt(jwt, *jwks_), Status::JwtVerificationFail);
+  });
 }
 
 TEST_F(VerifyJwkRsaTest, CorrectKidOK) {
   Jwt jwt;
   EXPECT_EQ(jwt.parseFromString(JwtTextWithCorrectKid), Status::Ok);
   EXPECT_EQ(verifyJwt(jwt, *jwks_), Status::Ok);
+
+  fuzzJwtSignature(jwt, [this](const Jwt& jwt) {
+    EXPECT_EQ(verifyJwt(jwt, *jwks_), Status::JwtVerificationFail);
+  });
 }
 
 TEST_F(VerifyJwkRsaTest, NonExistKidFail) {

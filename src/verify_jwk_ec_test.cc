@@ -14,6 +14,7 @@
 
 #include "jwt_verify_lib/verify.h"
 #include "gtest/gtest.h"
+#include "src/test_common.h"
 
 namespace google {
 namespace jwt_verify {
@@ -107,12 +108,20 @@ TEST_F(VerifyJwkECTest, KidOK) {
   Jwt jwt;
   EXPECT_EQ(jwt.parseFromString(JwtTextEC), Status::Ok);
   EXPECT_EQ(verifyJwt(jwt, *jwks_), Status::Ok);
+
+  fuzzJwtSignature(jwt, [this](const Jwt& jwt) {
+    EXPECT_EQ(verifyJwt(jwt, *jwks_), Status::JwtVerificationFail);
+  });
 }
 
 TEST_F(VerifyJwkECTest, NoKidOK) {
   Jwt jwt;
   EXPECT_EQ(jwt.parseFromString(JwtTextECNoKid), Status::Ok);
   EXPECT_EQ(verifyJwt(jwt, *jwks_), Status::Ok);
+
+  fuzzJwtSignature(jwt, [this](const Jwt& jwt) {
+    EXPECT_EQ(verifyJwt(jwt, *jwks_), Status::JwtVerificationFail);
+  });
 }
 
 TEST_F(VerifyJwkECTest, NonExistKidFail) {

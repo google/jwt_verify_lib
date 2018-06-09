@@ -73,6 +73,7 @@ cc_test(
 cc_test(
     name = "verify_pem_test",
     srcs = [
+        "src/test_common.h",
         "src/verify_pem_test.cc",
     ],
     linkopts = [
@@ -89,6 +90,7 @@ cc_test(
 cc_test(
     name = "verify_jwk_rsa_test",
     srcs = [
+        "src/test_common.h",
         "src/verify_jwk_rsa_test.cc",
     ],
     linkopts = [
@@ -105,6 +107,7 @@ cc_test(
 cc_test(
     name = "verify_jwk_ec_test",
     srcs = [
+        "src/test_common.h",
         "src/verify_jwk_ec_test.cc",
     ],
     linkopts = [
