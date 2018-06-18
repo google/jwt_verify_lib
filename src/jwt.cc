@@ -36,7 +36,7 @@ Status Jwt::parseFromString(const std::string& jwt) {
     return Status::JwtBadFormat;
   }
   std::vector<absl::string_view> jwt_split =
-      absl::StrSplit(jwt, absl::ByAnyChar("."), absl::SkipEmpty());
+      absl::StrSplit(jwt, '.', absl::SkipEmpty());
   if (jwt_split.size() != 3) {
     return Status::JwtBadFormat;
   }
