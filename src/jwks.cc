@@ -292,7 +292,7 @@ void Jwks::createFromJwksCore(const std::string& pkey_jwks) {
     }
   }
 
-  if (keys_.size() == 0) {
+  if (keys_.empty()) {
     updateStatus(Status::JwksNoValidKeys);
   }
 }
