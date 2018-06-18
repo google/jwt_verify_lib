@@ -16,9 +16,9 @@
 #
 package(default_visibility = ["//visibility:public"])
 
-licenses(["notice"])  # Apache 2
-
 exports_files(["LICENSE"])
+
+licenses(["notice"])  # Apache 2
 
 cc_library(
     name = "jwt_verify_lib",
