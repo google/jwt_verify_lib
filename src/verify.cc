@@ -25,7 +25,7 @@ namespace google {
 namespace jwt_verify {
 namespace {
 
-// A convinence inline cast function.
+// A convenience inline cast function.
 inline const uint8_t* castToUChar(const absl::string_view& str) {
   return reinterpret_cast<const uint8_t*>(str.data());
 }
