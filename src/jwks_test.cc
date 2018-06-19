@@ -40,6 +40,11 @@ TEST(JwksParseTest, EmptyPem) {
   EXPECT_EQ(jwks->getStatus(), Status::JwksPemBadBase64);
 }
 
+TEST(JwksParseTest, BadBase64Pem) {
+  auto jwks = Jwks::createFrom("abc", Jwks::PEM);
+  EXPECT_EQ(jwks->getStatus(), Status::JwksPemParseError);
+}
+
 TEST(JwksParseTest, BadPem) {
   // U2lnbmF0dXJl is Base64 of "Signature"
   auto jwks = Jwks::createFrom("U2lnbmF0dXJl", Jwks::PEM);

@@ -28,104 +28,104 @@ enum class Status {
   // Jwt errors:
 
   // Jwt missing.
-  JwtMissed = 1,
+  JwtMissed,
 
   // Jwt expired.
-  JwtExpired = 2,
+  JwtExpired,
 
   // JWT is not in the form of Header.Payload.Signature
-  JwtBadFormat = 3,
+  JwtBadFormat,
 
   // Jwt header is an invalid Base64url input or an invalid JSON.
-  JwtHeaderParseError = 4,
+  JwtHeaderParseError,
 
   // "alg" in the header is not a string.
-  JwtHeaderBadAlg = 6,
+  JwtHeaderBadAlg,
 
   // Value of "alg" in the header is invalid.
-  JwtHeaderNotImplementedAlg = 7,
+  JwtHeaderNotImplementedAlg,
 
   // "kid" in the header is not a string.
-  JwtHeaderBadKid = 8,
+  JwtHeaderBadKid,
 
   // Jwt payload is an invalid Base64url input or an invalid JSON.
-  JwtPayloadParseError = 9,
+  JwtPayloadParseError,
 
   // Jwt signature is an invalid Base64url input.
-  JwtSignatureParseError = 10,
+  JwtSignatureParseError,
 
   // Issuer is not configured.
-  JwtUnknownIssuer = 11,
+  JwtUnknownIssuer,
 
   // Audience is not allowed.
-  JwtAudienceNotAllowed = 12,
+  JwtAudienceNotAllowed,
 
   // Jwt verification fails.
-  JwtVerificationFail = 13,
+  JwtVerificationFail,
 
   // Jwks errors
 
   // Jwks is an invalid JSON.
-  JwksParseError = 14,
+  JwksParseError,
 
   // Jwks does not have "keys".
-  JwksNoKeys = 15,
+  JwksNoKeys,
 
   // "keys" in Jwks is not an array.
-  JwksBadKeys = 16,
+  JwksBadKeys,
 
   // Jwks doesn't have any valid public key.
-  JwksNoValidKeys = 17,
+  JwksNoValidKeys,
 
   // Jwks doesn't have key to match kid or alg from Jwt.
-  JwksKidAlgMismatch = 18,
+  JwksKidAlgMismatch,
 
   // Jwks PEM public key is an invalid Base64.
-  JwksPemBadBase64 = 19,
+  JwksPemBadBase64,
 
   // Jwks PEM public key parse error.
-  JwksPemParseError = 19,
+  JwksPemParseError,
 
   // "n" or "e" field of a Jwk RSA is missing or has a parse error.
-  JwksRsaParseError = 20,
+  JwksRsaParseError,
 
   // Failed to create a EC_KEY object.
-  JwksEcCreateKeyFail = 21,
+  JwksEcCreateKeyFail,
 
   // "x" or "y" field of a Jwk EC is missing or has a parse error.
-  JwksEcParseError = 22,
+  JwksEcParseError,
 
   // Failed to fetch public key
-  JwksFetchFail = 23,
+  JwksFetchFail,
 
   // "kty" is missing in "keys".
-  JwksMissingKty = 24,
+  JwksMissingKty,
   // "kty" is not string type in "keys".
-  JwksBadKty = 25,
+  JwksBadKty,
   // "kty" is not supported in "keys".
-  JwksNotImplementedKty = 26,
+  JwksNotImplementedKty,
 
   // "alg" is not started with "RS" for a RSA key
-  JwksRSAKeyBadAlg = 27,
+  JwksRSAKeyBadAlg,
   // "n" field is missing for a RSA key
-  JwksRSAKeyMissingN = 28,
+  JwksRSAKeyMissingN,
   // "n" field is not string for a RSA key
-  JwksRSAKeyBadN = 29,
+  JwksRSAKeyBadN,
   // "e" field is missing for a RSA key
-  JwksRSAKeyMissingE = 30,
+  JwksRSAKeyMissingE,
   // "e" field is not string for a RSA key
-  JwksRSAKeyBadE = 31,
+  JwksRSAKeyBadE,
 
   // "alg" is not "ES256" for an EC key
-  JwksECKeyBadAlg = 32,
+  JwksECKeyBadAlg,
   // "x" field is missing for an EC key
-  JwksECKeyMissingX = 33,
+  JwksECKeyMissingX,
   // "x" field is not string for an EC key
-  JwksECKeyBadX = 34,
+  JwksECKeyBadX,
   // "y" field is missing for an EC key
-  JwksECKeyMissingY = 35,
+  JwksECKeyMissingY,
   // "y" field is not string for an EC key
-  JwksECKeyBadY = 36,
+  JwksECKeyBadY,
 };
 
 /**

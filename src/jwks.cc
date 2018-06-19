@@ -53,7 +53,7 @@ class EvpPkeyGetter : public WithStatus {
     // Header "-----BEGIN CERTIFICATE ---"and tailer "-----END CERTIFICATE ---"
     // should have been removed.
     std::string pkey_der;
-    if (!absl::Base64Unescape(pkey_pem, &pkey_der)) {
+    if (!absl::Base64Unescape(pkey_pem, &pkey_der) || pkey_der.empty()) {
       updateStatus(Status::JwksPemBadBase64);
       return nullptr;
     }

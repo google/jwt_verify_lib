@@ -21,7 +21,7 @@ namespace google {
 namespace jwt_verify {
 
 /**
- * This funciton fuzz the signature in two loops
+ * This function fuzz the signature in two loops
  */
 void fuzzJwtSignature(const Jwt& jwt,
                       std::function<void(const Jwt& jwt)> test_fn) {

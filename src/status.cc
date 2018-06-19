@@ -20,60 +20,88 @@ namespace google {
 namespace jwt_verify {
 
 std::string getStatusString(Status status) {
-  static std::map<Status, std::string> table = {
-      {Status::Ok, "OK"},
+  switch (status) {
+    case Status::Ok:
+      return "OK";
 
-      {Status::JwtMissed, "Jwt missing"},
-      {Status::JwtExpired, "Jwt expired"},
-      {Status::JwtBadFormat,
-       "Jwt is not in the form of Header.Payload.Signature"},
-      {Status::JwtHeaderParseError,
-       "Jwt header is an invalid Base64url input or an invalid JSON"},
-      {Status::JwtHeaderBadAlg, "Jwt header [alg] field is not a string"},
-      {Status::JwtHeaderNotImplementedAlg,
-       "Jwt header [alg] field value is invalid"},
-      {Status::JwtHeaderBadKid, "Jwt header [kid] field is not a string"},
-      {Status::JwtPayloadParseError,
-       "Jwt payload is an invalid Base64url input or an invalid JSON"},
-      {Status::JwtSignatureParseError,
-       "Jwt signature is an invalid Base64url input"},
-      {Status::JwtUnknownIssuer, "Jwt issuer is not configured"},
-      {Status::JwtAudienceNotAllowed, "Audience in Jwt is not allowed"},
-      {Status::JwtVerificationFail, "Jwt verification fails"},
+    case Status::JwtMissed:
+      return "Jwt is missing";
+    case Status::JwtExpired:
+      return "Jwt is expired";
+    case Status::JwtBadFormat:
+      return "Jwt is not in the form of Header.Payload.Signature";
+    case Status::JwtHeaderParseError:
+      return "Jwt header is an invalid Base64url input or an invalid JSON";
+    case Status::JwtHeaderBadAlg:
+      return "Jwt header [alg] field is not a string";
+    case Status::JwtHeaderNotImplementedAlg:
+      return "Jwt header [alg] field value is invalid";
+    case Status::JwtHeaderBadKid:
+      return "Jwt header [kid] field is not a string";
+    case Status::JwtPayloadParseError:
+      return "Jwt payload is an invalid Base64 or an invalid JSON";
+    case Status::JwtSignatureParseError:
+      return "Jwt signature is an invalid Base64";
+    case Status::JwtUnknownIssuer:
+      return "Jwt issuer is not configured";
+    case Status::JwtAudienceNotAllowed:
+      return "Audiences in Jwt are not allowed";
+    case Status::JwtVerificationFail:
+      return "Jwt verification fails";
 
-      {Status::JwksParseError, "Jwks is an invalid JSON"},
-      {Status::JwksNoKeys, "Jwks does not have [keys] field"},
-      {Status::JwksBadKeys, "[keys] in Jwks is not an array"},
-      {Status::JwksNoValidKeys, "Jwks doesn't have any valid public key"},
-      {Status::JwksKidAlgMismatch,
-       "Jwks doesn't have key to match kid or alg from Jwt"},
-      {Status::JwksPemBadBase64, "Jwks PEM public key is an invalid Base64"},
-      {Status::JwksPemParseError, "Jwks PEM public key parse error"},
-      {Status::JwksRsaParseError,
-       "Jwks RSA [n] or [e] field is missing or has a parse error"},
-      {Status::JwksEcCreateKeyFail, "Jwks EC create key fail"},
-      {Status::JwksEcParseError,
-       "Jwks EC [x] or [y] field is missing or has a parse error."},
-      {Status::JwksFetchFail, "Jwks fetch fail"},
+    case Status::JwksParseError:
+      return "Jwks is an invalid JSON";
+    case Status::JwksNoKeys:
+      return "Jwks does not have [keys] field";
+    case Status::JwksBadKeys:
+      return "[keys] in Jwks is not an array";
+    case Status::JwksNoValidKeys:
+      return "Jwks doesn't have any valid public key";
+    case Status::JwksKidAlgMismatch:
+      return "Jwks doesn't have key to match kid or alg from Jwt";
+    case Status::JwksPemBadBase64:
+      return "Jwks PEM public key is an invalid Base64";
+    case Status::JwksPemParseError:
+      return "Jwks PEM public key parse error";
+    case Status::JwksRsaParseError:
+      return "Jwks RSA [n] or [e] field is missing or has a parse error";
+    case Status::JwksEcCreateKeyFail:
+      return "Jwks EC create key fail";
+    case Status::JwksEcParseError:
+      return "Jwks EC [x] or [y] field is missing or has a parse error.";
+    case Status::JwksFetchFail:
+      return "Jwks remote fetch is failed";
 
-      {Status::JwksMissingKty, "[kty] is missing in [keys]"},
-      {Status::JwksBadKty, "[kty] is missing in [keys]"},
-      {Status::JwksNotImplementedKty, "[kty] is not supported in [keys]"},
+    case Status::JwksMissingKty:
+      return "[kty] is missing in [keys]";
+    case Status::JwksBadKty:
+      return "[kty] is bad in [keys]";
+    case Status::JwksNotImplementedKty:
+      return "[kty] is not supported in [keys]";
 
-      {Status::JwksRSAKeyBadAlg,
-       "[alg] is not started with [RS] for a RSA key"},
-      {Status::JwksRSAKeyMissingN, "[n] field is missing for a RSA key"},
-      {Status::JwksRSAKeyBadN, "[n] field is not string for a RSA key"},
-      {Status::JwksRSAKeyMissingE, "[e] field is missing for a RSA key"},
-      {Status::JwksRSAKeyBadE, "[e] field is not string for a RSA key"},
+    case Status::JwksRSAKeyBadAlg:
+      return "[alg] is not started with [RS] for a RSA key";
+    case Status::JwksRSAKeyMissingN:
+      return "[n] field is missing for a RSA key";
+    case Status::JwksRSAKeyBadN:
+      return "[n] field is not string for a RSA key";
+    case Status::JwksRSAKeyMissingE:
+      return "[e] field is missing for a RSA key";
+    case Status::JwksRSAKeyBadE:
+      return "[e] field is not string for a RSA key";
 
-      {Status::JwksECKeyBadAlg, "[alg] is not [ES256] for an EC key"},
-      {Status::JwksECKeyMissingX, "[x] field is missing for an EC key"},
-      {Status::JwksECKeyBadX, "[x] field is not string for an EC key"},
-      {Status::JwksECKeyMissingY, "[y] field is missing for an EC key"},
-      {Status::JwksECKeyBadY, "[y] field is not string for an EC key"},
+    case Status::JwksECKeyBadAlg:
+      return "[alg] is not [ES256] for an EC key";
+    case Status::JwksECKeyMissingX:
+      return "[x] field is missing for an EC key";
+    case Status::JwksECKeyBadX:
+      return "[x] field is not string for an EC key";
+    case Status::JwksECKeyMissingY:
+      return "[y] field is missing for an EC key";
+    case Status::JwksECKeyBadY:
+      return "[y] field is not string for an EC key";
   };
-  return table[status];
+  return "";
 }
 
 }  // namespace jwt_verify
