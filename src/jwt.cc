@@ -94,6 +94,15 @@ Status Jwt::parseFromString(const std::string& jwt) {
       return Status::JwtPayloadParseError;
     }
   }
+  if (payload_json.HasMember("nbf")) {
+    if (payload_json["nbf"].IsInt()) {
+      nbf_ = payload_json["nbf"].GetInt();
+    } else {
+      return Status::JwtPayloadParseError;
+    }
+  } else {
+    nbf_ = 0;
+  }
   if (payload_json.HasMember("exp")) {
     if (payload_json["exp"].IsInt()) {
       exp_ = payload_json["exp"].GetInt();

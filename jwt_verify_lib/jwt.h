@@ -47,6 +47,8 @@ struct Jwt {
   std::vector<std::string> audiences_;
   // sub
   std::string sub_;
+  // not before
+  int64_t nbf_ = 0;
   // expiration
   int64_t exp_ = 0;
 

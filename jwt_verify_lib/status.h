@@ -30,6 +30,9 @@ enum class Status {
   // Jwt missing.
   JwtMissed,
 
+  // Jwt not valid yet.
+  JwtNotYetValid,
+
   // Jwt expired.
   JwtExpired,
 
