@@ -23,11 +23,11 @@ TEST(JwtParseTest, GoodJwt) {
   // JWT with
   // Header:  {"alg":"RS256","typ":"JWT"}
   // Payload:
-  // {"iss":"https://example.com","sub":"test@example.com","exp":1501281058}
+  // {"iss":"https://example.com","sub":"test@example.com","exp":1501281058,"nbf":1501281000}
   const std::string jwt_text =
       "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9."
-      "eyJpc3MiOiJodHRwczovL2V4YW1wbGUuY29tIiwic3ViIjoidGVzdEBleGFtcGxlLmNvbSIs"
-      "ImV4cCI6MTUwMTI4MTA1OH0.U2lnbmF0dXJl";
+      "eyJpc3MiOiJodHRwczovL2V4YW1wbGUuY29tIiwic3ViIjoidGVzdEBleGFtcGxlLmNvbSIsImV4"
+      "cCI6MTUwMTI4MTA1OCwibmJmIjoxNTAxMjgxMDAwfQo.U2lnbmF0dXJl";
 
   Jwt jwt;
   ASSERT_EQ(jwt.parseFromString(jwt_text), Status::Ok);
@@ -37,6 +37,7 @@ TEST(JwtParseTest, GoodJwt) {
   EXPECT_EQ(jwt.iss_, "https://example.com");
   EXPECT_EQ(jwt.sub_, "test@example.com");
   EXPECT_EQ(jwt.audiences_, std::vector<std::string>());
+  EXPECT_EQ(jwt.nbf_, 1501281000);
   EXPECT_EQ(jwt.exp_, 1501281058);
   EXPECT_EQ(jwt.signature_, "Signature");
 }
@@ -57,6 +58,7 @@ TEST(JwtParseTest, GoodJwtWithMultiAud) {
   EXPECT_EQ(jwt.iss_, "https://example.com");
   EXPECT_EQ(jwt.sub_, "https://example.com");
   EXPECT_EQ(jwt.audiences_, std::vector<std::string>({"aud1", "aud2"}));
+  EXPECT_EQ(jwt.nbf_, 0); // When there's no nbf claim default to 0
   EXPECT_EQ(jwt.exp_, 1517878659);
   EXPECT_EQ(jwt.signature_, "Signature");
 }

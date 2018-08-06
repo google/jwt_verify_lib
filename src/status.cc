@@ -26,6 +26,8 @@ std::string getStatusString(Status status) {
 
     case Status::JwtMissed:
       return "Jwt is missing";
+    case Status::JwtNotYetValid:
+      return "Jwt not yet valid";
     case Status::JwtExpired:
       return "Jwt is expired";
     case Status::JwtBadFormat:
