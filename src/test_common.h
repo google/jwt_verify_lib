@@ -28,7 +28,7 @@ void fuzzJwtSignature(const Jwt& jwt,
   // alter 1 bit
   for (size_t b = 0; b < jwt.signature_.size(); ++b) {
     for (int bit = 0; bit < 8; ++bit) {
-      Jwt fuzz_jwt = jwt;
+      Jwt fuzz_jwt(jwt);
       unsigned char bb = fuzz_jwt.signature_[b];
       bb ^= (unsigned char)(1 << bit);
       fuzz_jwt.signature_[b] = (char)bb;
@@ -39,7 +39,7 @@ void fuzzJwtSignature(const Jwt& jwt,
   // truncate bytes
   for (size_t pos = 0; pos < jwt.signature_.size(); ++pos) {
     for (size_t count = 1; count < jwt.signature_.size() - pos; ++count) {
-      Jwt fuzz_jwt = jwt;
+      Jwt fuzz_jwt(jwt);
       fuzz_jwt.signature_ = jwt.signature_.substr(pos, count);
       test_fn(fuzz_jwt);
     }
