@@ -17,6 +17,8 @@
 #include <string>
 #include <vector>
 
+#include "rapidjson/document.h"
+
 #include "jwt_verify_lib/status.h"
 
 namespace google {
@@ -26,15 +28,23 @@ namespace jwt_verify {
  * struct to hold a JWT data.
  */
 struct Jwt {
+
+  // entire jwt
+  std::string jwt_;
+
   // header string
   std::string header_str_;
   // header base64_url encoded
   std::string header_str_base64url_;
+  // header JSON object
+  rapidjson::Document header_json_;
 
   // payload string
   std::string payload_str_;
   // payload base64_url encoded
   std::string payload_str_base64url_;
+  // payload JSON object
+  rapidjson::Document payload_json_;
   // signature string
   std::string signature_;
   // alg
@@ -47,10 +57,32 @@ struct Jwt {
   std::vector<std::string> audiences_;
   // sub
   std::string sub_;
+  // issued at
+  int64_t iat_ = 0;
   // not before
   int64_t nbf_ = 0;
   // expiration
   int64_t exp_ = 0;
+  // JWT ID
+  std::string jti_;
+
+  /**
+   * Standard constructor.
+   */
+  Jwt(){}
+  /**
+   * Copy constructor. The copy constructor is marked as explicit as the caller should understand the copy operation
+   * is non-trivial as a complete re-deserialization occurs.
+   * @param rhs the instance to copy.
+   */
+  explicit Jwt(const Jwt& instance);
+
+  /**
+   * Copy Jwt instance.
+   * @param rhs the instance to copy.
+   * @return this
+   */
+  Jwt &operator =(const Jwt& rhs);
 
   /**
    * Parse Jwt from string text
