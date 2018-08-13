@@ -110,7 +110,7 @@ TEST_F(VerifyJwkECTest, KidOK) {
   EXPECT_EQ(verifyJwt(jwt, *jwks_), Status::Ok);
 
   fuzzJwtSignature(jwt, [this](const Jwt& jwt) {
-    EXPECT_EQ(verifyJwt(jwt, *jwks_), Status::JwtVerificationFail);
+    EXPECT_EQ(verifyJwt(jwt, *jwks_, 1), Status::JwtVerificationFail);
   });
 }
 
@@ -120,14 +120,14 @@ TEST_F(VerifyJwkECTest, NoKidOK) {
   EXPECT_EQ(verifyJwt(jwt, *jwks_), Status::Ok);
 
   fuzzJwtSignature(jwt, [this](const Jwt& jwt) {
-    EXPECT_EQ(verifyJwt(jwt, *jwks_), Status::JwtVerificationFail);
+    EXPECT_EQ(verifyJwt(jwt, *jwks_, 1), Status::JwtVerificationFail);
   });
 }
 
 TEST_F(VerifyJwkECTest, NonExistKidFail) {
   Jwt jwt;
   EXPECT_EQ(jwt.parseFromString(JwtTextWithNonExistKidEC), Status::Ok);
-  EXPECT_EQ(verifyJwt(jwt, *jwks_), Status::JwksKidAlgMismatch);
+  EXPECT_EQ(verifyJwt(jwt, *jwks_, 1), Status::JwksKidAlgMismatch);
 }
 
 TEST_F(VerifyJwkECTest, PubkeyNoAlgOK) {
@@ -145,7 +145,7 @@ TEST_F(VerifyJwkECTest, PubkeyNoAlgOK) {
 
   Jwt jwt;
   EXPECT_EQ(jwt.parseFromString(JwtTextEC), Status::Ok);
-  EXPECT_EQ(verifyJwt(jwt, *jwks_), Status::Ok);
+  EXPECT_EQ(verifyJwt(jwt, *jwks_, 1), Status::Ok);
 }
 
 TEST_F(VerifyJwkECTest, PubkeyNoKidOK) {
@@ -163,7 +163,7 @@ TEST_F(VerifyJwkECTest, PubkeyNoKidOK) {
 
   Jwt jwt;
   EXPECT_EQ(jwt.parseFromString(JwtTextEC), Status::Ok);
-  EXPECT_EQ(verifyJwt(jwt, *jwks_), Status::Ok);
+  EXPECT_EQ(verifyJwt(jwt, *jwks_, 1), Status::Ok);
 }
 
 }  // namespace

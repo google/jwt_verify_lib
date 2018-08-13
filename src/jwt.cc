@@ -26,11 +26,9 @@ namespace jwt_verify {
 // [[... repeat 100,000 times ... [[[0]]]]]]]]]]]]]]]]]]]]]]]]]]]..
 const size_t kMaxJwtSize = 8096;
 
-Jwt::Jwt(const Jwt& instance) {
-  *this = instance;
-}
+Jwt::Jwt(const Jwt& instance) { *this = instance; }
 
-Jwt& Jwt::operator =(const Jwt& rhs) {
+Jwt& Jwt::operator=(const Jwt& rhs) {
   parseFromString(rhs.jwt_);
   return *this;
 }
@@ -103,8 +101,8 @@ Status Jwt::parseFromString(const std::string& jwt) {
     }
   }
   if (payload_json_.HasMember("iat")) {
-    if (payload_json_["iat"].IsInt()) {
-      iat_ = payload_json_["iat"].GetInt();
+    if (payload_json_["iat"].IsInt64()) {
+      iat_ = payload_json_["iat"].GetInt64();
     } else {
       return Status::JwtPayloadParseError;
     }
@@ -112,8 +110,8 @@ Status Jwt::parseFromString(const std::string& jwt) {
     iat_ = 0;
   }
   if (payload_json_.HasMember("nbf")) {
-    if (payload_json_["nbf"].IsInt()) {
-      nbf_ = payload_json_["nbf"].GetInt();
+    if (payload_json_["nbf"].IsInt64()) {
+      nbf_ = payload_json_["nbf"].GetInt64();
     } else {
       return Status::JwtPayloadParseError;
     }
@@ -121,8 +119,8 @@ Status Jwt::parseFromString(const std::string& jwt) {
     nbf_ = 0;
   }
   if (payload_json_.HasMember("exp")) {
-    if (payload_json_["exp"].IsInt()) {
-      exp_ = payload_json_["exp"].GetInt();
+    if (payload_json_["exp"].IsInt64()) {
+      exp_ = payload_json_["exp"].GetInt64();
     } else {
       return Status::JwtPayloadParseError;
     }

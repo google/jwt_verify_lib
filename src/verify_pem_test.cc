@@ -49,10 +49,10 @@ TEST(VerifyPemTest, OKPem) {
   auto jwks = Jwks::createFrom(PublicKeyPem, Jwks::Type::PEM);
   EXPECT_EQ(jwks->getStatus(), Status::Ok);
 
-  EXPECT_EQ(verifyJwt(jwt, *jwks), Status::Ok);
+  EXPECT_EQ(verifyJwt(jwt, *jwks, 1), Status::Ok);
 
   fuzzJwtSignature(jwt, [&jwks](const Jwt& jwt) {
-    EXPECT_EQ(verifyJwt(jwt, *jwks), Status::JwtVerificationFail);
+    EXPECT_EQ(verifyJwt(jwt, *jwks, 1), Status::JwtVerificationFail);
   });
 }
 
