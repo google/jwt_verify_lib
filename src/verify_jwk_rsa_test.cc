@@ -196,10 +196,10 @@ class VerifyJwkRsaTest : public testing::Test {
 TEST_F(VerifyJwkRsaTest, NoKidOK) {
   Jwt jwt;
   EXPECT_EQ(jwt.parseFromString(JwtTextNoKid), Status::Ok);
-  EXPECT_EQ(verifyJwt(jwt, *jwks_), Status::Ok);
+  EXPECT_EQ(verifyJwt(jwt, *jwks_, 1), Status::Ok);
 
   fuzzJwtSignature(jwt, [this](const Jwt& jwt) {
-    EXPECT_EQ(verifyJwt(jwt, *jwks_), Status::JwtVerificationFail);
+    EXPECT_EQ(verifyJwt(jwt, *jwks_, 1), Status::JwtVerificationFail);
   });
 }
 
@@ -209,24 +209,24 @@ TEST_F(VerifyJwkRsaTest, NoKidLongExpOK) {
   EXPECT_EQ(verifyJwt(jwt, *jwks_), Status::Ok);
 
   fuzzJwtSignature(jwt, [this](const Jwt& jwt) {
-    EXPECT_EQ(verifyJwt(jwt, *jwks_), Status::JwtVerificationFail);
+    EXPECT_EQ(verifyJwt(jwt, *jwks_, 1), Status::JwtVerificationFail);
   });
 }
 
 TEST_F(VerifyJwkRsaTest, CorrectKidOK) {
   Jwt jwt;
   EXPECT_EQ(jwt.parseFromString(JwtTextWithCorrectKid), Status::Ok);
-  EXPECT_EQ(verifyJwt(jwt, *jwks_), Status::Ok);
+  EXPECT_EQ(verifyJwt(jwt, *jwks_, 1), Status::Ok);
 
   fuzzJwtSignature(jwt, [this](const Jwt& jwt) {
-    EXPECT_EQ(verifyJwt(jwt, *jwks_), Status::JwtVerificationFail);
+    EXPECT_EQ(verifyJwt(jwt, *jwks_, 1), Status::JwtVerificationFail);
   });
 }
 
 TEST_F(VerifyJwkRsaTest, NonExistKidFail) {
   Jwt jwt;
   EXPECT_EQ(jwt.parseFromString(JwtTextWithNonExistKid), Status::Ok);
-  EXPECT_EQ(verifyJwt(jwt, *jwks_), Status::JwksKidAlgMismatch);
+  EXPECT_EQ(verifyJwt(jwt, *jwks_, 1), Status::JwksKidAlgMismatch);
 }
 
 TEST_F(VerifyJwkRsaTest, OkPublicKeyNotAlg) {
@@ -244,7 +244,7 @@ TEST_F(VerifyJwkRsaTest, OkPublicKeyNotAlg) {
 
   Jwt jwt;
   EXPECT_EQ(jwt.parseFromString(JwtTextNoKid), Status::Ok);
-  EXPECT_EQ(verifyJwt(jwt, *jwks_), Status::Ok);
+  EXPECT_EQ(verifyJwt(jwt, *jwks_, 1), Status::Ok);
 }
 
 TEST_F(VerifyJwkRsaTest, OkPublicKeyNotKid) {
@@ -264,7 +264,7 @@ TEST_F(VerifyJwkRsaTest, OkPublicKeyNotKid) {
 
   Jwt jwt;
   EXPECT_EQ(jwt.parseFromString(JwtTextNoKid), Status::Ok);
-  EXPECT_EQ(verifyJwt(jwt, *jwks_), Status::Ok);
+  EXPECT_EQ(verifyJwt(jwt, *jwks_, 1), Status::Ok);
 }
 
 }  // namespace

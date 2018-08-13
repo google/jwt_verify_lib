@@ -28,7 +28,6 @@ namespace jwt_verify {
  * struct to hold a JWT data.
  */
 struct Jwt {
-
   // entire jwt
   std::string jwt_;
 
@@ -69,10 +68,11 @@ struct Jwt {
   /**
    * Standard constructor.
    */
-  Jwt(){}
+  Jwt() {}
   /**
-   * Copy constructor. The copy constructor is marked as explicit as the caller should understand the copy operation
-   * is non-trivial as a complete re-deserialization occurs.
+   * Copy constructor. The copy constructor is marked as explicit as the caller
+   * should understand the copy operation is non-trivial as a complete
+   * re-deserialization occurs.
    * @param rhs the instance to copy.
    */
   explicit Jwt(const Jwt& instance);
@@ -82,7 +82,7 @@ struct Jwt {
    * @param rhs the instance to copy.
    * @return this
    */
-  Jwt &operator =(const Jwt& rhs);
+  Jwt& operator=(const Jwt& rhs);
 
   /**
    * Parse Jwt from string text

@@ -25,16 +25,18 @@ namespace {
 // JWT with
 // Header:  {"alg":"RS256","typ":"JWT","customheader":"abc"}
 // Payload:
-// {"iss":"https://example.com","sub":"test@example.com","iat": 1501281000,"exp":1501281058,"nbf":1501281000,"jti":"identity","custompayload":1234}
+// {"iss":"https://example.com","sub":"test@example.com","iat":
+// 1501281000,"exp":1501281058,"nbf":1501281000,"jti":"identity","custompayload":1234}
 const std::string good_jwt =
     "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCIsImN1c3RvbWhlYWRlciI6ImFiYyJ9Cg."
-    "eyJpc3MiOiJodHRwczovL2V4YW1wbGUuY29tIiwic3ViIjoidGVzdEBleGFtcGxlLmNvbSIsImlh"
-    "dCI6IDE1MDEyODEwMDAsImV4cCI6MTUwMTI4MTA1OCwibmJmIjoxNTAxMjgxMDAwLCJqdGkiOiJp"
+    "eyJpc3MiOiJodHRwczovL2V4YW1wbGUuY29tIiwic3ViIjoidGVzdEBleGFtcGxlLmNvbSIsIm"
+    "lh"
+    "dCI6IDE1MDEyODEwMDAsImV4cCI6MTUwMTI4MTA1OCwibmJmIjoxNTAxMjgxMDAwLCJqdGkiOi"
+    "Jp"
     "ZGVudGl0eSIsImN1c3RvbXBheWxvYWQiOjEyMzR9Cg"
     ".U2lnbmF0dXJl";
 
 TEST(JwtParseTest, GoodJwt) {
-
   Jwt jwt;
   ASSERT_EQ(jwt.parseFromString(good_jwt), Status::Ok);
 
@@ -65,12 +67,9 @@ TEST(JwtParseTest, Copy) {
   Jwt copied;
   copied = original;
 
-  std::vector<std::reference_wrapper<Jwt>> jwts {
-      constructed,
-      copied
-  };
+  std::vector<std::reference_wrapper<Jwt>> jwts{constructed, copied};
 
-  for(auto jwt = jwts.begin(); jwt != jwts.end(); ++jwt) {
+  for (auto jwt = jwts.begin(); jwt != jwts.end(); ++jwt) {
     Jwt &ref = (*jwt);
     EXPECT_EQ(ref.alg_, original.alg_);
     EXPECT_EQ(ref.kid_, original.kid_);
@@ -85,7 +84,6 @@ TEST(JwtParseTest, Copy) {
     EXPECT_EQ(ref.header_json_, original.header_json_);
     EXPECT_EQ(ref.payload_json_, original.payload_json_);
   }
-
 }
 
 TEST(JwtParseTest, GoodJwtWithMultiAud) {
@@ -93,7 +91,8 @@ TEST(JwtParseTest, GoodJwtWithMultiAud) {
   const std::string jwt_text =
       "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6ImFmMDZjMTlmOGU1YjMzMTUyMT"
       "ZkZjAxMGZkMmI5YTkzYmFjMTM1YzgifQ."
-      "eyJpc3MiOiJodHRwczovL2V4YW1wbGUuY29tIiwiYXVkIjpbImF1ZDEiLCJhdWQyIl0sImV4cCI6"
+      "eyJpc3MiOiJodHRwczovL2V4YW1wbGUuY29tIiwiYXVkIjpbImF1ZDEiLCJhdWQyIl0sImV4"
+      "cCI6"
       "MTUxNzg3ODY1OSwic3ViIjoiaHR0cHM6Ly9leGFtcGxlLmNvbSJ9Cg"
       ".U2lnbmF0dXJl";
 
@@ -106,9 +105,11 @@ TEST(JwtParseTest, GoodJwtWithMultiAud) {
   EXPECT_EQ(jwt.iss_, "https://example.com");
   EXPECT_EQ(jwt.sub_, "https://example.com");
   EXPECT_EQ(jwt.audiences_, std::vector<std::string>({"aud1", "aud2"}));
-  EXPECT_EQ(jwt.iat_, 0); // When there's no iat claim default to 0
-  EXPECT_EQ(jwt.nbf_, 0); // When there's no nbf claim default to 0
-  EXPECT_EQ(jwt.jti_, std::string("")); // When there's no jti claim default to an empty string
+  EXPECT_EQ(jwt.iat_, 0);  // When there's no iat claim default to 0
+  EXPECT_EQ(jwt.nbf_, 0);  // When there's no nbf claim default to 0
+  EXPECT_EQ(
+      jwt.jti_,
+      std::string(""));  // When there's no jti claim default to an empty string
   EXPECT_EQ(jwt.exp_, 1517878659);
   EXPECT_EQ(jwt.signature_, "Signature");
 }

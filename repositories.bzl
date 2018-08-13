@@ -61,3 +61,15 @@ def abseil_repositories(bind=True):
             name = "abseil_strings",
             actual = "@com_google_absl//absl/strings:strings",
         )
+        native.bind(
+            name = "abseil_time",
+            actual = "@com_google_absl//absl/time:time",
+        )
+    _cctz_repositories(bind)
+
+def _cctz_repositories(bind=True):
+    native.git_repository(
+        name = "com_googlesource_code_cctz",
+        commit = "e19879df3a14791b7d483c359c4acd6b2a1cd96b",
+        remote = "https://github.com/google/cctz",
+    )

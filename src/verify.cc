@@ -14,6 +14,7 @@
 
 #include "jwt_verify_lib/verify.h"
 #include "absl/strings/string_view.h"
+#include "absl/time/clock.h"
 
 #include "openssl/bn.h"
 #include "openssl/ecdsa.h"
@@ -87,6 +88,19 @@ bool verifySignatureEC(EC_KEY* key, absl::string_view signature,
 }  // namespace
 
 Status verifyJwt(const Jwt& jwt, const Jwks& jwks) {
+  return verifyJwt(jwt, jwks, absl::ToUnixSeconds(absl::Now()));
+}
+
+Status verifyJwt(const Jwt& jwt, const Jwks& jwks, int64_t now) {
+  // First check that the JWT has not expired (exp) and is active (nbf).
+  if (now < jwt.nbf_) {
+    return Status::JwtNotYetValid;
+  }
+  if (jwt.exp_ && now > jwt.exp_) {
+    return Status::JwtExpired;
+  }
+
+  // Second verify signature.z
   std::string signed_data =
       jwt.header_str_base64url_ + '.' + jwt.payload_str_base64url_;
   bool kid_alg_matched = false;
