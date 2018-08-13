@@ -5,3 +5,16 @@ The key reason to create a separate repo for them is that they can be used by ot
 
 This is not an officially supported Google product
 
+For contributors:
+If you make any changes, please make sure to use Bazel to pass all unit tests by running:
+
+```
+bazel test //...
+```
+Please format your codes by running:
+
+```
+script/check-style
+```
+
+
