@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "jwt_verify_lib/verify.h"
 #include "gtest/gtest.h"
+#include "jwt_verify_lib/verify.h"
 #include "src/test_common.h"
 
 namespace google {
