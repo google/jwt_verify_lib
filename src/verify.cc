@@ -123,10 +123,8 @@ Status verifyJwt(const Jwt& jwt, const Jwks& jwks, int64_t now) {
       // Verification succeeded.
       return Status::Ok;
     } else if ((jwk->pem_format_ || jwk->kty_ == "RSA") &&
-        verifySignatureRSA(jwk->evp_pkey_.get(),
-                           EVP_sha256(),
-                           jwt.signature_,
-                           signed_data)) {
+               verifySignatureRSA(jwk->evp_pkey_.get(), EVP_sha256(),
+                                  jwt.signature_, signed_data)) {
       // Verification succeeded.
       return Status::Ok;
     }
@@ -137,12 +135,15 @@ Status verifyJwt(const Jwt& jwt, const Jwks& jwks, int64_t now) {
                          : Status::JwksKidAlgMismatch;
 }
 
-Status verifyJwt(const Jwt& jwt, const Jwks& jwks, const jwt_audience_list &audiences) {
+Status verifyJwt(const Jwt& jwt, const Jwks& jwks,
+                 const jwt_audience_list& audiences) {
   return verifyJwt(jwt, jwks, audiences, absl::ToUnixSeconds(absl::Now()));
 }
 
-Status verifyJwt(const Jwt& jwt, const Jwks& jwks, const jwt_audience_list &audiences, int64_t now) {
-  auto iter = std::find_first_of(jwt.audiences_.begin(), jwt.audiences_.end(), audiences.begin(), audiences.end());
+Status verifyJwt(const Jwt& jwt, const Jwks& jwks,
+                 const jwt_audience_list& audiences, int64_t now) {
+  auto iter = std::find_first_of(jwt.audiences_.begin(), jwt.audiences_.end(),
+                                 audiences.begin(), audiences.end());
   if (iter == jwt.audiences_.end()) {
     return Status::JwtAudienceNotAllowed;
   }

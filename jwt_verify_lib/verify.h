@@ -36,9 +36,9 @@ Status verifyJwt(const Jwt& jwt, const Jwks& jwks);
 
 /**
  * This function verifies JWT signature is valid and that it has not expired
- * checking the "exp" and "nbf" claims against the provided time. If verification
- * failed, returns the failure reason.
-  * Note this method does not verify the "aud" claim.
+ * checking the "exp" and "nbf" claims against the provided time. If
+ * verification failed, returns the failure reason. Note this method does not
+ * verify the "aud" claim.
  * @param jwt is Jwt object
  * @param jwks is Jwks object
  * @param now is the number of seconds since the unix epoch
@@ -57,7 +57,8 @@ Status verifyJwt(const Jwt& jwt, const Jwks& jwks, int64_t now);
  * @param audiences a list of audience by which to check against
  * @return the verification status
  */
-Status verifyJwt(const Jwt& jwt, const Jwks& jwks, const jwt_audience_list &audiences);
+Status verifyJwt(const Jwt& jwt, const Jwks& jwks,
+                 const jwt_audience_list& audiences);
 
 /**
  * This function verifies JWT signature is valid, that it has not expired
@@ -70,8 +71,8 @@ Status verifyJwt(const Jwt& jwt, const Jwks& jwks, const jwt_audience_list &audi
  * @param audiences a list of audience by which to check against
  * @return the verification status
  */
-Status verifyJwt(const Jwt& jwt, const Jwks& jwks, const jwt_audience_list &audiences, int64_t now);
-
+Status verifyJwt(const Jwt& jwt, const Jwks& jwks,
+                 const jwt_audience_list& audiences, int64_t now);
 
 }  // namespace jwt_verify
 }  // namespace google
