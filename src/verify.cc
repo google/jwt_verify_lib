@@ -143,8 +143,8 @@ Status verifyJwt(const Jwt& jwt, const Jwks& jwks,
 
 Status verifyJwt(const Jwt& jwt, const Jwks& jwks,
                  const std::vector<std::string>& audiences, int64_t now) {
-  CheckAudience checker(jwt.audiences_);
-  if (!checker.areAudiencesAllowed(audiences)) {
+  CheckAudience checker(audiences);
+  if (!checker.areAudiencesAllowed(jwt.audiences_)) {
     return Status::JwtAudienceNotAllowed;
   }
   return verifyJwt(jwt, jwks, now);
