@@ -15,6 +15,7 @@
 #include "jwt_verify_lib/verify.h"
 #include "absl/strings/string_view.h"
 #include "absl/time/clock.h"
+#include "jwt_verify_lib/check_audience.h"
 
 #include "openssl/bn.h"
 #include "openssl/ecdsa.h"
@@ -136,15 +137,14 @@ Status verifyJwt(const Jwt& jwt, const Jwks& jwks, int64_t now) {
 }
 
 Status verifyJwt(const Jwt& jwt, const Jwks& jwks,
-                 const jwt_audience_list& audiences) {
+                 const std::vector<std::string>& audiences) {
   return verifyJwt(jwt, jwks, audiences, absl::ToUnixSeconds(absl::Now()));
 }
 
 Status verifyJwt(const Jwt& jwt, const Jwks& jwks,
-                 const jwt_audience_list& audiences, int64_t now) {
-  auto iter = std::find_first_of(jwt.audiences_.begin(), jwt.audiences_.end(),
-                                 audiences.begin(), audiences.end());
-  if (iter == jwt.audiences_.end()) {
+                 const std::vector<std::string>& audiences, int64_t now) {
+  CheckAudience checker(jwt.audiences_);
+  if (!checker.areAudiencesAllowed(audiences)) {
     return Status::JwtAudienceNotAllowed;
   }
   return verifyJwt(jwt, jwks, now);

@@ -21,8 +21,6 @@
 namespace google {
 namespace jwt_verify {
 
-typedef std::vector<std::string> jwt_audience_list;
-
 /**
  * This function verifies JWT signature is valid and that it has not expired
  * checking the "exp" and "nbf" claims against the system's current wall clock.
@@ -58,7 +56,7 @@ Status verifyJwt(const Jwt& jwt, const Jwks& jwks, int64_t now);
  * @return the verification status
  */
 Status verifyJwt(const Jwt& jwt, const Jwks& jwks,
-                 const jwt_audience_list& audiences);
+                 const std::vector<std::string>& audiences);
 
 /**
  * This function verifies JWT signature is valid, that it has not expired
@@ -72,7 +70,7 @@ Status verifyJwt(const Jwt& jwt, const Jwks& jwks,
  * @return the verification status
  */
 Status verifyJwt(const Jwt& jwt, const Jwks& jwks,
-                 const jwt_audience_list& audiences, int64_t now);
+                 const std::vector<std::string>& audiences, int64_t now);
 
 }  // namespace jwt_verify
 }  // namespace google
