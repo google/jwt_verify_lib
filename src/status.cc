@@ -23,7 +23,6 @@ std::string getStatusString(Status status) {
   switch (status) {
     case Status::Ok:
       return "OK";
-
     case Status::JwtMissed:
       return "Jwt is missing";
     case Status::JwtNotYetValid:
