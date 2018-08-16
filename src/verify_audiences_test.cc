@@ -26,8 +26,14 @@ namespace {
 // {"iss":"https://example.com","sub":"test@example.com","aud":["aud1"]}
 const std::string JwtOneAudtext =
     "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9."
-    "eyJpc3MiOiJodHRwczovL2V4YW1wbGUuY29tIiwic3ViIjoidGVzdEBleGFtcGxlLmNvbSIsImF1ZCI6WyJhdWQxIl19Cg."
-    "OldJUf2bMFr09QhqeJ3R6NJQSn22nFTcrsTCc7kVDsGWPPGe_-C7AyiPWQEzfc2wrwIVDsCrANtetlNOwBlUjQwQyCP90ByUlP9bt5TawHpl8iHXo3qs-WCJNT3yNlUnLa8sIBQWjVCE5NrWDirH755bESHzu25CEGwkISYyY5RU_wTA4_YoX-_TGgTs84fmCmgnpsqRLESXBAcOzO3Fo8y8Pz6IlHOWJAnxm2uRJm9Yko_6-Xz8OdDrJhH6iun44I_AC0qjj2bhyLRO4bli12U2Z5MRw9sXjCy55q43rYLAFt_hXFVY7vK9vU9a38gsFEGghv4oYCPWECp-xR5cHA";
+    "eyJpc3MiOiJodHRwczovL2V4YW1wbGUuY29tIiwic3ViIjoidGVzdEBleGFtcGxlLmNvbSIsIm"
+    "F1ZCI6WyJhdWQxIl19Cg."
+    "OldJUf2bMFr09QhqeJ3R6NJQSn22nFTcrsTCc7kVDsGWPPGe_-"
+    "C7AyiPWQEzfc2wrwIVDsCrANtetlNOwBlUjQwQyCP90ByUlP9bt5TawHpl8iHXo3qs-"
+    "WCJNT3yNlUnLa8sIBQWjVCE5NrWDirH755bESHzu25CEGwkISYyY5RU_wTA4_YoX-_"
+    "TGgTs84fmCmgnpsqRLESXBAcOzO3Fo8y8Pz6IlHOWJAnxm2uRJm9Yko_6-"
+    "Xz8OdDrJhH6iun44I_AC0qjj2bhyLRO4bli12U2Z5MRw9sXjCy55q43rYLAFt_"
+    "hXFVY7vK9vU9a38gsFEGghv4oYCPWECp-xR5cHA";
 /*
 "-----BEGIN RSA PRIVATE KEY-----"
 "MIIEowIBAAKCAQEAtw7MNxUTxmzWROCD5BqJxmzT7xqc9KsnAjbXCoqEEHDx4WBl"
