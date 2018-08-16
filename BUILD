@@ -94,6 +94,23 @@ cc_test(
 )
 
 cc_test(
+    name = "verify_audiences_test",
+    srcs = [
+        "src/test_common.h",
+        "src/verify_audiences_test.cc",
+    ],
+    linkopts = [
+        "-lm",
+        "-lpthread",
+    ],
+    linkstatic = 1,
+    deps = [
+        ":jwt_verify_lib",
+        "//external:googletest_main",
+    ],
+)
+
+cc_test(
     name = "verify_time_test",
     srcs = [
         "src/test_common.h",

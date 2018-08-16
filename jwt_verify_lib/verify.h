@@ -21,10 +21,13 @@
 namespace google {
 namespace jwt_verify {
 
+typedef std::vector<std::string> jwt_audience_list;
+
 /**
  * This function verifies JWT signature is valid and that it has not expired
- * checking the "exp" and "nbf" claim against the system's current wall clock.
+ * checking the "exp" and "nbf" claims against the system's current wall clock.
  * If verification failed, returns the failure reason.
+ * Note this method does not verify the "aud" claim.
  * @param jwt is Jwt object
  * @param jwks is Jwks object
  * @return the verification status
@@ -33,14 +36,42 @@ Status verifyJwt(const Jwt& jwt, const Jwks& jwks);
 
 /**
  * This function verifies JWT signature is valid and that it has not expired
- * checking the "exp" and "nbf" claim against the provided time. If verification
+ * checking the "exp" and "nbf" claims against the provided time. If verification
  * failed, returns the failure reason.
+  * Note this method does not verify the "aud" claim.
  * @param jwt is Jwt object
  * @param jwks is Jwks object
  * @param now is the number of seconds since the unix epoch
  * @return the verification status
  */
 Status verifyJwt(const Jwt& jwt, const Jwks& jwks, int64_t now);
+
+/**
+ * This function verifies JWT signature is valid, that it has not expired
+ * checking the "exp" and "nbf" claims against the system's current wall clock
+ * as well as validating that one of the entries in the audience list appears
+ * as a member in the "aud" claim of the specified JWT. If verification failed,
+ * returns the failure reason.
+ * @param jwt is Jwt object
+ * @param jwks is Jwks object
+ * @param audiences a list of audience by which to check against
+ * @return the verification status
+ */
+Status verifyJwt(const Jwt& jwt, const Jwks& jwks, const jwt_audience_list &audiences);
+
+/**
+ * This function verifies JWT signature is valid, that it has not expired
+ * checking the "exp" and "nbf" claims against the provided time
+ * as well as validating that one of the entries in the audience list appears
+ * as a member in the "aud" claim of the specified JWT. If verification failed,
+ * returns the failure reason.
+ * @param jwt is Jwt object
+ * @param jwks is Jwks object
+ * @param audiences a list of audience by which to check against
+ * @return the verification status
+ */
+Status verifyJwt(const Jwt& jwt, const Jwks& jwks, const jwt_audience_list &audiences, int64_t now);
+
 
 }  // namespace jwt_verify
 }  // namespace google
