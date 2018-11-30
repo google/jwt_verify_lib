@@ -19,6 +19,7 @@
 
 #include "openssl/bn.h"
 #include "openssl/ecdsa.h"
+#include "openssl/err.h"
 #include "openssl/evp.h"
 #include "openssl/rsa.h"
 #include "openssl/sha.h"
@@ -43,7 +44,11 @@ bool verifySignatureRSA(EVP_PKEY* key, const EVP_MD* md,
 
   EVP_DigestVerifyInit(md_ctx.get(), nullptr, md, nullptr, key);
   EVP_DigestVerifyUpdate(md_ctx.get(), signed_data, signed_data_len);
-  return (EVP_DigestVerifyFinal(md_ctx.get(), signature, signature_len) == 1);
+  if (EVP_DigestVerifyFinal(md_ctx.get(), signature, signature_len) == 1) {
+    return true;
+  }
+  ERR_clear_error();
+  return false;
 }
 
 bool verifySignatureRSA(EVP_PKEY* key, const EVP_MD* md,
@@ -76,8 +81,12 @@ bool verifySignatureEC(EC_KEY* key, const uint8_t* signature,
       BN_bin2bn(signature + 32, 32, ecdsa_sig->s) == nullptr) {
     return false;
   }
-  return (ECDSA_do_verify(digest, SHA256_DIGEST_LENGTH, ecdsa_sig.get(), key) ==
-          1);
+  if (ECDSA_do_verify(digest, SHA256_DIGEST_LENGTH, ecdsa_sig.get(), key) ==
+      1) {
+    return true;
+  }
+  ERR_clear_error();
+  return false;
 }
 
 bool verifySignatureEC(EC_KEY* key, absl::string_view signature,
