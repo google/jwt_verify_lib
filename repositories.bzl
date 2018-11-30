@@ -3,7 +3,7 @@ load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 BORINGSSL_COMMIT = "9df0c47bc034d60d73d216cd0e090707b3fbea58"  # same as Envoy
 BORINGSSL_SHA256 = "86d0614bb9e6cb4e6444b83bb1f031755eff4bbe52cd8f4cd5720bb84a7ea9f5"
 
-def boringssl_repositories(bind=True):
+def boringssl_repositories(bind = True):
     http_archive(
         name = "boringssl",
         strip_prefix = "boringssl-" + BORINGSSL_COMMIT,
@@ -20,7 +20,7 @@ def boringssl_repositories(bind=True):
 GOOGLETEST_COMMIT = "43863938377a9ea1399c0596269e0890b5c5515a"
 GOOGLETEST_SHA256 = "7c8ece456ad588c30160429498e108e2df6f42a30888b3ec0abf5d9792d9d3a0"
 
-def googletest_repositories(bind=True):
+def googletest_repositories(bind = True):
     http_archive(
         name = "googletest_git",
         build_file = "//:googletest.BUILD",
@@ -48,7 +48,7 @@ def googletest_repositories(bind=True):
 RAPIDJSON_COMMIT = "f54b0e47a08782a6131cc3d60f94d038fa6e0a51"
 RAPIDJSON_SHA256 = "4a76453d36770c9628d7d175a2e9baccbfbd2169ced44f0cb72e86c5f5f2f7cd"
 
-def rapidjson_repositories(bind=True):
+def rapidjson_repositories(bind = True):
     http_archive(
         name = "com_github_tencent_rapidjson",
         build_file = "//:rapidjson.BUILD",
@@ -66,7 +66,7 @@ def rapidjson_repositories(bind=True):
 ABSEIL_COMMIT = "cc8dcd307b76a575d2e3e0958a4fe4c7193c2f68"  # same as Envoy
 ABSEIL_SHA256 = "e35082e88b9da04f4d68094c05ba112502a5063712f3021adfa465306d238c76"
 
-def abseil_repositories(bind=True):
+def abseil_repositories(bind = True):
     http_archive(
         name = "com_google_absl",
         strip_prefix = "abseil-cpp-" + ABSEIL_COMMIT,
@@ -88,9 +88,47 @@ def abseil_repositories(bind=True):
 CCTZ_COMMIT = "e19879df3a14791b7d483c359c4acd6b2a1cd96b"
 CCTZ_SHA256 = "35d2c6cf7ddef1cf7c1bb054bdf2e8d7778242f6d199591a834c14d224b80c39"
 
-def _cctz_repositories(bind=True):
+def _cctz_repositories(bind = True):
     http_archive(
         name = "com_googlesource_code_cctz",
         url = "https://github.com/google/cctz/archive/" + CCTZ_COMMIT + ".tar.gz",
         sha256 = CCTZ_SHA256,
     )
+
+def protobuf_repositories(bind = True):
+    native.git_repository(
+        name = "protobuf_git",
+        commit = "48cb18e5c419ddd23d9badcfe4e9df7bde1979b2",  # v3.6.1
+        remote = "https://github.com/protocolbuffers/protobuf.git",
+    )
+
+    if bind:
+        native.bind(
+            name = "protoc",
+            actual = "@protobuf_git//:protoc",
+        )
+
+        native.bind(
+            name = "protobuf",
+            actual = "@protobuf_git//:protobuf",
+        )
+
+        native.bind(
+            name = "cc_wkt_protos",
+            actual = "@protobuf_git//:cc_wkt_protos",
+        )
+
+        native.bind(
+            name = "cc_wkt_protos_genproto",
+            actual = "@protobuf_git//:cc_wkt_protos_genproto",
+        )
+
+        native.bind(
+            name = "protobuf_compiler",
+            actual = "@protobuf_git//:protoc_lib",
+        )
+
+        native.bind(
+            name = "protobuf_clib",
+            actual = "@protobuf_git//:protoc_lib",
+        )

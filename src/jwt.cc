@@ -16,15 +16,11 @@
 
 #include "absl/strings/escaping.h"
 #include "absl/strings/str_split.h"
+#include "google/protobuf/util/json_util.h"
 #include "jwt_verify_lib/jwt.h"
 
 namespace google {
 namespace jwt_verify {
-
-// Maximum Jwt size to prevent JSON parser attack:
-// stack overflow crash if a document contains heavily nested arrays.
-// [[... repeat 100,000 times ... [[[0]]]]]]]]]]]]]]]]]]]]]]]]]]]..
-const size_t kMaxJwtSize = 8096;
 
 Jwt::Jwt(const Jwt& instance) { *this = instance; }
 
@@ -34,9 +30,6 @@ Jwt& Jwt::operator=(const Jwt& rhs) {
 }
 
 Status Jwt::parseFromString(const std::string& jwt) {
-  if (jwt.size() >= kMaxJwtSize) {
-    return Status::JwtBadFormat;
-  }
   // jwt must have exactly 2 dots
   if (std::count(jwt.begin(), jwt.end(), '.') != 2) {
     return Status::JwtBadFormat;
@@ -54,26 +47,29 @@ Status Jwt::parseFromString(const std::string& jwt) {
     return Status::JwtHeaderParseError;
   }
 
-  if (header_json_.Parse(header_str_.c_str()).HasParseError()) {
+  Protobuf::util::JsonParseOptions options;
+  const auto header_status =
+        Protobuf::util::JsonStringToMessage(header_str_, &header_struct_pb_, options);
+  if (!header_status.ok()) {
     return Status::JwtHeaderParseError;
   }
 
   // Header should contain "alg" and should be a string.
-  if (!header_json_.HasMember("alg") || !header_json_["alg"].IsString()) {
+  if (!header_struct_pb_.HasMember("alg") || !header_struct_pb_["alg"].IsString()) {
     return Status::JwtHeaderBadAlg;
   }
-  alg_ = header_json_["alg"].GetString();
+  alg_ = header_struct_pb_["alg"].GetString();
 
   if (alg_ != "RS256" && alg_ != "ES256") {
     return Status::JwtHeaderNotImplementedAlg;
   }
 
   // Header may contain "kid", should be a string if exists.
-  if (header_json_.HasMember("kid")) {
-    if (!header_json_["kid"].IsString()) {
+  if (header_struct_pb_.HasMember("kid")) {
+    if (!header_struct_pb_["kid"].IsString()) {
       return Status::JwtHeaderBadKid;
     }
-    kid_ = header_json_["kid"].GetString();
+    kid_ = header_struct_pb_["kid"].GetString();
   }
 
   // Parse payload json
@@ -82,54 +78,56 @@ Status Jwt::parseFromString(const std::string& jwt) {
     return Status::JwtPayloadParseError;
   }
 
-  if (payload_json_.Parse(payload_str_.c_str()).HasParseError()) {
+  const auto payload_status =
+        Protobuf::util::JsonStringToMessage(payload_str_, &payload_struct_pb_, options);
+  if (!payload_status.ok()) {
     return Status::JwtPayloadParseError;
   }
 
-  if (payload_json_.HasMember("iss")) {
-    if (payload_json_["iss"].IsString()) {
-      iss_ = payload_json_["iss"].GetString();
+  if (payload_struct_pb_.HasMember("iss")) {
+    if (payload_struct_pb_["iss"].IsString()) {
+      iss_ = payload_struct_pb_["iss"].GetString();
     } else {
       return Status::JwtPayloadParseError;
     }
   }
-  if (payload_json_.HasMember("sub")) {
-    if (payload_json_["sub"].IsString()) {
-      sub_ = payload_json_["sub"].GetString();
+  if (payload_struct_pb_.HasMember("sub")) {
+    if (payload_struct_pb_["sub"].IsString()) {
+      sub_ = payload_struct_pb_["sub"].GetString();
     } else {
       return Status::JwtPayloadParseError;
     }
   }
-  if (payload_json_.HasMember("iat")) {
-    if (payload_json_["iat"].IsInt64()) {
-      iat_ = payload_json_["iat"].GetInt64();
+  if (payload_struct_pb_.HasMember("iat")) {
+    if (payload_struct_pb_["iat"].IsInt64()) {
+      iat_ = payload_struct_pb_["iat"].GetInt64();
     } else {
       return Status::JwtPayloadParseError;
     }
   } else {
     iat_ = 0;
   }
-  if (payload_json_.HasMember("nbf")) {
-    if (payload_json_["nbf"].IsInt64()) {
-      nbf_ = payload_json_["nbf"].GetInt64();
+  if (payload_struct_pb_.HasMember("nbf")) {
+    if (payload_struct_pb_["nbf"].IsInt64()) {
+      nbf_ = payload_struct_pb_["nbf"].GetInt64();
     } else {
       return Status::JwtPayloadParseError;
     }
   } else {
     nbf_ = 0;
   }
-  if (payload_json_.HasMember("exp")) {
-    if (payload_json_["exp"].IsInt64()) {
-      exp_ = payload_json_["exp"].GetInt64();
+  if (payload_struct_pb_.HasMember("exp")) {
+    if (payload_struct_pb_["exp"].IsInt64()) {
+      exp_ = payload_struct_pb_["exp"].GetInt64();
     } else {
       return Status::JwtPayloadParseError;
     }
   } else {
     exp_ = 0;
   }
-  if (payload_json_.HasMember("jti")) {
-    if (payload_json_["jti"].IsString()) {
-      jti_ = payload_json_["jti"].GetString();
+  if (payload_struct_pb_.HasMember("jti")) {
+    if (payload_struct_pb_["jti"].IsString()) {
+      jti_ = payload_struct_pb_["jti"].GetString();
     } else {
       return Status::JwtPayloadParseError;
     }
@@ -137,8 +135,8 @@ Status Jwt::parseFromString(const std::string& jwt) {
 
   // "aud" can be either string array or string.
   // Try as string array, read it as empty array if doesn't exist.
-  if (payload_json_.HasMember("aud")) {
-    const auto& aud_value = payload_json_["aud"];
+  if (payload_struct_pb_.HasMember("aud")) {
+    const auto& aud_value = payload_struct_pb_["aud"];
     if (aud_value.IsArray()) {
       for (auto it = aud_value.Begin(); it != aud_value.End(); ++it) {
         if (it->IsString()) {
