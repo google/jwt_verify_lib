@@ -17,7 +17,7 @@
 #include <string>
 #include <vector>
 
-#include "google/protobuf/struct.h"
+#include "google/protobuf/struct.pb.h"
 
 #include "jwt_verify_lib/status.h"
 

@@ -18,77 +18,10 @@
 #include "absl/strings/str_split.h"
 #include "google/protobuf/util/json_util.h"
 #include "jwt_verify_lib/jwt.h"
+#include "src/struct_utils.h"
 
 namespace google {
 namespace jwt_verify {
-
-class StructGetter {
- public:
-  StructGetter(const ::google::protobuf::Struct& struct_pb)
-      : struct_pb_(struct_pb) {}
-
-  enum RequirementType {
-    MUST_EXIST = 0,
-    OPTIONAL,
-  };
-
-  bool GetString(const std::string& name, RequirementType require,
-                 std::string* value) {
-    const auto& fields = struct_pb_.fields();
-    const auto it = fields.find(name);
-    if (it == fields.end()) {
-      return require == OPTIONAL;
-    }
-    if (it->second.kind_case() != google::protobuf::Value::kStringValue) {
-      return false;
-    }
-    *value = it->second.string_value();
-    return true;
-  }
-
-  bool GetInt64(const std::string& name, RequirementType require,
-                int64_t* value) {
-    const auto& fields = struct_pb_.fields();
-    const auto it = fields.find(name);
-    if (it == fields.end()) {
-      return require == OPTIONAL;
-    }
-    if (it->second.kind_case() != google::protobuf::Value::kNumberValue) {
-      return false;
-    }
-    *value = it->second.number_value();
-    return true;
-  }
-
-  // Get string or list of string, designed to get "aud" field
-  // "aud" can be either string array or string.
-  // Try as string array, read it as empty array if doesn't exist.
-  bool GetStringList(const std::string& name, RequirementType require,
-                     std::vector<std::string>* list) {
-    const auto& fields = struct_pb_.fields();
-    const auto it = fields.find(name);
-    if (it == fields.end()) {
-      return require == OPTIONAL;
-    }
-    if (it->second.kind_case() == google::protobuf::Value::kStringValue) {
-      list->push_back(it->second.string_value());
-      return true;
-    }
-    if (it->second.kind_case() == google::protobuf::Value::kListValue) {
-      for (const auto& v : it->second.list_value().values()) {
-        if (v.kind_case() != google::protobuf::Value::kStringValue) {
-          return false;
-        }
-        list->push_back(v.string_value());
-      }
-      return true;
-    }
-    return false;
-  }
-
- private:
-  const ::google::protobuf::Struct& struct_pb_;
-};
 
 Jwt::Jwt(const Jwt& instance) { *this = instance; }
 
@@ -115,16 +48,16 @@ Status Jwt::parseFromString(const std::string& jwt) {
     return Status::JwtHeaderParseError;
   }
 
-  Protobuf::util::JsonParseOptions options;
-  const auto header_status =
-      Protobuf::util::JsonStringToMessage(header_str_, &header_pb_, options);
+  ::google::protobuf::util::JsonParseOptions options;
+  const auto header_status = ::google::protobuf::util::JsonStringToMessage(
+      header_str_, &header_pb_, options);
   if (!header_status.ok()) {
     return Status::JwtHeaderParseError;
   }
 
-  StructGetter header_getter(header_pb_);
+  StructUtils header_getter(header_pb_);
   // Header should contain "alg" and should be a string.
-  if (!header_getter.GetString("alg", StructGetter::MUST_EXIST, &alg_)) {
+  if (!header_getter.GetString("alg", StructUtils::MUST_EXIST, &alg_)) {
     return Status::JwtHeaderBadAlg;
   }
 
@@ -133,7 +66,7 @@ Status Jwt::parseFromString(const std::string& jwt) {
   }
 
   // Header may contain "kid", should be a string if exists.
-  if (!header_getter.GetString("kid", StructGetter::OPTIONAL, &kid_)) {
+  if (!header_getter.GetString("kid", StructUtils::OPTIONAL, &kid_)) {
     return Status::JwtHeaderBadKid;
   }
 
@@ -143,37 +76,37 @@ Status Jwt::parseFromString(const std::string& jwt) {
     return Status::JwtPayloadParseError;
   }
 
-  const auto payload_status =
-      Protobuf::util::JsonStringToMessage(payload_str_, &payload_pb_, options);
+  const auto payload_status = ::google::protobuf::util::JsonStringToMessage(
+      payload_str_, &payload_pb_, options);
   if (!payload_status.ok()) {
     return Status::JwtPayloadParseError;
   }
 
-  StructGetter payload_getter(payload_pb_);
-  if (!payload_getter.GetString("iss", StructGetter::OPTIONAL, &iss_)) {
+  StructUtils payload_getter(payload_pb_);
+  if (!payload_getter.GetString("iss", StructUtils::OPTIONAL, &iss_)) {
     return Status::JwtPayloadParseError;
   }
-  if (!payload_getter.GetString("sub", StructGetter::OPTIONAL, &sub_)) {
-    return Status::JwtPayloadParseError;
-  }
-
-  if (!payload_getter.GetInt64("iat", StructGetter::OPTIONAL, &iat_)) {
-    return Status::JwtPayloadParseError;
-  }
-  if (!payload_getter.GetInt64("nbf", StructGetter::OPTIONAL, &nbf_)) {
-    return Status::JwtPayloadParseError;
-  }
-  if (!payload_getter.GetInt64("exp", StructGetter::OPTIONAL, &exp_)) {
+  if (!payload_getter.GetString("sub", StructUtils::OPTIONAL, &sub_)) {
     return Status::JwtPayloadParseError;
   }
 
-  if (!payload_getter.GetString("jti", StructGetter::OPTIONAL, &jti_)) {
+  if (!payload_getter.GetInt64("iat", StructUtils::OPTIONAL, &iat_)) {
+    return Status::JwtPayloadParseError;
+  }
+  if (!payload_getter.GetInt64("nbf", StructUtils::OPTIONAL, &nbf_)) {
+    return Status::JwtPayloadParseError;
+  }
+  if (!payload_getter.GetInt64("exp", StructUtils::OPTIONAL, &exp_)) {
+    return Status::JwtPayloadParseError;
+  }
+
+  if (!payload_getter.GetString("jti", StructUtils::OPTIONAL, &jti_)) {
     return Status::JwtPayloadParseError;
   }
 
   // "aud" can be either string array or string.
   // Try as string array, read it as empty array if doesn't exist.
-  if (!payload_getter.GetStringList("aud", StructGetter::OPTIONAL,
+  if (!payload_getter.GetStringList("aud", StructUtils::OPTIONAL,
                                     &audiences_)) {
     return Status::JwtPayloadParseError;
   }

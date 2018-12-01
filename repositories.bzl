@@ -95,40 +95,56 @@ def _cctz_repositories(bind = True):
         sha256 = CCTZ_SHA256,
     )
 
+BAZEL_SKYLIB_RELEASE = "0.5.0"
+BAZEL_SKYLIB_SHA256 = "b5f6abe419da897b7901f90cbab08af958b97a8f3575b0d3dd062ac7ce78541f"
+
+def _bazel_skylib_repositories():
+    http_archive(
+        name = "bazel_skylib",
+        sha256 = BAZEL_SKYLIB_SHA256,
+        strip_prefix = "bazel-skylib-" + BAZEL_SKYLIB_RELEASE,
+        url = "https://github.com/bazelbuild/bazel-skylib/archive/" + BAZEL_SKYLIB_RELEASE + ".tar.gz",
+    )
+
+PROTOBUF_COMMIT = "fa252ec2a54acb24ddc87d48fed1ecfd458445fd"
+PROTOBUF_SHA256 = "3d610ac90f8fa16e12490088605c248b85fdaf23114ce4b3605cdf81f7823604"
+
 def protobuf_repositories(bind = True):
-    native.git_repository(
-        name = "protobuf_git",
-        commit = "48cb18e5c419ddd23d9badcfe4e9df7bde1979b2",  # v3.6.1
-        remote = "https://github.com/protocolbuffers/protobuf.git",
+    _bazel_skylib_repositories()
+    http_archive(
+        name = "com_google_protobuf",
+        strip_prefix = "protobuf-" + PROTOBUF_COMMIT,
+        url = "https://github.com/protocolbuffers/protobuf/archive/" + PROTOBUF_COMMIT + ".tar.gz",
+        sha256 = PROTOBUF_SHA256,
     )
 
     if bind:
         native.bind(
             name = "protoc",
-            actual = "@protobuf_git//:protoc",
+            actual = "@com_google_protobuf//:protoc",
         )
 
         native.bind(
             name = "protobuf",
-            actual = "@protobuf_git//:protobuf",
+            actual = "@com_google_protobuf//:protobuf",
         )
 
         native.bind(
             name = "cc_wkt_protos",
-            actual = "@protobuf_git//:cc_wkt_protos",
+            actual = "@com_google_protobuf//:cc_wkt_protos",
         )
 
         native.bind(
             name = "cc_wkt_protos_genproto",
-            actual = "@protobuf_git//:cc_wkt_protos_genproto",
+            actual = "@com_google_protobuf//:cc_wkt_protos_genproto",
         )
 
         native.bind(
             name = "protobuf_compiler",
-            actual = "@protobuf_git//:protoc_lib",
+            actual = "@com_google_protobuf//:protoc_lib",
         )
 
         native.bind(
             name = "protobuf_clib",
-            actual = "@protobuf_git//:protoc_lib",
+            actual = "@com_google_protobuf//:protoc_lib",
         )
