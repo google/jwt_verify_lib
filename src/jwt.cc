@@ -22,6 +22,74 @@
 namespace google {
 namespace jwt_verify {
 
+class StructGetter {
+ public:
+  StructGetter(const ::google::protobuf::Struct& struct_pb)
+      : struct_pb_(struct_pb) {}
+
+  enum RequirementType {
+    MUST_EXIST = 0,
+    OPTIONAL,
+  };
+
+  bool GetString(const std::string& name, RequirementType require,
+                 std::string* value) {
+    const auto& fields = struct_pb_.fields();
+    const auto it = fields.find(name);
+    if (it == fields.end()) {
+      return require == OPTIONAL;
+    }
+    if (it->second.kind_case() != google::protobuf::Value::kStringValue) {
+      return false;
+    }
+    *value = it->second.string_value();
+    return true;
+  }
+
+  bool GetInt64(const std::string& name, RequirementType require,
+                int64_t* value) {
+    const auto& fields = struct_pb_.fields();
+    const auto it = fields.find(name);
+    if (it == fields.end()) {
+      return require == OPTIONAL;
+    }
+    if (it->second.kind_case() != google::protobuf::Value::kNumberValue) {
+      return false;
+    }
+    *value = it->second.number_value();
+    return true;
+  }
+
+  // Get string or list of string, designed to get "aud" field
+  // "aud" can be either string array or string.
+  // Try as string array, read it as empty array if doesn't exist.
+  bool GetStringList(const std::string& name, RequirementType require,
+                     std::vector<std::string>* list) {
+    const auto& fields = struct_pb_.fields();
+    const auto it = fields.find(name);
+    if (it == fields.end()) {
+      return require == OPTIONAL;
+    }
+    if (it->second.kind_case() == google::protobuf::Value::kStringValue) {
+      list->push_back(it->second.string_value());
+      return true;
+    }
+    if (it->second.kind_case() == google::protobuf::Value::kListValue) {
+      for (const auto& v : it->second.list_value().values()) {
+        if (v.kind_case() != google::protobuf::Value::kStringValue) {
+          return false;
+        }
+        list->push_back(v.string_value());
+      }
+      return true;
+    }
+    return false;
+  }
+
+ private:
+  const ::google::protobuf::Struct& struct_pb_;
+};
+
 Jwt::Jwt(const Jwt& instance) { *this = instance; }
 
 Jwt& Jwt::operator=(const Jwt& rhs) {
@@ -49,27 +117,24 @@ Status Jwt::parseFromString(const std::string& jwt) {
 
   Protobuf::util::JsonParseOptions options;
   const auto header_status =
-        Protobuf::util::JsonStringToMessage(header_str_, &header_struct_pb_, options);
+      Protobuf::util::JsonStringToMessage(header_str_, &header_pb_, options);
   if (!header_status.ok()) {
     return Status::JwtHeaderParseError;
   }
 
+  StructGetter header_getter(header_pb_);
   // Header should contain "alg" and should be a string.
-  if (!header_struct_pb_.HasMember("alg") || !header_struct_pb_["alg"].IsString()) {
+  if (!header_getter.GetString("alg", StructGetter::MUST_EXIST, &alg_)) {
     return Status::JwtHeaderBadAlg;
   }
-  alg_ = header_struct_pb_["alg"].GetString();
 
   if (alg_ != "RS256" && alg_ != "ES256") {
     return Status::JwtHeaderNotImplementedAlg;
   }
 
   // Header may contain "kid", should be a string if exists.
-  if (header_struct_pb_.HasMember("kid")) {
-    if (!header_struct_pb_["kid"].IsString()) {
-      return Status::JwtHeaderBadKid;
-    }
-    kid_ = header_struct_pb_["kid"].GetString();
+  if (!header_getter.GetString("kid", StructGetter::OPTIONAL, &kid_)) {
+    return Status::JwtHeaderBadKid;
   }
 
   // Parse payload json
@@ -79,77 +144,38 @@ Status Jwt::parseFromString(const std::string& jwt) {
   }
 
   const auto payload_status =
-        Protobuf::util::JsonStringToMessage(payload_str_, &payload_struct_pb_, options);
+      Protobuf::util::JsonStringToMessage(payload_str_, &payload_pb_, options);
   if (!payload_status.ok()) {
     return Status::JwtPayloadParseError;
   }
 
-  if (payload_struct_pb_.HasMember("iss")) {
-    if (payload_struct_pb_["iss"].IsString()) {
-      iss_ = payload_struct_pb_["iss"].GetString();
-    } else {
-      return Status::JwtPayloadParseError;
-    }
+  StructGetter payload_getter(payload_pb_);
+  if (!payload_getter.GetString("iss", StructGetter::OPTIONAL, &iss_)) {
+    return Status::JwtPayloadParseError;
   }
-  if (payload_struct_pb_.HasMember("sub")) {
-    if (payload_struct_pb_["sub"].IsString()) {
-      sub_ = payload_struct_pb_["sub"].GetString();
-    } else {
-      return Status::JwtPayloadParseError;
-    }
+  if (!payload_getter.GetString("sub", StructGetter::OPTIONAL, &sub_)) {
+    return Status::JwtPayloadParseError;
   }
-  if (payload_struct_pb_.HasMember("iat")) {
-    if (payload_struct_pb_["iat"].IsInt64()) {
-      iat_ = payload_struct_pb_["iat"].GetInt64();
-    } else {
-      return Status::JwtPayloadParseError;
-    }
-  } else {
-    iat_ = 0;
+
+  if (!payload_getter.GetInt64("iat", StructGetter::OPTIONAL, &iat_)) {
+    return Status::JwtPayloadParseError;
   }
-  if (payload_struct_pb_.HasMember("nbf")) {
-    if (payload_struct_pb_["nbf"].IsInt64()) {
-      nbf_ = payload_struct_pb_["nbf"].GetInt64();
-    } else {
-      return Status::JwtPayloadParseError;
-    }
-  } else {
-    nbf_ = 0;
+  if (!payload_getter.GetInt64("nbf", StructGetter::OPTIONAL, &nbf_)) {
+    return Status::JwtPayloadParseError;
   }
-  if (payload_struct_pb_.HasMember("exp")) {
-    if (payload_struct_pb_["exp"].IsInt64()) {
-      exp_ = payload_struct_pb_["exp"].GetInt64();
-    } else {
-      return Status::JwtPayloadParseError;
-    }
-  } else {
-    exp_ = 0;
+  if (!payload_getter.GetInt64("exp", StructGetter::OPTIONAL, &exp_)) {
+    return Status::JwtPayloadParseError;
   }
-  if (payload_struct_pb_.HasMember("jti")) {
-    if (payload_struct_pb_["jti"].IsString()) {
-      jti_ = payload_struct_pb_["jti"].GetString();
-    } else {
-      return Status::JwtPayloadParseError;
-    }
+
+  if (!payload_getter.GetString("jti", StructGetter::OPTIONAL, &jti_)) {
+    return Status::JwtPayloadParseError;
   }
 
   // "aud" can be either string array or string.
   // Try as string array, read it as empty array if doesn't exist.
-  if (payload_struct_pb_.HasMember("aud")) {
-    const auto& aud_value = payload_struct_pb_["aud"];
-    if (aud_value.IsArray()) {
-      for (auto it = aud_value.Begin(); it != aud_value.End(); ++it) {
-        if (it->IsString()) {
-          audiences_.push_back(it->GetString());
-        } else {
-          return Status::JwtPayloadParseError;
-        }
-      }
-    } else if (aud_value.IsString()) {
-      audiences_.push_back(aud_value.GetString());
-    } else {
-      return Status::JwtPayloadParseError;
-    }
+  if (!payload_getter.GetStringList("aud", StructGetter::OPTIONAL,
+                                    &audiences_)) {
+    return Status::JwtPayloadParseError;
   }
 
   // Set up signature

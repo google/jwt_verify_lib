@@ -17,7 +17,7 @@
 #include <string>
 #include <vector>
 
-#include "google:/protobuf/struct.h"
+#include "google/protobuf/struct.h"
 
 #include "jwt_verify_lib/status.h"
 
@@ -35,15 +35,15 @@ struct Jwt {
   std::string header_str_;
   // header base64_url encoded
   std::string header_str_base64url_;
-  // header in Strucdt protobuf
-  ::google::protobuf::Struct header_struct_pb_;
+  // header in Struct protobuf
+  ::google::protobuf::Struct header_pb_;
 
   // payload string
   std::string payload_str_;
   // payload base64_url encoded
   std::string payload_str_base64url_;
   // payload in Struct protobuf
-  ::google::protobuf::Struct payload_struct_pb_;
+  ::google::protobuf::Struct payload_pb_;
   // signature string
   std::string signature_;
   // alg
