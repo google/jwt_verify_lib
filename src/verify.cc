@@ -101,7 +101,7 @@ Status verifyJwt(const Jwt& jwt, const Jwks& jwks) {
   return verifyJwt(jwt, jwks, absl::ToUnixSeconds(absl::Now()));
 }
 
-Status verifyJwt(const Jwt& jwt, const Jwks& jwks, int64_t now) {
+Status verifyJwt(const Jwt& jwt, const Jwks& jwks, uint64_t now) {
   // First check that the JWT has not expired (exp) and is active (nbf).
   if (now < jwt.nbf_) {
     return Status::JwtNotYetValid;
@@ -151,7 +151,7 @@ Status verifyJwt(const Jwt& jwt, const Jwks& jwks,
 }
 
 Status verifyJwt(const Jwt& jwt, const Jwks& jwks,
-                 const std::vector<std::string>& audiences, int64_t now) {
+                 const std::vector<std::string>& audiences, uint64_t now) {
   CheckAudience checker(audiences);
   if (!checker.areAudiencesAllowed(jwt.audiences_)) {
     return Status::JwtAudienceNotAllowed;

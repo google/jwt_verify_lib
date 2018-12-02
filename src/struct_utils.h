@@ -43,7 +43,7 @@ class StructUtils {
     return OK;
   }
 
-  FindResult GetInt64(const std::string& name, int64_t* value) {
+  FindResult GetInt64(const std::string& name, uint64_t* value) {
     const auto& fields = struct_pb_.fields();
     const auto it = fields.find(name);
     if (it == fields.end()) {
@@ -52,7 +52,7 @@ class StructUtils {
     if (it->second.kind_case() != google::protobuf::Value::kNumberValue) {
       return WRONG_TYPE;
     }
-    *value = it->second.number_value();
+    *value = static_cast<uint64_t>(it->second.number_value());
     return OK;
   }
 

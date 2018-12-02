@@ -62,7 +62,7 @@ TEST(JwtParseTest, GoodJwt) {
   EXPECT_EQ(str_value, std::string("abc"));
 
   StructUtils payload_getter(jwt.payload_pb_);
-  int64_t int_value;
+  uint64_t int_value;
   EXPECT_EQ(payload_getter.GetInt64("custompayload", &int_value),
             StructUtils::OK);
   EXPECT_EQ(int_value, 1234);
