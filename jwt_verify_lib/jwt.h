@@ -17,7 +17,7 @@
 #include <string>
 #include <vector>
 
-#include "rapidjson/document.h"
+#include "google/protobuf/struct.pb.h"
 
 #include "jwt_verify_lib/status.h"
 
@@ -35,15 +35,15 @@ struct Jwt {
   std::string header_str_;
   // header base64_url encoded
   std::string header_str_base64url_;
-  // header JSON object
-  rapidjson::Document header_json_;
+  // header in Struct protobuf
+  ::google::protobuf::Struct header_pb_;
 
   // payload string
   std::string payload_str_;
   // payload base64_url encoded
   std::string payload_str_base64url_;
-  // payload JSON object
-  rapidjson::Document payload_json_;
+  // payload in Struct protobuf
+  ::google::protobuf::Struct payload_pb_;
   // signature string
   std::string signature_;
   // alg
@@ -57,11 +57,11 @@ struct Jwt {
   // sub
   std::string sub_;
   // issued at
-  int64_t iat_ = 0;
+  uint64_t iat_ = 0;
   // not before
-  int64_t nbf_ = 0;
+  uint64_t nbf_ = 0;
   // expiration
-  int64_t exp_ = 0;
+  uint64_t exp_ = 0;
   // JWT ID
   std::string jti_;
 

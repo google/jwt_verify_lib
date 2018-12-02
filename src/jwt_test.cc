@@ -13,7 +13,11 @@
 // limitations under the License.
 
 #include "jwt_verify_lib/jwt.h"
+#include "google/protobuf/util/message_differencer.h"
 #include "gtest/gtest.h"
+#include "src/struct_utils.h"
+
+using google::protobuf::util::MessageDifferencer;
 
 #include <functional>
 #include <vector>
@@ -43,19 +47,25 @@ TEST(JwtParseTest, GoodJwt) {
   EXPECT_EQ(jwt.alg_, "RS256");
   EXPECT_EQ(jwt.kid_, "");
   EXPECT_EQ(jwt.iss_, "https://example.com");
-  EXPECT_TRUE(jwt.header_json_.HasMember("customheader"));
-  EXPECT_TRUE(jwt.header_json_["customheader"].IsString());
-  EXPECT_EQ(jwt.header_json_["customheader"].GetString(), std::string("abc"));
   EXPECT_EQ(jwt.sub_, "test@example.com");
   EXPECT_EQ(jwt.audiences_, std::vector<std::string>());
   EXPECT_EQ(jwt.iat_, 1501281000);
   EXPECT_EQ(jwt.nbf_, 1501281000);
   EXPECT_EQ(jwt.exp_, 1501281058);
   EXPECT_EQ(jwt.jti_, std::string("identity"));
-  EXPECT_TRUE(jwt.payload_json_.HasMember("custompayload"));
-  EXPECT_TRUE(jwt.payload_json_["custompayload"].IsInt());
-  EXPECT_EQ(jwt.payload_json_["custompayload"].GetInt(), 1234);
   EXPECT_EQ(jwt.signature_, "Signature");
+
+  StructUtils header_getter(jwt.header_pb_);
+  std::string str_value;
+  EXPECT_EQ(header_getter.GetString("customheader", &str_value),
+            StructUtils::OK);
+  EXPECT_EQ(str_value, std::string("abc"));
+
+  StructUtils payload_getter(jwt.payload_pb_);
+  uint64_t int_value;
+  EXPECT_EQ(payload_getter.GetInt64("custompayload", &int_value),
+            StructUtils::OK);
+  EXPECT_EQ(int_value, 1234);
 }
 
 TEST(JwtParseTest, Copy) {
@@ -81,8 +91,10 @@ TEST(JwtParseTest, Copy) {
     EXPECT_EQ(ref.exp_, original.exp_);
     EXPECT_EQ(ref.jti_, original.jti_);
     EXPECT_EQ(ref.signature_, original.signature_);
-    EXPECT_EQ(ref.header_json_, original.header_json_);
-    EXPECT_EQ(ref.payload_json_, original.payload_json_);
+    EXPECT_TRUE(
+        MessageDifferencer::Equals(ref.header_pb_, original.header_pb_));
+    EXPECT_TRUE(
+        MessageDifferencer::Equals(ref.payload_pb_, original.payload_pb_));
   }
 }
 

@@ -15,10 +15,11 @@
 #include <assert.h>
 #include <iostream>
 
-#include "jwt_verify_lib/jwks.h"
-
 #include "absl/strings/escaping.h"
-#include "rapidjson/document.h"
+#include "google/protobuf/struct.pb.h"
+#include "google/protobuf/util/json_util.h"
+#include "jwt_verify_lib/jwks.h"
+#include "src/struct_utils.h"
 
 #include "openssl/bn.h"
 #include "openssl/ecdsa.h"
@@ -134,100 +135,96 @@ class EvpPkeyGetter : public WithStatus {
   }
 };
 
-Status extractJwkFromJwkRSA(const rapidjson::Value& jwk_json,
+Status extractJwkFromJwkRSA(const ::google::protobuf::Struct& jwk_pb,
                             Jwks::Pubkey* jwk) {
   if (jwk->alg_specified_ &&
       (jwk->alg_.size() < 2 || jwk->alg_.compare(0, 2, "RS") != 0)) {
     return Status::JwksRSAKeyBadAlg;
   }
 
-  if (!jwk_json.HasMember("n")) {
+  StructUtils jwk_getter(jwk_pb);
+  std::string n_str;
+  auto code = jwk_getter.GetString("n", &n_str);
+  if (code == StructUtils::MISSING) {
     return Status::JwksRSAKeyMissingN;
   }
-  const auto& n_value = jwk_json["n"];
-  if (!n_value.IsString()) {
+  if (code == StructUtils::WRONG_TYPE) {
     return Status::JwksRSAKeyBadN;
   }
-  std::string n_str = n_value.GetString();
 
-  if (!jwk_json.HasMember("e")) {
+  std::string e_str;
+  code = jwk_getter.GetString("e", &e_str);
+  if (code == StructUtils::MISSING) {
     return Status::JwksRSAKeyMissingE;
   }
-  const auto& e_value = jwk_json["e"];
-  if (!e_value.IsString()) {
+  if (code == StructUtils::WRONG_TYPE) {
     return Status::JwksRSAKeyBadE;
   }
-  std::string e_str = e_value.GetString();
 
   EvpPkeyGetter e;
   jwk->evp_pkey_ = e.createEvpPkeyFromJwkRSA(n_str, e_str);
   return e.getStatus();
 }
 
-Status extractJwkFromJwkEC(const rapidjson::Value& jwk_json,
+Status extractJwkFromJwkEC(const ::google::protobuf::Struct& jwk_pb,
                            Jwks::Pubkey* jwk) {
   if (jwk->alg_specified_ && jwk->alg_ != "ES256") {
     return Status::JwksECKeyBadAlg;
   }
 
-  if (!jwk_json.HasMember("x")) {
+  StructUtils jwk_getter(jwk_pb);
+  std::string x_str;
+  auto code = jwk_getter.GetString("x", &x_str);
+  if (code == StructUtils::MISSING) {
     return Status::JwksECKeyMissingX;
   }
-  const auto& x_value = jwk_json["x"];
-  if (!x_value.IsString()) {
+  if (code == StructUtils::WRONG_TYPE) {
     return Status::JwksECKeyBadX;
   }
-  std::string x_str = x_value.GetString();
 
-  if (!jwk_json.HasMember("y")) {
+  std::string y_str;
+  code = jwk_getter.GetString("y", &y_str);
+  if (code == StructUtils::MISSING) {
     return Status::JwksECKeyMissingY;
   }
-  const auto& y_value = jwk_json["y"];
-  if (!y_value.IsString()) {
+  if (code == StructUtils::WRONG_TYPE) {
     return Status::JwksECKeyBadY;
   }
-  std::string y_str = y_value.GetString();
 
   EvpPkeyGetter e;
   jwk->ec_key_ = e.createEcKeyFromJwkEC(x_str, y_str);
   return e.getStatus();
 }
 
-Status extractJwk(const rapidjson::Value& jwk_json, Jwks::Pubkey* jwk) {
+Status extractJwk(const ::google::protobuf::Struct& jwk_pb, Jwks::Pubkey* jwk) {
+  StructUtils jwk_getter(jwk_pb);
   // Check "kty" parameter, it should exist.
   // https://tools.ietf.org/html/rfc7517#section-4.1
-  if (!jwk_json.HasMember("kty")) {
+  auto code = jwk_getter.GetString("kty", &jwk->kty_);
+  if (code == StructUtils::MISSING) {
     return Status::JwksMissingKty;
   }
-  const auto& kty_value = jwk_json["kty"];
-  if (!kty_value.IsString()) {
+  if (code == StructUtils::WRONG_TYPE) {
     return Status::JwksBadKty;
   }
-  jwk->kty_ = kty_value.GetString();
 
   // "kid" and "alg" are optional, if they do not exist, set them to empty.
   // https://tools.ietf.org/html/rfc7517#page-8
-  if (jwk_json.HasMember("kid")) {
-    const auto& kid_value = jwk_json["kid"];
-    if (kid_value.IsString()) {
-      jwk->kid_ = kid_value.GetString();
-      jwk->kid_specified_ = true;
-    }
+  code = jwk_getter.GetString("kid", &jwk->kid_);
+  if (code == StructUtils::OK) {
+    jwk->kid_specified_ = true;
   }
-  if (jwk_json.HasMember("alg")) {
-    const auto& alg_value = jwk_json["alg"];
-    if (alg_value.IsString()) {
-      jwk->alg_ = alg_value.GetString();
-      jwk->alg_specified_ = true;
-    }
+  code = jwk_getter.GetString("alg", &jwk->alg_);
+  if (code == StructUtils::OK) {
+    jwk->alg_specified_ = true;
   }
 
   // Extract public key according to "kty" value.
   // https://tools.ietf.org/html/rfc7518#section-6.1
   if (jwk->kty_ == "EC") {
-    return extractJwkFromJwkEC(jwk_json, jwk);
+    return extractJwkFromJwkEC(jwk_pb, jwk);
   } else if (jwk->kty_ == "RSA") {
-    return extractJwkFromJwkRSA(jwk_json, jwk);
+    return extractJwkFromJwkRSA(jwk_pb, jwk);
   }
   return Status::JwksNotImplementedKty;
 }
@@ -262,28 +259,35 @@ void Jwks::createFromPemCore(const std::string& pkey_pem) {
   }
 }
 
-void Jwks::createFromJwksCore(const std::string& pkey_jwks) {
+void Jwks::createFromJwksCore(const std::string& jwks_json) {
   keys_.clear();
 
-  rapidjson::Document jwks_json;
-  if (jwks_json.Parse(pkey_jwks.c_str()).HasParseError()) {
+  ::google::protobuf::util::JsonParseOptions options;
+  ::google::protobuf::Struct jwks_pb;
+  const auto status = ::google::protobuf::util::JsonStringToMessage(
+      jwks_json, &jwks_pb, options);
+  if (!status.ok()) {
     updateStatus(Status::JwksParseError);
     return;
   }
 
-  if (!jwks_json.HasMember("keys")) {
+  const auto& fields = jwks_pb.fields();
+  const auto keys_it = fields.find("keys");
+  if (keys_it == fields.end()) {
     updateStatus(Status::JwksNoKeys);
     return;
   }
-  const auto& keys_value = jwks_json["keys"];
-  if (!keys_value.IsArray()) {
+  if (keys_it->second.kind_case() != google::protobuf::Value::kListValue) {
     updateStatus(Status::JwksBadKeys);
     return;
   }
 
-  for (auto key_it = keys_value.Begin(); key_it != keys_value.End(); ++key_it) {
+  for (const auto& key_value : keys_it->second.list_value().values()) {
+    if (key_value.kind_case() != ::google::protobuf::Value::kStructValue) {
+      continue;
+    }
     PubkeyPtr key_ptr(new Pubkey());
-    Status status = extractJwk(*key_it, key_ptr.get());
+    Status status = extractJwk(key_value.struct_value(), key_ptr.get());
     if (status == Status::Ok) {
       keys_.push_back(std::move(key_ptr));
     } else {

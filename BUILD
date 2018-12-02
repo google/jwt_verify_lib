@@ -11,6 +11,7 @@ cc_library(
         "src/jwks.cc",
         "src/jwt.cc",
         "src/status.cc",
+        "src/struct_utils.h",
         "src/verify.cc",
     ],
     hdrs = [
@@ -23,7 +24,7 @@ cc_library(
     deps = [
         "//external:abseil_strings",
         "//external:abseil_time",
-        "//external:rapidjson",
+        "//external:protobuf",
         "//external:ssl",
     ],
 )
