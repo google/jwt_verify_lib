@@ -45,24 +45,6 @@ def googletest_repositories(bind = True):
             actual = "@googletest_git//:googletest_prod",
         )
 
-RAPIDJSON_COMMIT = "f54b0e47a08782a6131cc3d60f94d038fa6e0a51"
-RAPIDJSON_SHA256 = "4a76453d36770c9628d7d175a2e9baccbfbd2169ced44f0cb72e86c5f5f2f7cd"
-
-def rapidjson_repositories(bind = True):
-    http_archive(
-        name = "com_github_tencent_rapidjson",
-        build_file = "//:rapidjson.BUILD",
-        strip_prefix = "rapidjson-" + RAPIDJSON_COMMIT,
-        url = "https://github.com/tencent/rapidjson/archive/" + RAPIDJSON_COMMIT + ".tar.gz",
-        sha256 = RAPIDJSON_SHA256,
-    )
-
-    if bind:
-        native.bind(
-            name = "rapidjson",
-            actual = "@com_github_tencent_rapidjson//:rapidjson",
-        )
-
 ABSEIL_COMMIT = "cc8dcd307b76a575d2e3e0958a4fe4c7193c2f68"  # same as Envoy
 ABSEIL_SHA256 = "e35082e88b9da04f4d68094c05ba112502a5063712f3021adfa465306d238c76"
 

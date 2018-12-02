@@ -25,7 +25,6 @@ cc_library(
         "//external:abseil_strings",
         "//external:abseil_time",
         "//external:protobuf",
-        "//external:rapidjson",
         "//external:ssl",
     ],
 )
