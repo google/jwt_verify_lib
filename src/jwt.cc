@@ -57,7 +57,7 @@ Status Jwt::parseFromString(const std::string& jwt) {
 
   StructUtils header_getter(header_pb_);
   // Header should contain "alg" and should be a string.
-  if (!header_getter.GetString("alg", StructUtils::MUST_EXIST, &alg_)) {
+  if (header_getter.GetString("alg", &alg_) != StructUtils::OK) {
     return Status::JwtHeaderBadAlg;
   }
 
@@ -66,7 +66,7 @@ Status Jwt::parseFromString(const std::string& jwt) {
   }
 
   // Header may contain "kid", should be a string if exists.
-  if (!header_getter.GetString("kid", StructUtils::OPTIONAL, &kid_)) {
+  if (header_getter.GetString("kid", &kid_) == StructUtils::WRONG_TYPE) {
     return Status::JwtHeaderBadKid;
   }
 
@@ -83,31 +83,31 @@ Status Jwt::parseFromString(const std::string& jwt) {
   }
 
   StructUtils payload_getter(payload_pb_);
-  if (!payload_getter.GetString("iss", StructUtils::OPTIONAL, &iss_)) {
+  if (payload_getter.GetString("iss", &iss_) == StructUtils::WRONG_TYPE) {
     return Status::JwtPayloadParseError;
   }
-  if (!payload_getter.GetString("sub", StructUtils::OPTIONAL, &sub_)) {
-    return Status::JwtPayloadParseError;
-  }
-
-  if (!payload_getter.GetInt64("iat", StructUtils::OPTIONAL, &iat_)) {
-    return Status::JwtPayloadParseError;
-  }
-  if (!payload_getter.GetInt64("nbf", StructUtils::OPTIONAL, &nbf_)) {
-    return Status::JwtPayloadParseError;
-  }
-  if (!payload_getter.GetInt64("exp", StructUtils::OPTIONAL, &exp_)) {
+  if (payload_getter.GetString("sub", &sub_) == StructUtils::WRONG_TYPE) {
     return Status::JwtPayloadParseError;
   }
 
-  if (!payload_getter.GetString("jti", StructUtils::OPTIONAL, &jti_)) {
+  if (payload_getter.GetInt64("iat", &iat_) == StructUtils::WRONG_TYPE) {
+    return Status::JwtPayloadParseError;
+  }
+  if (payload_getter.GetInt64("nbf", &nbf_) == StructUtils::WRONG_TYPE) {
+    return Status::JwtPayloadParseError;
+  }
+  if (payload_getter.GetInt64("exp", &exp_) == StructUtils::WRONG_TYPE) {
+    return Status::JwtPayloadParseError;
+  }
+
+  if (payload_getter.GetString("jti", &jti_) == StructUtils::WRONG_TYPE) {
     return Status::JwtPayloadParseError;
   }
 
   // "aud" can be either string array or string.
   // Try as string array, read it as empty array if doesn't exist.
-  if (!payload_getter.GetStringList("aud", StructUtils::OPTIONAL,
-                                    &audiences_)) {
+  if (payload_getter.GetStringList("aud", &audiences_) ==
+      StructUtils::WRONG_TYPE) {
     return Status::JwtPayloadParseError;
   }
 

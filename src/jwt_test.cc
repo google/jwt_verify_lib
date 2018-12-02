@@ -57,14 +57,14 @@ TEST(JwtParseTest, GoodJwt) {
 
   StructUtils header_getter(jwt.header_pb_);
   std::string str_value;
-  EXPECT_TRUE(header_getter.GetString("customheader", StructUtils::MUST_EXIST,
-                                      &str_value));
+  EXPECT_EQ(header_getter.GetString("customheader", &str_value),
+            StructUtils::OK);
   EXPECT_EQ(str_value, std::string("abc"));
 
   StructUtils payload_getter(jwt.payload_pb_);
   int64_t int_value;
-  EXPECT_TRUE(payload_getter.GetInt64("custompayload", StructUtils::MUST_EXIST,
-                                      &int_value));
+  EXPECT_EQ(payload_getter.GetInt64("custompayload", &int_value),
+            StructUtils::OK);
   EXPECT_EQ(int_value, 1234);
 }
 

@@ -43,55 +43,43 @@ class StructUtils {
     return OK;
   }
 
-  enum RequirementType {
-    MUST_EXIST = 0,
-    OPTIONAL,
-  };
-
-  bool GetString(const std::string& name, RequirementType require,
-                 std::string* value) {
-    auto ret = GetString(name, value);
-    return (ret == OK || (ret == MISSING && require == OPTIONAL));
-  }
-
-  bool GetInt64(const std::string& name, RequirementType require,
-                int64_t* value) {
+  FindResult GetInt64(const std::string& name, int64_t* value) {
     const auto& fields = struct_pb_.fields();
     const auto it = fields.find(name);
     if (it == fields.end()) {
-      return require == OPTIONAL;
+      return MISSING;
     }
     if (it->second.kind_case() != google::protobuf::Value::kNumberValue) {
-      return false;
+      return WRONG_TYPE;
     }
     *value = it->second.number_value();
-    return true;
+    return OK;
   }
 
   // Get string or list of string, designed to get "aud" field
   // "aud" can be either string array or string.
   // Try as string array, read it as empty array if doesn't exist.
-  bool GetStringList(const std::string& name, RequirementType require,
-                     std::vector<std::string>* list) {
+  FindResult GetStringList(const std::string& name,
+                           std::vector<std::string>* list) {
     const auto& fields = struct_pb_.fields();
     const auto it = fields.find(name);
     if (it == fields.end()) {
-      return require == OPTIONAL;
+      return MISSING;
     }
     if (it->second.kind_case() == google::protobuf::Value::kStringValue) {
       list->push_back(it->second.string_value());
-      return true;
+      return OK;
     }
     if (it->second.kind_case() == google::protobuf::Value::kListValue) {
       for (const auto& v : it->second.list_value().values()) {
         if (v.kind_case() != google::protobuf::Value::kStringValue) {
-          return false;
+          return WRONG_TYPE;
         }
         list->push_back(v.string_value());
       }
-      return true;
+      return OK;
     }
-    return false;
+    return WRONG_TYPE;
   }
 
  private:
