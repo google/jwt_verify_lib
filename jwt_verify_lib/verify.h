@@ -74,7 +74,7 @@ Status verifyJwt(const Jwt& jwt, const Jwks& jwks,
  * @return the verification status
  */
 Status verifyJwt(const Jwt& jwt, const Jwks& jwks,
-                 const std::vector<std::string>& audiences, int64_t now);
+                 const std::vector<std::string>& audiences, uint64_t now);
 
 }  // namespace jwt_verify
 }  // namespace google
