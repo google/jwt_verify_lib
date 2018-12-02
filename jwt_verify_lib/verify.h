@@ -42,7 +42,7 @@ Status verifyJwt(const Jwt& jwt, const Jwks& jwks);
  * @param now is the number of seconds since the unix epoch
  * @return the verification status
  */
-Status verifyJwt(const Jwt& jwt, const Jwks& jwks, int64_t now);
+Status verifyJwt(const Jwt& jwt, const Jwks& jwks, uint64_t now);
 
 /**
  * This function verifies JWT signature is valid, that it has not expired
