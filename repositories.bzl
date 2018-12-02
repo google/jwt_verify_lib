@@ -102,31 +102,6 @@ def protobuf_repositories(bind = True):
 
     if bind:
         native.bind(
-            name = "protoc",
-            actual = "@com_google_protobuf//:protoc",
-        )
-
-        native.bind(
             name = "protobuf",
             actual = "@com_google_protobuf//:protobuf",
-        )
-
-        native.bind(
-            name = "cc_wkt_protos",
-            actual = "@com_google_protobuf//:cc_wkt_protos",
-        )
-
-        native.bind(
-            name = "cc_wkt_protos_genproto",
-            actual = "@com_google_protobuf//:cc_wkt_protos_genproto",
-        )
-
-        native.bind(
-            name = "protobuf_compiler",
-            actual = "@com_google_protobuf//:protoc_lib",
-        )
-
-        native.bind(
-            name = "protobuf_clib",
-            actual = "@com_google_protobuf//:protoc_lib",
         )
