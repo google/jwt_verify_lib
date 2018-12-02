@@ -24,6 +24,25 @@ class StructUtils {
   StructUtils(const ::google::protobuf::Struct& struct_pb)
       : struct_pb_(struct_pb) {}
 
+  enum FindResult {
+    OK = 0,
+    MISSING,
+    WRONG_TYPE,
+  };
+
+  FindResult GetString(const std::string& name, std::string* value) {
+    const auto& fields = struct_pb_.fields();
+    const auto it = fields.find(name);
+    if (it == fields.end()) {
+      return MISSING;
+    }
+    if (it->second.kind_case() != google::protobuf::Value::kStringValue) {
+      return WRONG_TYPE;
+    }
+    *value = it->second.string_value();
+    return OK;
+  }
+
   enum RequirementType {
     MUST_EXIST = 0,
     OPTIONAL,
@@ -31,16 +50,8 @@ class StructUtils {
 
   bool GetString(const std::string& name, RequirementType require,
                  std::string* value) {
-    const auto& fields = struct_pb_.fields();
-    const auto it = fields.find(name);
-    if (it == fields.end()) {
-      return require == OPTIONAL;
-    }
-    if (it->second.kind_case() != google::protobuf::Value::kStringValue) {
-      return false;
-    }
-    *value = it->second.string_value();
-    return true;
+    auto ret = GetString(name, value);
+    return (ret == OK || (ret == MISSING && require == OPTIONAL));
   }
 
   bool GetInt64(const std::string& name, RequirementType require,
