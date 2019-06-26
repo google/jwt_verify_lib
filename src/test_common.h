@@ -37,12 +37,10 @@ void fuzzJwtSignature(const Jwt& jwt,
   }
 
   // truncate bytes
-  for (size_t pos = 0; pos < jwt.signature_.size(); ++pos) {
-    for (size_t count = 1; count < jwt.signature_.size() - pos; ++count) {
-      Jwt fuzz_jwt(jwt);
-      fuzz_jwt.signature_ = jwt.signature_.substr(pos, count);
-      test_fn(fuzz_jwt);
-    }
+  for (size_t count = 1; count < jwt.signature_.size(); ++count) {
+    Jwt fuzz_jwt(jwt);
+    fuzz_jwt.signature_ = jwt.signature_.substr(0, count);
+    test_fn(fuzz_jwt);
   }
 }
 
