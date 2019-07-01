@@ -42,10 +42,13 @@ bool verifySignatureRSA(EVP_PKEY* key, const EVP_MD* md,
   }
   bssl::UniquePtr<EVP_MD_CTX> md_ctx(EVP_MD_CTX_create());
 
-  EVP_DigestVerifyInit(md_ctx.get(), nullptr, md, nullptr, key);
-  EVP_DigestVerifyUpdate(md_ctx.get(), signed_data, signed_data_len);
-  if (EVP_DigestVerifyFinal(md_ctx.get(), signature, signature_len) == 1) {
-    return true;
+  if (EVP_DigestVerifyInit(md_ctx.get(), nullptr, md, nullptr, key) == 1) {
+    if (EVP_DigestVerifyUpdate(md_ctx.get(), signed_data, signed_data_len) ==
+        1) {
+      if (EVP_DigestVerifyFinal(md_ctx.get(), signature, signature_len) == 1) {
+        return true;
+      }
+    }
   }
   ERR_clear_error();
   return false;
