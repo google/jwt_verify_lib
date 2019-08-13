@@ -11,7 +11,7 @@ cc_library(
         "src/jwks.cc",
         "src/jwt.cc",
         "src/status.cc",
-        "src/struct_utils.h",
+        "src/struct_utils.cc",
         "src/verify.cc",
     ],
     hdrs = [
@@ -19,6 +19,7 @@ cc_library(
         "jwt_verify_lib/jwks.h",
         "jwt_verify_lib/jwt.h",
         "jwt_verify_lib/status.h",
+        "jwt_verify_lib/struct_utils.h",
         "jwt_verify_lib/verify.h",
     ],
     deps = [

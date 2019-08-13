@@ -18,7 +18,7 @@
 #include "absl/strings/str_split.h"
 #include "google/protobuf/util/json_util.h"
 #include "jwt_verify_lib/jwt.h"
-#include "src/struct_utils.h"
+#include "jwt_verify_lib/struct_utils.h"
 
 namespace google {
 namespace jwt_verify {
