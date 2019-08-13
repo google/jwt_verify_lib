@@ -18,9 +18,10 @@ namespace google {
 namespace jwt_verify {
 
 StructUtils::StructUtils(const ::google::protobuf::Struct& struct_pb)
-      : struct_pb_(struct_pb) {}
+    : struct_pb_(struct_pb) {}
 
-StructUtils::FindResult StructUtils::GetString(const std::string& name, std::string* value) {
+StructUtils::FindResult StructUtils::GetString(const std::string& name,
+                                               std::string* value) {
   const auto& fields = struct_pb_.fields();
   const auto it = fields.find(name);
   if (it == fields.end()) {
@@ -33,7 +34,8 @@ StructUtils::FindResult StructUtils::GetString(const std::string& name, std::str
   return OK;
 }
 
-StructUtils::FindResult StructUtils::GetInt64(const std::string& name, uint64_t* value) {
+StructUtils::FindResult StructUtils::GetInt64(const std::string& name,
+                                              uint64_t* value) {
   const auto& fields = struct_pb_.fields();
   const auto it = fields.find(name);
   if (it == fields.end()) {
@@ -46,8 +48,8 @@ StructUtils::FindResult StructUtils::GetInt64(const std::string& name, uint64_t*
   return OK;
 }
 
-StructUtils::FindResult StructUtils::GetStringList(const std::string& name,
-                         std::vector<std::string>* list) {
+StructUtils::FindResult StructUtils::GetStringList(
+    const std::string& name, std::vector<std::string>* list) {
   const auto& fields = struct_pb_.fields();
   const auto it = fields.find(name);
   if (it == fields.end()) {
@@ -71,4 +73,3 @@ StructUtils::FindResult StructUtils::GetStringList(const std::string& name,
 
 }  // namespace jwt_verify
 }  // namespace google
-
