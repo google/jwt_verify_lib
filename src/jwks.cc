@@ -19,7 +19,7 @@
 #include "google/protobuf/struct.pb.h"
 #include "google/protobuf/util/json_util.h"
 #include "jwt_verify_lib/jwks.h"
-#include "src/struct_utils.h"
+#include "jwt_verify_lib/struct_utils.h"
 
 #include "openssl/bn.h"
 #include "openssl/ecdsa.h"

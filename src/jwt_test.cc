@@ -15,7 +15,7 @@
 #include "jwt_verify_lib/jwt.h"
 #include "google/protobuf/util/message_differencer.h"
 #include "gtest/gtest.h"
-#include "src/struct_utils.h"
+#include "jwt_verify_lib/struct_utils.h"
 
 using google::protobuf::util::MessageDifferencer;
 
