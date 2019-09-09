@@ -88,15 +88,64 @@ def _bazel_skylib_repositories():
         url = "https://github.com/bazelbuild/bazel-skylib/archive/" + BAZEL_SKYLIB_RELEASE + ".tar.gz",
     )
 
-PROTOBUF_COMMIT = "fa252ec2a54acb24ddc87d48fed1ecfd458445fd"
-PROTOBUF_SHA256 = "3d610ac90f8fa16e12490088605c248b85fdaf23114ce4b3605cdf81f7823604"
+RULES_CC_COMMIT = "b7fe9697c0c76ab2fd431a891dbb9a6a32ed7c3e"
+RULES_CC_SHA256 = "29daf0159f0cf552fcff60b49d8bcd4f08f08506d2da6e41b07058ec50cfeaec"
+
+def _rules_cc_repositories():
+    http_archive(
+        name = "rules_cc",
+        sha256 = RULES_CC_SHA256,
+        strip_prefix = "rules_cc-" + RULES_CC_COMMIT,
+        urls = ["https://github.com/bazelbuild/rules_cc/archive/" + RULES_CC_COMMIT + ".tar.gz"],
+    )
+
+RULES_JAVA_COMMIT = "981f06c3d2bd10225e85209904090eb7b5fb26bd"
+RULES_JAVA_SHA256 = "f5a3e477e579231fca27bf202bb0e8fbe4fc6339d63b38ccb87c2760b533d1c3"
+
+def _rules_java_repositories():
+    http_archive(
+        name = "rules_java",
+        sha256 = RULES_JAVA_SHA256,
+        strip_prefix = "rules_java-" + RULES_JAVA_COMMIT,
+        urls = ["https://github.com/bazelbuild/rules_java/archive/" + RULES_JAVA_COMMIT + ".tar.gz"],
+    )
+
+RULES_PROTO_COMMIT = "b0cc14be5da05168b01db282fe93bdf17aa2b9f4"
+RULES_PROTO_SHA256 = "88b0a90433866b44bb4450d4c30bc5738b8c4f9c9ba14e9661deb123f56a833d"
+
+def _rules_proto_repositories():
+    http_archive(
+        name = "rules_proto",
+        sha256 = RULES_PROTO_SHA256,
+        strip_prefix = "rules_proto-" + RULES_PROTO_COMMIT,
+        urls = ["https://github.com/bazelbuild/rules_proto/archive/" + RULES_PROTO_COMMIT + ".tar.gz"],
+    )
+
+ZLIB_RELEASE = "1.2.11"
+ZLIB_SHA256 = "c3e5e9fdd5004dcb542feda5ee4f0ff0744628baf8ed2dd5d66f8ca1197cb1a1"
+
+def _zlib_repositories():
+    http_archive(
+        name = "zlib",
+        build_file = "@com_google_protobuf//:third_party/zlib.BUILD",
+        sha256 = ZLIB_SHA256,
+        strip_prefix = "zlib-" + ZLIB_RELEASE,
+        urls = ["https://zlib.net/zlib-" + ZLIB_RELEASE + ".tar.gz"],
+    )
+
+PROTOBUF_RELEASE = "3.9.1"
+PROTOBUF_SHA256 = "98e615d592d237f94db8bf033fba78cd404d979b0b70351a9e5aaff725398357"
 
 def protobuf_repositories(bind = True):
     _bazel_skylib_repositories()
+    _rules_cc_repositories()
+    _rules_java_repositories()
+    _rules_proto_repositories()
+    _zlib_repositories()
     http_archive(
         name = "com_google_protobuf",
-        strip_prefix = "protobuf-" + PROTOBUF_COMMIT,
-        url = "https://github.com/protocolbuffers/protobuf/archive/" + PROTOBUF_COMMIT + ".tar.gz",
+        strip_prefix = "protobuf-" + PROTOBUF_RELEASE,
+        url = "https://github.com/protocolbuffers/protobuf/archive/v" + PROTOBUF_RELEASE + ".tar.gz",
         sha256 = PROTOBUF_SHA256,
     )
 
