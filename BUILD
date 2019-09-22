@@ -162,3 +162,20 @@ cc_test(
         "//external:googletest_main",
     ],
 )
+
+cc_test(
+    name = "verify_jwk_hmac_test",
+    srcs = [
+        "src/test_common.h",
+        "src/verify_jwk_hmac_test.cc",
+    ],
+    linkopts = [
+        "-lm",
+        "-lpthread",
+    ],
+    linkstatic = 1,
+    deps = [
+        ":jwt_verify_lib",
+        "//external:googletest_main",
+    ],
+)

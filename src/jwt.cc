@@ -62,7 +62,7 @@ Status Jwt::parseFromString(const std::string& jwt) {
   }
 
   if (alg_ != "RS256" && alg_ != "ES256" && alg_ != "RS384" &&
-      alg_ != "RS512") {
+      alg_ != "RS512" && alg_ != "HS256") {
     return Status::JwtHeaderNotImplementedAlg;
   }
 

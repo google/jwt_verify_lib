@@ -98,6 +98,9 @@ enum class Status {
   // "x" or "y" field of a Jwk EC is missing or has a parse error.
   JwksEcParseError,
 
+  // Jwks Oct key is an invalid Base64.
+  JwksOctBadBase64,
+
   // Failed to fetch public key
   JwksFetchFail,
 
@@ -129,6 +132,13 @@ enum class Status {
   JwksECKeyMissingY,
   // "y" field is not string for an EC key
   JwksECKeyBadY,
+
+  // "alg" is not "HS256" for an HMAC key
+  JwksHMACKeyBadAlg,
+  // "k" field is missing for an HMAC key
+  JwksHMACKeyMissingK,
+  // "k" field is not string for an HMAC key
+  JwksHMACKeyBadK,
 };
 
 /**

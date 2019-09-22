@@ -21,6 +21,8 @@
 #include "openssl/ecdsa.h"
 #include "openssl/err.h"
 #include "openssl/evp.h"
+#include "openssl/hmac.h"
+#include "openssl/mem.h"
 #include "openssl/rsa.h"
 #include "openssl/sha.h"
 
@@ -98,6 +100,42 @@ bool verifySignatureEC(EC_KEY* key, absl::string_view signature,
                            castToUChar(signed_data), signed_data.length());
 }
 
+
+bool verifySignatureOct(const uint8_t* key, size_t key_len, const EVP_MD* md,
+                        const uint8_t* signature, size_t signature_len,
+                        const uint8_t* signed_data, size_t signed_data_len) {
+  if (key == nullptr || md == nullptr || signature == nullptr ||
+      signed_data == nullptr) {
+    return false;
+  }
+
+  std::vector<uint8_t> out(EVP_MAX_MD_SIZE);
+  unsigned int out_len = 0;
+  if (HMAC(md, key, key_len, signed_data, signed_data_len, out.data(),
+           &out_len) == nullptr) {
+    return false;
+  }
+
+  if (out_len != signature_len) {
+    return false;
+  }
+
+  if (CRYPTO_memcmp(out.data(), signature, signature_len) == 0) {
+    return true;
+  }
+
+  ERR_clear_error();
+  return false;
+}
+
+bool verifySignatureOct(absl::string_view key, const EVP_MD* md,
+                        absl::string_view signature,
+                        absl::string_view signed_data) {
+  return verifySignatureOct(castToUChar(key), key.length(), md,
+                            castToUChar(signature), signature.length(),
+                            castToUChar(signed_data), signed_data.length());
+}
+
 }  // namespace
 
 Status verifyJwt(const Jwt& jwt, const Jwks& jwks) {
@@ -151,6 +189,11 @@ Status verifyJwt(const Jwt& jwt, const Jwks& jwks, uint64_t now) {
         // Verification succeeded.
         return Status::Ok;
       }
+    } else if (jwk->kty_ == "oct" &&
+      verifySignatureOct(jwk->hmac_key_, EVP_sha256(), jwt.signature_,
+                         signed_data)) {
+      // Verification succeeded.
+      return Status::Ok;
     }
   }
 
