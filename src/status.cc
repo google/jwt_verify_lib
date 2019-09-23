@@ -70,6 +70,8 @@ std::string getStatusString(Status status) {
       return "Jwks EC create key fail";
     case Status::JwksEcParseError:
       return "Jwks EC [x] or [y] field is missing or has a parse error.";
+    case Status::JwksOctBadBase64:
+      return "Jwks Oct key is an invalid Base64";
     case Status::JwksFetchFail:
       return "Jwks remote fetch is failed";
 
@@ -101,6 +103,13 @@ std::string getStatusString(Status status) {
       return "[y] field is missing for an EC key";
     case Status::JwksECKeyBadY:
       return "[y] field is not string for an EC key";
+
+    case Status::JwksHMACKeyBadAlg:
+      return "[alg] is not [HS256] for an HMAC key";
+    case Status::JwksHMACKeyMissingK:
+      return "[k] field is missing for an HMAC key";
+    case Status::JwksHMACKeyBadK:
+      return "[k] field is not string for an HMAC key";
   };
   return "";
 }

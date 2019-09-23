@@ -196,6 +196,31 @@ Status extractJwkFromJwkEC(const ::google::protobuf::Struct& jwk_pb,
   return e.getStatus();
 }
 
+Status extractJwkFromJwkOct(const ::google::protobuf::Struct& jwk_pb,
+                            Jwks::Pubkey* jwk) {
+  if (jwk->alg_specified_ && jwk->alg_ != "HS256") {
+    return Status::JwksHMACKeyBadAlg;
+  }
+
+  StructUtils jwk_getter(jwk_pb);
+  std::string k_str;
+  auto code = jwk_getter.GetString("k", &k_str);
+  if (code == StructUtils::MISSING) {
+    return Status::JwksHMACKeyMissingK;
+  }
+  if (code == StructUtils::WRONG_TYPE) {
+    return Status::JwksHMACKeyBadK;
+  }
+
+  std::string key;
+  if (!absl::WebSafeBase64Unescape(k_str, &key) || key.empty()) {
+    return Status::JwksOctBadBase64;
+  }
+
+  jwk->hmac_key_ = key;
+  return Status::Ok;
+}
+
 Status extractJwk(const ::google::protobuf::Struct& jwk_pb, Jwks::Pubkey* jwk) {
   StructUtils jwk_getter(jwk_pb);
   // Check "kty" parameter, it should exist.
@@ -225,6 +250,8 @@ Status extractJwk(const ::google::protobuf::Struct& jwk_pb, Jwks::Pubkey* jwk) {
     return extractJwkFromJwkEC(jwk_pb, jwk);
   } else if (jwk->kty_ == "RSA") {
     return extractJwkFromJwkRSA(jwk_pb, jwk);
+  } else if (jwk->kty_ == "oct") {
+    return extractJwkFromJwkOct(jwk_pb, jwk);
   }
   return Status::JwksNotImplementedKty;
 }

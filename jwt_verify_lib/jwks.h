@@ -44,6 +44,7 @@ class Jwks : public WithStatus {
   struct Pubkey {
     bssl::UniquePtr<EVP_PKEY> evp_pkey_;
     bssl::UniquePtr<EC_KEY> ec_key_;
+    std::string hmac_key_;
     std::string kid_;
     std::string kty_;
     std::string alg_;
