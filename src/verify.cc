@@ -113,6 +113,7 @@ bool verifySignatureOct(const uint8_t* key, size_t key_len, const EVP_MD* md,
   unsigned int out_len = 0;
   if (HMAC(md, key, key_len, signed_data, signed_data_len, out.data(),
            &out_len) == nullptr) {
+    ERR_clear_error();
     return false;
   }
 
