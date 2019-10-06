@@ -198,7 +198,8 @@ Status extractJwkFromJwkEC(const ::google::protobuf::Struct& jwk_pb,
 
 Status extractJwkFromJwkOct(const ::google::protobuf::Struct& jwk_pb,
                             Jwks::Pubkey* jwk) {
-  if (jwk->alg_specified_ && jwk->alg_ != "HS256") {
+  if (jwk->alg_specified_ && jwk->alg_ != "HS256" &&
+      jwk->alg_ != "HS384" && jwk->alg_ != "HS512") {
     return Status::JwksHMACKeyBadAlg;
   }
 

@@ -190,11 +190,22 @@ Status verifyJwt(const Jwt& jwt, const Jwks& jwks, uint64_t now) {
         // Verification succeeded.
         return Status::Ok;
       }
-    } else if (jwk->kty_ == "oct" &&
-      verifySignatureOct(jwk->hmac_key_, EVP_sha256(), jwt.signature_,
-                         signed_data)) {
-      // Verification succeeded.
-      return Status::Ok;
+    } else if (jwk->kty_ == "oct") {
+      const EVP_MD* md;
+      if (jwt.alg_ == "HS384") {
+        md = EVP_sha384();
+      } else if (jwt.alg_ == "HS512") {
+        md = EVP_sha512();
+      } else {
+        // default to SHA256
+        md = EVP_sha256();
+      }
+
+      if (verifySignatureOct(jwk->hmac_key_, md, jwt.signature_,
+                           signed_data)) {
+        // Verification succeeded.
+        return Status::Ok;
+      }
     }
   }
 

@@ -105,7 +105,7 @@ std::string getStatusString(Status status) {
       return "[y] field is not string for an EC key";
 
     case Status::JwksHMACKeyBadAlg:
-      return "[alg] is not [HS256] for an HMAC key";
+      return "[alg] does not start with [HS] for an HMAC key";
     case Status::JwksHMACKeyMissingK:
       return "[k] field is missing for an HMAC key";
     case Status::JwksHMACKeyBadK:
