@@ -94,7 +94,11 @@ std::string getStatusString(Status status) {
       return "[e] field is not string for a RSA key";
 
     case Status::JwksECKeyBadAlg:
-      return "[alg] is not [ES256] for an EC key";
+      return "[alg] is not started with [ES] for an EC key";
+    case Status::JwksECKeyBadCrv:
+      return "[crv] field is not string for an EC key";
+    case Status::JwksECKeyAlgNotCompatibleWithCrv:
+      return "[crv] field specified is not compatible with [alg] for an EC key";
     case Status::JwksECKeyMissingX:
       return "[x] field is missing for an EC key";
     case Status::JwksECKeyBadX:

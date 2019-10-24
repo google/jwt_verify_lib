@@ -112,17 +112,34 @@ TEST(JwksParseTest, GoodEC) {
              "y": "92bCBTvMFQ8lKbS2MbgjT3YfmYo6HnPEE2tsAqWUJw8",
              "alg": "ES256",
              "kid": "xyz"
+          },
+          {
+             "kty": "EC",
+             "crv": "P-384",
+             "x": "yY8DWcyWlrr93FTrscI5Ydz2NC7emfoKYHJLX2dr3cSgfw0GuxAkuQ5nBMJmVV5g",
+             "y": "An5wVxEfksDOa_zvSHHGkeYJUfl8y11wYkOlFjBt9pOCw5-RlfZgPOa3pbmUquxZ",
+             "alg": "ES384",
+             "kid": "es384"
+          },
+          {
+             "kty": "EC",
+             "crv": "P-521",
+             "x": "Abijiex7rz7t-_Zj_E6Oo0OXe9C_-MCSD-OWio15ATQGjH9WpbWjN62ZqrrU_nwJiqqwx6ZsYKhUc_J3PRaMbdVC",
+             "y": "FxaljCIuoVEA7PJIaDPJ5ePXtZ0hkinT1B_bQ91mShCiR_43Whsn1P7Gz30WEnLuJs1SGVz1oT4lIRUYni2OfIk",
+             "alg": "ES512",
+             "kid": "es512"
           }
       ]
      }
 )";
   auto jwks = Jwks::createFrom(jwks_text, Jwks::JWKS);
   EXPECT_EQ(jwks->getStatus(), Status::Ok);
-  EXPECT_EQ(jwks->keys().size(), 2);
+  EXPECT_EQ(jwks->keys().size(), 4);
 
   EXPECT_EQ(jwks->keys()[0]->alg_, "ES256");
   EXPECT_EQ(jwks->keys()[0]->kid_, "abc");
   EXPECT_EQ(jwks->keys()[0]->kty_, "EC");
+  EXPECT_EQ(jwks->keys()[0]->crv_, "P-256");
   EXPECT_TRUE(jwks->keys()[0]->alg_specified_);
   EXPECT_TRUE(jwks->keys()[0]->kid_specified_);
   EXPECT_FALSE(jwks->keys()[0]->pem_format_);
@@ -130,9 +147,26 @@ TEST(JwksParseTest, GoodEC) {
   EXPECT_EQ(jwks->keys()[1]->alg_, "ES256");
   EXPECT_EQ(jwks->keys()[1]->kid_, "xyz");
   EXPECT_EQ(jwks->keys()[1]->kty_, "EC");
+  EXPECT_EQ(jwks->keys()[1]->crv_, "P-256");
   EXPECT_TRUE(jwks->keys()[1]->alg_specified_);
   EXPECT_TRUE(jwks->keys()[1]->kid_specified_);
   EXPECT_FALSE(jwks->keys()[1]->pem_format_);
+
+  EXPECT_EQ(jwks->keys()[2]->alg_, "ES384");
+  EXPECT_EQ(jwks->keys()[2]->kid_, "es384");
+  EXPECT_EQ(jwks->keys()[2]->kty_, "EC");
+  EXPECT_EQ(jwks->keys()[2]->crv_, "P-384");
+  EXPECT_TRUE(jwks->keys()[2]->alg_specified_);
+  EXPECT_TRUE(jwks->keys()[2]->kid_specified_);
+  EXPECT_FALSE(jwks->keys()[2]->pem_format_);
+
+  EXPECT_EQ(jwks->keys()[3]->alg_, "ES512");
+  EXPECT_EQ(jwks->keys()[3]->kid_, "es512");
+  EXPECT_EQ(jwks->keys()[3]->kty_, "EC");
+  EXPECT_EQ(jwks->keys()[3]->crv_, "P-521");
+  EXPECT_TRUE(jwks->keys()[3]->alg_specified_);
+  EXPECT_TRUE(jwks->keys()[3]->kid_specified_);
+  EXPECT_FALSE(jwks->keys()[3]->pem_format_);
 }
 
 TEST(JwksParseTest, EmptyJwks) {
@@ -314,6 +348,158 @@ TEST(JwksParseTest, JwksRSAInvalidN) {
       "}";
   auto jwks = Jwks::createFrom(BadPublicKeyRSA, Jwks::JWKS);
   EXPECT_EQ(jwks->getStatus(), Status::JwksRsaParseError);
+}
+
+TEST(JwksParseTest, JwksECMatchAlgES256CrvP256) {
+  // alg matches crv
+  const std::string jwks_text = R"(
+     {
+        "keys": [
+           {
+               "kty": "EC",
+               "alg": "ES256",
+               "crv": "P-256",
+               "x": "EB54wykhS7YJFD6RYJNnwbWEz3cI7CF5bCDTXlrwI5k",
+               "y": "92bCBTvMFQ8lKbS2MbgjT3YfmYo6HnPEE2tsAqWUJw8"
+           }
+        ]
+     }
+)";
+  auto jwks = Jwks::createFrom(jwks_text, Jwks::JWKS);
+  EXPECT_EQ(jwks->getStatus(), Status::Ok);
+}
+
+TEST(JwksParseTest, JwksECMatchAlgES384CrvP384) {
+  // alg matches crv
+  const std::string jwks_text = R"(
+     {
+        "keys": [
+           {
+               "kty": "EC",
+               "alg": "ES384",
+               "crv": "P-384",
+               "x": "yY8DWcyWlrr93FTrscI5Ydz2NC7emfoKYHJLX2dr3cSgfw0GuxAkuQ5nBMJmVV5g",
+               "y": "An5wVxEfksDOa_zvSHHGkeYJUfl8y11wYkOlFjBt9pOCw5-RlfZgPOa3pbmUquxZ"
+           }
+        ]
+     }
+)";
+  auto jwks = Jwks::createFrom(jwks_text, Jwks::JWKS);
+  EXPECT_EQ(jwks->getStatus(), Status::Ok);
+}
+
+TEST(JwksParseTest, JwksECMatchAlgES512CrvP521) {
+  // alg matches crv
+  const std::string jwks_text = R"(
+     {
+        "keys": [
+           {
+               "kty": "EC",
+               "alg": "ES512",
+               "crv": "P-521",
+               "x": "Abijiex7rz7t-_Zj_E6Oo0OXe9C_-MCSD-OWio15ATQGjH9WpbWjN62ZqrrU_nwJiqqwx6ZsYKhUc_J3PRaMbdVC",
+               "y": "FxaljCIuoVEA7PJIaDPJ5ePXtZ0hkinT1B_bQ91mShCiR_43Whsn1P7Gz30WEnLuJs1SGVz1oT4lIRUYni2OfIk"
+           }
+        ]
+     }
+)";
+  auto jwks = Jwks::createFrom(jwks_text, Jwks::JWKS);
+  EXPECT_EQ(jwks->getStatus(), Status::Ok);
+}
+
+TEST(JwksParseTest, JwksECMismatchAlgCrv1) {
+  // alg doesn't match with crv
+  const std::string jwks_text = R"(
+     {
+        "keys": [
+           {
+               "kty": "EC",
+               "alg": "ES256",
+               "crv": "P-384"
+           }
+        ]
+     }
+)";
+  auto jwks = Jwks::createFrom(jwks_text, Jwks::JWKS);
+  EXPECT_EQ(jwks->getStatus(), Status::JwksECKeyAlgNotCompatibleWithCrv);
+}
+
+TEST(JwksParseTest, JwksECMismatchAlgCrv2) {
+  // alg doesn't match with crv
+  const std::string jwks_text = R"(
+     {
+        "keys": [
+           {
+               "kty": "EC",
+               "alg": "ES384",
+               "crv": "P-521"
+           }
+        ]
+     }
+)";
+  auto jwks = Jwks::createFrom(jwks_text, Jwks::JWKS);
+  EXPECT_EQ(jwks->getStatus(), Status::JwksECKeyAlgNotCompatibleWithCrv);
+}
+
+TEST(JwksParseTest, JwksECMismatchAlgCrv3) {
+  // alg doesn't match with crv
+  const std::string jwks_text = R"(
+     {
+        "keys": [
+           {
+               "kty": "EC",
+               "alg": "ES512",
+               "crv": "P-256"
+           }
+        ]
+     }
+)";
+  auto jwks = Jwks::createFrom(jwks_text, Jwks::JWKS);
+  EXPECT_EQ(jwks->getStatus(), Status::JwksECKeyAlgNotCompatibleWithCrv);
+}
+
+TEST(JwksParseTest, JwksECUnspecifiedCrv) {
+  // crv determined from alg
+  const std::string jwks_text = R"(
+     {
+        "keys": [
+           {
+               "kty": "EC",
+               "alg": "ES256",
+               "x": "EB54wykhS7YJFD6RYJNnwbWEz3cI7CF5bCDTXlrwI5k",
+               "y": "92bCBTvMFQ8lKbS2MbgjT3YfmYo6HnPEE2tsAqWUJw8"
+           },
+           {
+               "kty": "EC",
+               "alg": "ES384",
+               "x": "yY8DWcyWlrr93FTrscI5Ydz2NC7emfoKYHJLX2dr3cSgfw0GuxAkuQ5nBMJmVV5g",
+               "y": "An5wVxEfksDOa_zvSHHGkeYJUfl8y11wYkOlFjBt9pOCw5-RlfZgPOa3pbmUquxZ"
+           },
+           {
+               "kty": "EC",
+               "alg": "ES512",
+               "x": "Abijiex7rz7t-_Zj_E6Oo0OXe9C_-MCSD-OWio15ATQGjH9WpbWjN62ZqrrU_nwJiqqwx6ZsYKhUc_J3PRaMbdVC",
+               "y": "FxaljCIuoVEA7PJIaDPJ5ePXtZ0hkinT1B_bQ91mShCiR_43Whsn1P7Gz30WEnLuJs1SGVz1oT4lIRUYni2OfIk"
+           }
+        ]
+     }
+)";
+
+  auto jwks = Jwks::createFrom(jwks_text, Jwks::JWKS);
+  EXPECT_EQ(jwks->getStatus(), Status::Ok);
+  EXPECT_EQ(jwks->keys().size(), 3);
+
+  EXPECT_EQ(jwks->keys()[0]->alg_, "ES256");
+  EXPECT_EQ(jwks->keys()[0]->crv_, "P-256");
+  EXPECT_TRUE(jwks->keys()[0]->alg_specified_);
+
+  EXPECT_EQ(jwks->keys()[1]->alg_, "ES384");
+  EXPECT_EQ(jwks->keys()[1]->crv_, "P-384");
+  EXPECT_TRUE(jwks->keys()[1]->alg_specified_);
+
+  EXPECT_EQ(jwks->keys()[2]->alg_, "ES512");
+  EXPECT_EQ(jwks->keys()[2]->crv_, "P-521");
+  EXPECT_TRUE(jwks->keys()[2]->alg_specified_);
 }
 
 }  // namespace

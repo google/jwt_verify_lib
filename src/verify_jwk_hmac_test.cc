@@ -56,7 +56,6 @@ const std::string SymmetricKeyHMAC = R"(
 }
 )";
 
-
 // JWT without kid
 // Header:  {"alg":"HS256","typ":"JWT"}
 // Payload:
@@ -95,11 +94,11 @@ const std::string JwtHS256TextWithCorrectKid =
 // Payload:
 // {"iss":"https://example.com","sub":"test@example.com","exp":1501281058}
 const std::string JwtHS384TextWithCorrectKid =
-  "eyJhbGciOiJIUzM4NCIsInR5cCI6IkpXVCIsImtpZCI6ImNkYTAxMDc3YTZhYTRiMDA4OGE2"
-  "ZTk1OTA0NDk3N2VmOWU1MWMyOGIifQ."
-  "eyJpc3MiOiJodHRwczovL2V4YW1wbGUuY29tIiwic3ViIjoidGVzdEBleGFtcGxlLmNvbSIs"
-  "ImV4cCI6MTUwMTI4MTA1OH0."
-  "F69ivpIRbgrmy1j6_MHl10xDW8iPdzsHAIgln3Z9PEemH9heiQoDUOgG91kA44fL";
+    "eyJhbGciOiJIUzM4NCIsInR5cCI6IkpXVCIsImtpZCI6ImNkYTAxMDc3YTZhYTRiMDA4OGE2"
+    "ZTk1OTA0NDk3N2VmOWU1MWMyOGIifQ."
+    "eyJpc3MiOiJodHRwczovL2V4YW1wbGUuY29tIiwic3ViIjoidGVzdEBleGFtcGxlLmNvbSIs"
+    "ImV4cCI6MTUwMTI4MTA1OH0."
+    "F69ivpIRbgrmy1j6_MHl10xDW8iPdzsHAIgln3Z9PEemH9heiQoDUOgG91kA44fL";
 
 // JWT with correct kid
 // Header:
@@ -107,12 +106,12 @@ const std::string JwtHS384TextWithCorrectKid =
 // Payload:
 // {"iss":"https://example.com","sub":"test@example.com","exp":1501281058}
 const std::string JwtHS512TextWithCorrectKid =
-  "eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCIsImtpZCI6ImY2YTdiZDlmZmQ3ODQzODg5MjRm"
-  "MTI2MjgwYTc0Njk2NGJhNjEyNjgifQ."
-  "eyJpc3MiOiJodHRwczovL2V4YW1wbGUuY29tIiwic3ViIjoidGVzdEBleGFtcGxlLmNvbSIs"
-  "ImV4cCI6MTUwMTI4MTA1OH0."
-  "YdILUM4zaeIRuxEMLV13qMX3d1sp63juPXwbpOp_HUjNdGGvocthipOxjQur6JtCLmIfvrI4"
-  "XNrkxVWd-qS_3g";
+    "eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCIsImtpZCI6ImY2YTdiZDlmZmQ3ODQzODg5MjRm"
+    "MTI2MjgwYTc0Njk2NGJhNjEyNjgifQ."
+    "eyJpc3MiOiJodHRwczovL2V4YW1wbGUuY29tIiwic3ViIjoidGVzdEBleGFtcGxlLmNvbSIs"
+    "ImV4cCI6MTUwMTI4MTA1OH0."
+    "YdILUM4zaeIRuxEMLV13qMX3d1sp63juPXwbpOp_HUjNdGGvocthipOxjQur6JtCLmIfvrI4"
+    "XNrkxVWd-qS_3g";
 
 // JWT with existing but incorrect kid
 // Header:
@@ -155,7 +154,6 @@ TEST_F(VerifyJwkHmacTest, NoKidOK) {
   });
 }
 
-
 TEST_F(VerifyJwkHmacTest, NoKidLongExpOK) {
   Jwt jwt;
   EXPECT_EQ(jwt.parseFromString(JwtTextNoKidLongExp), Status::Ok);
@@ -171,7 +169,6 @@ TEST_F(VerifyJwkHmacTest, CorrectKidHS256OK) {
   EXPECT_EQ(jwt.parseFromString(JwtHS256TextWithCorrectKid), Status::Ok);
   EXPECT_EQ(verifyJwt(jwt, *jwks_, 1), Status::Ok);
 
-
   fuzzJwtSignature(jwt, [this](const Jwt& jwt) {
     EXPECT_EQ(verifyJwt(jwt, *jwks_, 1), Status::JwtVerificationFail);
   });
@@ -181,7 +178,6 @@ TEST_F(VerifyJwkHmacTest, CorrectKidHS384OK) {
   Jwt jwt;
   EXPECT_EQ(jwt.parseFromString(JwtHS384TextWithCorrectKid), Status::Ok);
   EXPECT_EQ(verifyJwt(jwt, *jwks_, 1), Status::Ok);
-
 
   fuzzJwtSignature(jwt, [this](const Jwt& jwt) {
     EXPECT_EQ(verifyJwt(jwt, *jwks_, 1), Status::JwtVerificationFail);
@@ -193,12 +189,10 @@ TEST_F(VerifyJwkHmacTest, CorrectKidHS512OK) {
   EXPECT_EQ(jwt.parseFromString(JwtHS512TextWithCorrectKid), Status::Ok);
   EXPECT_EQ(verifyJwt(jwt, *jwks_, 1), Status::Ok);
 
-
   fuzzJwtSignature(jwt, [this](const Jwt& jwt) {
     EXPECT_EQ(verifyJwt(jwt, *jwks_, 1), Status::JwtVerificationFail);
   });
 }
-
 
 TEST_F(VerifyJwkHmacTest, NonExistKidFail) {
   Jwt jwt;
@@ -242,7 +236,6 @@ TEST_F(VerifyJwkHmacTest, OkSymmetricKeyNotKid) {
   EXPECT_EQ(jwt.parseFromString(JwtTextNoKid), Status::Ok);
   EXPECT_EQ(verifyJwt(jwt, *jwks_, 1), Status::Ok);
 }
-
 
 }  // namespace
 }  // namespace jwt_verify
