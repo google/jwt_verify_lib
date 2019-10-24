@@ -122,8 +122,12 @@ enum class Status {
   // "e" field is not string for a RSA key
   JwksRSAKeyBadE,
 
-  // "alg" is not "ES256" for an EC key
+  // "alg" is not "ES256", "ES384" or "ES512" for an EC key
   JwksECKeyBadAlg,
+  // "crv" field is not string for an EC key
+  JwksECKeyBadCrv,
+  // "crv" is not compatible with "alg" for an EC key
+  JwksECKeyAlgNotCompatibleWithCrv,
   // "x" field is missing for an EC key
   JwksECKeyMissingX,
   // "x" field is not string for an EC key
@@ -133,7 +137,7 @@ enum class Status {
   // "y" field is not string for an EC key
   JwksECKeyBadY,
 
-  // "alg" is not "HS256" for an HMAC key
+  // "alg" is not "HS256", "HS384" or "HS512" for an HMAC key
   JwksHMACKeyBadAlg,
   // "k" field is missing for an HMAC key
   JwksHMACKeyMissingK,

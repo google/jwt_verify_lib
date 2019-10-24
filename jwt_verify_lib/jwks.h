@@ -48,6 +48,7 @@ class Jwks : public WithStatus {
     std::string kid_;
     std::string kty_;
     std::string alg_;
+    std::string crv_;
     bool alg_specified_ = false;
     bool kid_specified_ = false;
     bool pem_format_ = false;

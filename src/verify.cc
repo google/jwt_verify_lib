@@ -63,43 +63,54 @@ bool verifySignatureRSA(EVP_PKEY* key, const EVP_MD* md,
                             castToUChar(signed_data), signed_data.length());
 }
 
-bool verifySignatureEC(EC_KEY* key, const uint8_t* signature,
+bool verifySignatureEC(EC_KEY* key, const EVP_MD* md, const uint8_t* signature,
                        size_t signature_len, const uint8_t* signed_data,
                        size_t signed_data_len) {
-  if (key == nullptr || signature == nullptr || signed_data == nullptr) {
+  if (key == nullptr || md == nullptr || signature == nullptr ||
+      signed_data == nullptr) {
     return false;
   }
-  // ES256 signature should be 64 bytes.
-  if (signature_len != 2 * 32) {
+  bssl::UniquePtr<EVP_MD_CTX> md_ctx(EVP_MD_CTX_create());
+  std::vector<uint8_t> digest(EVP_MAX_MD_SIZE);
+  unsigned int digest_len = 0;
+
+  if (EVP_DigestInit(md_ctx.get(), md) == 0) {
     return false;
   }
 
-  uint8_t digest[SHA256_DIGEST_LENGTH];
-  SHA256(signed_data, signed_data_len, digest);
+  if (EVP_DigestUpdate(md_ctx.get(), signed_data, signed_data_len) == 0) {
+    return false;
+  }
+
+  if (EVP_DigestFinal(md_ctx.get(), digest.data(), &digest_len) == 0) {
+    return false;
+  }
 
   bssl::UniquePtr<ECDSA_SIG> ecdsa_sig(ECDSA_SIG_new());
   if (!ecdsa_sig) {
     return false;
   }
 
-  if (BN_bin2bn(signature, 32, ecdsa_sig->r) == nullptr ||
-      BN_bin2bn(signature + 32, 32, ecdsa_sig->s) == nullptr) {
+  if (BN_bin2bn(signature, signature_len / 2, ecdsa_sig->r) == nullptr ||
+      BN_bin2bn(signature + (signature_len / 2), signature_len / 2,
+                ecdsa_sig->s) == nullptr) {
     return false;
   }
-  if (ECDSA_do_verify(digest, SHA256_DIGEST_LENGTH, ecdsa_sig.get(), key) ==
-      1) {
+
+  if (ECDSA_do_verify(digest.data(), digest_len, ecdsa_sig.get(), key) == 1) {
     return true;
   }
+
   ERR_clear_error();
   return false;
 }
 
-bool verifySignatureEC(EC_KEY* key, absl::string_view signature,
+bool verifySignatureEC(EC_KEY* key, const EVP_MD* md,
+                       absl::string_view signature,
                        absl::string_view signed_data) {
-  return verifySignatureEC(key, castToUChar(signature), signature.length(),
+  return verifySignatureEC(key, md, castToUChar(signature), signature.length(),
                            castToUChar(signed_data), signed_data.length());
 }
-
 
 bool verifySignatureOct(const uint8_t* key, size_t key_len, const EVP_MD* md,
                         const uint8_t* signature, size_t signature_len,
@@ -170,10 +181,22 @@ Status verifyJwt(const Jwt& jwt, const Jwks& jwks, uint64_t now) {
     }
     kid_alg_matched = true;
 
-    if (jwk->kty_ == "EC" &&
-        verifySignatureEC(jwk->ec_key_.get(), jwt.signature_, signed_data)) {
-      // Verification succeeded.
-      return Status::Ok;
+    if (jwk->kty_ == "EC") {
+      const EVP_MD* md;
+      if (jwt.alg_ == "ES384") {
+        md = EVP_sha384();
+      } else if (jwt.alg_ == "ES512") {
+        md = EVP_sha512();
+      } else {
+        // default to SHA256
+        md = EVP_sha256();
+      }
+
+      if (verifySignatureEC(jwk->ec_key_.get(), md, jwt.signature_,
+                            signed_data)) {
+        // Verification succeeded.
+        return Status::Ok;
+      }
     } else if (jwk->pem_format_ || jwk->kty_ == "RSA") {
       const EVP_MD* md;
       if (jwt.alg_ == "RS384") {
@@ -201,8 +224,7 @@ Status verifyJwt(const Jwt& jwt, const Jwks& jwks, uint64_t now) {
         md = EVP_sha256();
       }
 
-      if (verifySignatureOct(jwk->hmac_key_, md, jwt.signature_,
-                           signed_data)) {
+      if (verifySignatureOct(jwk->hmac_key_, md, jwt.signature_, signed_data)) {
         // Verification succeeded.
         return Status::Ok;
       }
