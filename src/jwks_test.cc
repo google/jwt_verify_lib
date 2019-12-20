@@ -267,6 +267,23 @@ TEST(JwksParseTest, JwksRSANoNE) {
   EXPECT_EQ(jwks->getStatus(), Status::JwksRSAKeyMissingN);
 }
 
+TEST(JwksParseTest, JwksECXYBadBase64) {
+  const std::string jwks_text = R"(
+     {
+        "keys": [
+           {
+               "kty": "EC",
+               "x": "~}}",
+               "y": "92bCBTvMFQ8lKbS2MbgjT3Yf",
+               "alg": "ES256"
+           }
+        ]
+     }
+)";
+  auto jwks = Jwks::createFrom(jwks_text, Jwks::JWKS);
+  EXPECT_EQ(jwks->getStatus(), Status::JwksEcXorYBadBase64);
+}
+
 TEST(JwksParseTest, JwksECWrongXY) {
   const std::string jwks_text = R"(
      {
@@ -407,6 +424,41 @@ TEST(JwksParseTest, JwksECMatchAlgES512CrvP521) {
   EXPECT_EQ(jwks->getStatus(), Status::Ok);
 }
 
+TEST(JwksParseTest, JwksECMissingBothAlgCrvES256) {
+  // alg matches crv
+  const std::string jwks_text = R"(
+     {
+        "keys": [
+           {
+               "kty": "EC",
+               "x": "EB54wykhS7YJFD6RYJNnwbWEz3cI7CF5bCDTXlrwI5k",
+               "y": "92bCBTvMFQ8lKbS2MbgjT3YfmYo6HnPEE2tsAqWUJw8"
+           }
+        ]
+     }
+)";
+  auto jwks = Jwks::createFrom(jwks_text, Jwks::JWKS);
+  EXPECT_EQ(jwks->getStatus(), Status::Ok);
+}
+
+TEST(JwksParseTest, JwksECMissingBothAlgES384) {
+  // alg matches crv
+  const std::string jwks_text = R"(
+     {
+        "keys": [
+           {
+               "kty": "EC",
+               "x": "yY8DWcyWlrr93FTrscI5Ydz2NC7emfoKYHJLX2dr3cSgfw0GuxAkuQ5nBMJmVV5g",
+               "y": "An5wVxEfksDOa_zvSHHGkeYJUfl8y11wYkOlFjBt9pOCw5-RlfZgPOa3pbmUquxZ"
+           }
+        ]
+     }
+)";
+  auto jwks = Jwks::createFrom(jwks_text, Jwks::JWKS);
+  // It should fail since it is ES384, but we default to ES256
+  EXPECT_EQ(jwks->getStatus(), Status::JwksEcParseError);
+}
+
 TEST(JwksParseTest, JwksECMismatchAlgCrv1) {
   // alg doesn't match with crv
   const std::string jwks_text = R"(
@@ -494,6 +546,38 @@ TEST(JwksParseTest, JwksECMismatchAlgCrv3) {
 )";
   auto jwks = Jwks::createFrom(jwks_text, Jwks::JWKS);
   EXPECT_EQ(jwks->getStatus(), Status::JwksECKeyAlgNotCompatibleWithCrv);
+}
+
+TEST(JwksParseTest, JwksECNotSupportedAlg) {
+  // alg doesn't match with crv
+  const std::string jwks_text = R"(
+     {
+        "keys": [
+           {
+               "kty": "EC",
+               "alg": "ES1024",
+           }
+        ]
+     }
+)";
+  auto jwks = Jwks::createFrom(jwks_text, Jwks::JWKS);
+  EXPECT_EQ(jwks->getStatus(), Status::JwksECKeyAlgOrCrvUnsupported);
+}
+
+TEST(JwksParseTest, JwksECNotSupportedCrv) {
+  // alg doesn't match with crv
+  const std::string jwks_text = R"(
+     {
+        "keys": [
+           {
+               "kty": "EC",
+               "crv": "P-1024"
+           }
+        ]
+     }
+)";
+  auto jwks = Jwks::createFrom(jwks_text, Jwks::JWKS);
+  EXPECT_EQ(jwks->getStatus(), Status::JwksECKeyAlgOrCrvUnsupported);
 }
 
 TEST(JwksParseTest, JwksECUnspecifiedCrv) {
