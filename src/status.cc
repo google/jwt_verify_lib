@@ -68,8 +68,10 @@ std::string getStatusString(Status status) {
       return "Jwks RSA [n] or [e] field is missing or has a parse error";
     case Status::JwksEcCreateKeyFail:
       return "Jwks EC create key fail";
+    case Status::JwksEcXorYBadBase64:
+      return "Jwks EC [x] or [y] field is an invalid Base64.";
     case Status::JwksEcParseError:
-      return "Jwks EC [x] or [y] field is missing or has a parse error.";
+      return "Jwks EC [x] and [y] fields have a parse error.";
     case Status::JwksOctBadBase64:
       return "Jwks Oct key is an invalid Base64";
     case Status::JwksFetchFail:
@@ -97,6 +99,8 @@ std::string getStatusString(Status status) {
       return "[alg] is not started with [ES] for an EC key";
     case Status::JwksECKeyBadCrv:
       return "[crv] field is not string for an EC key";
+    case Status::JwksECKeyAlgOrCrvUnsupported:
+      return "[crv] or [alg] field is not supported for an EC key";
     case Status::JwksECKeyAlgNotCompatibleWithCrv:
       return "[crv] field specified is not compatible with [alg] for an EC key";
     case Status::JwksECKeyMissingX:

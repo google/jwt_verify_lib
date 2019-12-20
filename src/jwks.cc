@@ -82,8 +82,8 @@ class EvpPkeyGetter : public WithStatus {
     bssl::UniquePtr<BIGNUM> bn_x = createBigNumFromBase64UrlString(x);
     bssl::UniquePtr<BIGNUM> bn_y = createBigNumFromBase64UrlString(y);
     if (!bn_x || !bn_y) {
-      // EC public key field is missing or has parse error.
-      updateStatus(Status::JwksEcParseError);
+      // EC public key field x or y Base64 decode fail
+      updateStatus(Status::JwksEcXorYBadBase64);
       return nullptr;
     }
 
@@ -167,10 +167,8 @@ Status extractJwkFromJwkRSA(const ::google::protobuf::Struct& jwk_pb,
 
 Status extractJwkFromJwkEC(const ::google::protobuf::Struct& jwk_pb,
                            Jwks::Pubkey* jwk) {
-  // since "alg" is optional, assume "ES256" if it was not specified
-  if (!jwk->alg_specified_) {
-    jwk->alg_ = "ES256";
-  } else if (jwk->alg_.size() < 2 || jwk->alg_.compare(0, 2, "ES") != 0) {
+  if (jwk->alg_specified_ &&
+      (jwk->alg_.size() < 2 || jwk->alg_.compare(0, 2, "ES") != 0)) {
     return Status::JwksECKeyBadAlg;
   }
 
@@ -184,20 +182,33 @@ Status extractJwkFromJwkEC(const ::google::protobuf::Struct& jwk_pb,
     return Status::JwksECKeyBadCrv;
   }
   jwk->crv_ = crv_str;
+
+  // If both alg and crv specified, make sure they match
+  if (jwk->alg_specified_ && !jwk->crv_.empty()) {
+    if (!((jwk->alg_ == "ES256" && jwk->crv_ == "P-256") ||
+          (jwk->alg_ == "ES384" && jwk->crv_ == "P-384") ||
+          (jwk->alg_ == "ES512" && jwk->crv_ == "P-521"))) {
+      return Status::JwksECKeyAlgNotCompatibleWithCrv;
+    }
+  }
+
+  // If neither alg or crv is set, assume P-256
+  if (!jwk->alg_specified_ && jwk->crv_.empty()) {
+    jwk->crv_ = "P-256";
+  }
+
   int nid;
-  if (jwk->alg_ == "ES256" && (jwk->crv_ == "P-256" || jwk->crv_ == "")) {
+  if (jwk->alg_ == "ES256" || jwk->crv_ == "P-256") {
     nid = NID_X9_62_prime256v1;
     jwk->crv_ = "P-256";
-  } else if (jwk->alg_ == "ES384" &&
-             (jwk->crv_ == "P-384" || jwk->crv_ == "")) {
+  } else if (jwk->alg_ == "ES384" || jwk->crv_ == "P-384") {
     nid = NID_secp384r1;
     jwk->crv_ = "P-384";
-  } else if (jwk->alg_ == "ES512" &&
-             (jwk->crv_ == "P-521" || jwk->crv_ == "")) {
+  } else if (jwk->alg_ == "ES512" || jwk->crv_ == "P-521") {
     nid = NID_secp521r1;
     jwk->crv_ = "P-521";
   } else {
-    return Status::JwksECKeyAlgNotCompatibleWithCrv;
+    return Status::JwksECKeyAlgOrCrvUnsupported;
   }
 
   std::string x_str;

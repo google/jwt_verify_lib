@@ -95,6 +95,9 @@ enum class Status {
   // Failed to create a EC_KEY object.
   JwksEcCreateKeyFail,
 
+  // "x" or "y" field is an invalid Base64
+  JwksEcXorYBadBase64,
+
   // "x" or "y" field of a Jwk EC is missing or has a parse error.
   JwksEcParseError,
 
@@ -126,6 +129,8 @@ enum class Status {
   JwksECKeyBadAlg,
   // "crv" field is not string for an EC key
   JwksECKeyBadCrv,
+  // "crv" or "alg" is not supported for an EC key
+  JwksECKeyAlgOrCrvUnsupported,
   // "crv" is not compatible with "alg" for an EC key
   JwksECKeyAlgNotCompatibleWithCrv,
   // "x" field is missing for an EC key
