@@ -424,6 +424,44 @@ TEST(JwksParseTest, JwksECMismatchAlgCrv1) {
   EXPECT_EQ(jwks->getStatus(), Status::JwksECKeyAlgNotCompatibleWithCrv);
 }
 
+TEST(JwksParseTest, JwkECMissingAlg) {
+  const std::string jwks_text = R"(
+     {
+        "keys": [
+           {
+               "crv": "P-521",
+               "kid": "sxG_WeuLxIKXoVit-8vyQf",
+               "kty": "EC",
+               "use": "sig",
+               "x": "AG3w2vYgVbn4E27rkxZPUVrzLWhMctY5GOP6xygLLFwNRaoOx2gnlQPwAsEXHxz80u5lfmOms0pJSjuDrNqs5pB4",
+               "y": "Ad0K-hbFmTVj3nMOw7jAdl21dlU35pG1g7h_Tswr0VYfxqg4ubIPyXrrtmlKH8q3c2Gqgq77Uq12qfcDE8zF2a4v"
+           }
+        ]
+     }
+)";
+  auto jwks = Jwks::createFrom(jwks_text, Jwks::JWKS);
+  EXPECT_EQ(jwks->getStatus(), Status::Ok);
+}
+
+TEST(JwksParseTest, JwkECMissingCrv) {
+  const std::string jwks_text = R"(
+     {
+        "keys": [
+           {
+               "alg": "ES512",
+               "kid": "sxG_WeuLxIKXoVit-8vyQf",
+               "kty": "EC",
+               "use": "sig",
+               "x": "AG3w2vYgVbn4E27rkxZPUVrzLWhMctY5GOP6xygLLFwNRaoOx2gnlQPwAsEXHxz80u5lfmOms0pJSjuDrNqs5pB4",
+               "y": "Ad0K-hbFmTVj3nMOw7jAdl21dlU35pG1g7h_Tswr0VYfxqg4ubIPyXrrtmlKH8q3c2Gqgq77Uq12qfcDE8zF2a4v"
+           }
+        ]
+     }
+)";
+  auto jwks = Jwks::createFrom(jwks_text, Jwks::JWKS);
+  EXPECT_EQ(jwks->getStatus(), Status::Ok);
+}
+
 TEST(JwksParseTest, JwksECMismatchAlgCrv2) {
   // alg doesn't match with crv
   const std::string jwks_text = R"(
