@@ -295,6 +295,53 @@ Status extractJwk(const ::google::protobuf::Struct& jwk_pb, Jwks::Pubkey* jwk) {
   return Status::JwksNotImplementedKty;
 }
 
+Status extractX509(const std::string& key, Jwks::Pubkey* jwk) {
+  jwk->bio_.reset(BIO_new(BIO_s_mem()));
+  if (BIO_write(jwk->bio_.get(), key.c_str(), key.length()) <= 0) {
+    return Status::JwksX509BioWriteError;
+  }
+  jwk->x509_.reset(
+      PEM_read_bio_X509(jwk->bio_.get(), nullptr, nullptr, nullptr));
+  if (jwk->x509_ == nullptr) {
+    return Status::JwksX509ParseError;
+  }
+  jwk->evp_pkey_.reset(X509_get_pubkey(jwk->x509_.get()));
+  if (jwk->evp_pkey_ == nullptr) {
+    return Status::JwksX509GetPubkeyError;
+  }
+  return Status::Ok;
+}
+
+// A very simple check, as long as it is a map of string to string,
+bool shouldCheckX509(const ::google::protobuf::Struct& jwks_pb) {
+  int n = 0;
+  for (const auto& kid : jwks_pb.fields()) {
+    if (kid.second.kind_case() != google::protobuf::Value::kStringValue) {
+      return false;
+    }
+    if (kid.first.empty() || kid.second.string_value().empty()) {
+      return false;
+    }
+    ++n;
+  }
+  return n > 0;
+}
+
+Status createFromX509(const ::google::protobuf::Struct& jwks_pb,
+                      std::vector<Jwks::PubkeyPtr>& keys) {
+  for (const auto& kid : jwks_pb.fields()) {
+    Jwks::PubkeyPtr key_ptr(new Jwks::Pubkey());
+    Status status = extractX509(kid.second.string_value(), key_ptr.get());
+    if (status != Status::Ok) {
+      return status;
+    }
+    key_ptr->kid_ = kid.first;
+    key_ptr->kty_ = "RSA";
+    keys.push_back(std::move(key_ptr));
+  }
+  return Status::Ok;
+}
+
 }  // namespace
 
 JwksPtr Jwks::createFrom(const std::string& pkey, Type type) {
@@ -340,6 +387,11 @@ void Jwks::createFromJwksCore(const std::string& jwks_json) {
   const auto& fields = jwks_pb.fields();
   const auto keys_it = fields.find("keys");
   if (keys_it == fields.end()) {
+    // X509 doesn't have "keys" field.
+    if (shouldCheckX509(jwks_pb)) {
+      updateStatus(createFromX509(jwks_pb, keys_));
+      return;
+    }
     updateStatus(Status::JwksNoKeys);
     return;
   }

@@ -21,6 +21,7 @@
 
 #include "openssl/ec.h"
 #include "openssl/evp.h"
+#include "openssl/pem.h"
 
 namespace google {
 namespace jwt_verify {
@@ -52,6 +53,8 @@ class Jwks : public WithStatus {
     bool alg_specified_ = false;
     bool kid_specified_ = false;
     bool pem_format_ = false;
+    bssl::UniquePtr<BIO> bio_;
+    bssl::UniquePtr<X509> x509_;
   };
   typedef std::unique_ptr<Pubkey> PubkeyPtr;
 

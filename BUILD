@@ -65,6 +65,7 @@ cc_test(
 cc_test(
     name = "jwks_test",
     srcs = [
+        "src/test_common.h",
         "src/jwks_test.cc",
     ],
     linkopts = [
