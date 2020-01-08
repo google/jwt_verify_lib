@@ -335,7 +335,9 @@ Status createFromX509(const ::google::protobuf::Struct& jwks_pb,
     if (status != Status::Ok) {
       return status;
     }
+
     key_ptr->kid_ = kid.first;
+    key_ptr->kid_specified_ = true;
     key_ptr->kty_ = "RSA";
     keys.push_back(std::move(key_ptr));
   }

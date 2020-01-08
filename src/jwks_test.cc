@@ -637,6 +637,12 @@ TEST(JwksParseTest, JwksGoodX509) {
   EXPECT_TRUE(kids.find(jwks->keys()[1]->kid_) != kids.end());
 }
 
+TEST(JwksParseTest, RealJwksX509) {
+  auto jwks = Jwks::createFrom(kRealX509Jwks, Jwks::JWKS);
+  EXPECT_EQ(jwks->getStatus(), Status::Ok);
+  EXPECT_EQ(jwks->keys().size(), 5);
+}
+
 TEST(JwksParseTest, JwksX509WrongTypeArray) {
   const std::string jwks_text = R"(
      {
