@@ -16,6 +16,7 @@
 #include <iostream>
 
 #include "absl/strings/escaping.h"
+#include "absl/strings/match.h"
 #include "google/protobuf/struct.pb.h"
 #include "google/protobuf/util/json_util.h"
 #include "jwt_verify_lib/jwks.h"
@@ -31,6 +32,11 @@ namespace google {
 namespace jwt_verify {
 
 namespace {
+
+// The x509 certificate prefix string
+const char kX509CertPrefix[] = "-----BEGIN CERTIFICATE-----\n";
+// The x509 certificate suffix string
+const char kX509CertSuffix[] = "\n-----END CERTIFICATE-----\n";
 
 // A convinence inline cast function.
 inline const uint8_t* castToUChar(const std::string& str) {
@@ -295,6 +301,59 @@ Status extractJwk(const ::google::protobuf::Struct& jwk_pb, Jwks::Pubkey* jwk) {
   return Status::JwksNotImplementedKty;
 }
 
+Status extractX509(const std::string& key, Jwks::Pubkey* jwk) {
+  jwk->bio_.reset(BIO_new(BIO_s_mem()));
+  if (BIO_write(jwk->bio_.get(), key.c_str(), key.length()) <= 0) {
+    return Status::JwksX509BioWriteError;
+  }
+  jwk->x509_.reset(
+      PEM_read_bio_X509(jwk->bio_.get(), nullptr, nullptr, nullptr));
+  if (jwk->x509_ == nullptr) {
+    return Status::JwksX509ParseError;
+  }
+  jwk->evp_pkey_.reset(X509_get_pubkey(jwk->x509_.get()));
+  if (jwk->evp_pkey_ == nullptr) {
+    return Status::JwksX509GetPubkeyError;
+  }
+  return Status::Ok;
+}
+
+bool shouldCheckX509(const ::google::protobuf::Struct& jwks_pb) {
+  if (jwks_pb.fields().empty()) {
+    return false;
+  }
+
+  for (const auto& kid : jwks_pb.fields()) {
+    if (kid.first.empty() ||
+        kid.second.kind_case() != google::protobuf::Value::kStringValue) {
+      return false;
+    }
+    const std::string& cert = kid.second.string_value();
+    if (!absl::StartsWith(cert, kX509CertPrefix) ||
+        !absl::EndsWith(cert, kX509CertSuffix)) {
+      return false;
+    }
+  }
+  return true;
+}
+
+Status createFromX509(const ::google::protobuf::Struct& jwks_pb,
+                      std::vector<Jwks::PubkeyPtr>& keys) {
+  for (const auto& kid : jwks_pb.fields()) {
+    Jwks::PubkeyPtr key_ptr(new Jwks::Pubkey());
+    Status status = extractX509(kid.second.string_value(), key_ptr.get());
+    if (status != Status::Ok) {
+      return status;
+    }
+
+    key_ptr->kid_ = kid.first;
+    key_ptr->kid_specified_ = true;
+    key_ptr->kty_ = "RSA";
+    keys.push_back(std::move(key_ptr));
+  }
+  return Status::Ok;
+}
+
 }  // namespace
 
 JwksPtr Jwks::createFrom(const std::string& pkey, Type type) {
@@ -340,6 +399,11 @@ void Jwks::createFromJwksCore(const std::string& jwks_json) {
   const auto& fields = jwks_pb.fields();
   const auto keys_it = fields.find("keys");
   if (keys_it == fields.end()) {
+    // X509 doesn't have "keys" field.
+    if (shouldCheckX509(jwks_pb)) {
+      updateStatus(createFromX509(jwks_pb, keys_));
+      return;
+    }
     updateStatus(Status::JwksNoKeys);
     return;
   }

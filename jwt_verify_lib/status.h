@@ -148,6 +148,13 @@ enum class Status {
   JwksHMACKeyMissingK,
   // "k" field is not string for an HMAC key
   JwksHMACKeyBadK,
+
+  // X509 BIO_Write function fails
+  JwksX509BioWriteError,
+  // X509 parse pubkey fails
+  JwksX509ParseError,
+  // X509 get pubkey fails
+  JwksX509GetPubkeyError,
 };
 
 /**

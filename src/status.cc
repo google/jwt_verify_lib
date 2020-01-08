@@ -118,6 +118,13 @@ std::string getStatusString(Status status) {
       return "[k] field is missing for an HMAC key";
     case Status::JwksHMACKeyBadK:
       return "[k] field is not string for an HMAC key";
+
+    case Status::JwksX509BioWriteError:
+      return "X509 parse pubkey internal fails: memory allocation";
+    case Status::JwksX509ParseError:
+      return "X509 parse pubkey fails";
+    case Status::JwksX509GetPubkeyError:
+      return "X509 parse pubkey internal fails: get pubkey";
   };
   return "";
 }

@@ -65,6 +65,7 @@ cc_test(
 cc_test(
     name = "jwks_test",
     srcs = [
+        "src/test_common.h",
         "src/jwks_test.cc",
     ],
     linkopts = [
@@ -83,6 +84,23 @@ cc_test(
     srcs = [
         "src/test_common.h",
         "src/verify_pem_test.cc",
+    ],
+    linkopts = [
+        "-lm",
+        "-lpthread",
+    ],
+    linkstatic = 1,
+    deps = [
+        ":jwt_verify_lib",
+        "//external:googletest_main",
+    ],
+)
+
+cc_test(
+    name = "verify_x509_test",
+    srcs = [
+        "src/test_common.h",
+        "src/verify_x509_test.cc",
     ],
     linkopts = [
         "-lm",

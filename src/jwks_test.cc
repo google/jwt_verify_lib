@@ -14,6 +14,7 @@
 
 #include "jwt_verify_lib/jwks.h"
 #include "gtest/gtest.h"
+#include "src/test_common.h"
 
 namespace google {
 namespace jwt_verify {
@@ -622,6 +623,111 @@ TEST(JwksParseTest, JwksECUnspecifiedCrv) {
   EXPECT_EQ(jwks->keys()[2]->alg_, "ES512");
   EXPECT_EQ(jwks->keys()[2]->crv_, "P-521");
   EXPECT_TRUE(jwks->keys()[2]->alg_specified_);
+}
+
+TEST(JwksParseTest, JwksGoodX509) {
+  auto jwks = Jwks::createFrom(kPublicKeyX509, Jwks::JWKS);
+  EXPECT_EQ(jwks->getStatus(), Status::Ok);
+
+  EXPECT_EQ(jwks->keys().size(), 2);
+
+  std::set<std::string> kids = {"62a93512c9ee4c7f8067b5a216dade2763d32a47",
+                                "b3319a147514df7ee5e4bcdee51350cc890cc89e"};
+  EXPECT_TRUE(kids.find(jwks->keys()[0]->kid_) != kids.end());
+  EXPECT_TRUE(kids.find(jwks->keys()[1]->kid_) != kids.end());
+}
+
+TEST(JwksParseTest, RealJwksX509) {
+  auto jwks = Jwks::createFrom(kRealX509Jwks, Jwks::JWKS);
+  EXPECT_EQ(jwks->getStatus(), Status::Ok);
+  EXPECT_EQ(jwks->keys().size(), 5);
+}
+
+TEST(JwksParseTest, JwksX509WrongTypeArray) {
+  const std::string jwks_text = R"(
+     {
+        "kid1": [
+           {
+               "kty": "EC",
+               "alg": "ES1024",
+           }
+        ]
+     }
+)";
+  auto jwks = Jwks::createFrom(jwks_text, Jwks::JWKS);
+  EXPECT_EQ(jwks->getStatus(), Status::JwksNoKeys);
+}
+
+TEST(JwksParseTest, JwksX509WrongTypeBool) {
+  const std::string jwks_text = R"(
+     {
+        "kid1": "pubkey1",
+        "kid2": true
+     }
+)";
+  auto jwks = Jwks::createFrom(jwks_text, Jwks::JWKS);
+  EXPECT_EQ(jwks->getStatus(), Status::JwksNoKeys);
+}
+
+TEST(JwksParseTest, JwksX509EmptyPubkey) {
+  const std::string jwks_text = R"(
+     {
+        "kid1": "pubkey1",
+        "kid2": ""
+     }
+)";
+  auto jwks = Jwks::createFrom(jwks_text, Jwks::JWKS);
+  EXPECT_EQ(jwks->getStatus(), Status::JwksNoKeys);
+}
+
+TEST(JwksParseTest, JwksX509EmptyKid) {
+  const std::string jwks_text = R"(
+     {
+        "": "pubkey1",
+     }
+)";
+  auto jwks = Jwks::createFrom(jwks_text, Jwks::JWKS);
+  EXPECT_EQ(jwks->getStatus(), Status::JwksNoKeys);
+}
+
+TEST(JwksParseTest, JwksX509NotSuffixPrefix) {
+  const std::string jwks_text = R"(
+     {
+        "kid1": "pubkey1",
+     }
+)";
+  auto jwks = Jwks::createFrom(jwks_text, Jwks::JWKS);
+  EXPECT_EQ(jwks->getStatus(), Status::JwksNoKeys);
+}
+
+TEST(JwksParseTest, JwksX509NotSuffix) {
+  const std::string jwks_text = R"(
+     {
+        "kid1": "-----BEGIN CERTIFICATE-----\npubkey1",
+     }
+)";
+  auto jwks = Jwks::createFrom(jwks_text, Jwks::JWKS);
+  EXPECT_EQ(jwks->getStatus(), Status::JwksNoKeys);
+}
+
+TEST(JwksParseTest, JwksX509NotPrefix) {
+  const std::string jwks_text = R"(
+     {
+        "kid1": "pubkey1\n-----END CERTIFICATE-----\n",
+     }
+)";
+  auto jwks = Jwks::createFrom(jwks_text, Jwks::JWKS);
+  EXPECT_EQ(jwks->getStatus(), Status::JwksNoKeys);
+}
+
+TEST(JwksParseTest, JwksX509WrongPubkey) {
+  const std::string jwks_text = R"(
+     {
+        "kid1": "-----BEGIN CERTIFICATE-----\nwrong-pubkey\n-----END CERTIFICATE-----\n",
+     }
+)";
+  auto jwks = Jwks::createFrom(jwks_text, Jwks::JWKS);
+  EXPECT_EQ(jwks->getStatus(), Status::JwksX509ParseError);
 }
 
 }  // namespace
