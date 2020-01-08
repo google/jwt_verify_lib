@@ -690,10 +690,40 @@ TEST(JwksParseTest, JwksX509EmptyKid) {
   EXPECT_EQ(jwks->getStatus(), Status::JwksNoKeys);
 }
 
-TEST(JwksParseTest, JwksX509WrongPubkey) {
+TEST(JwksParseTest, JwksX509NotSuffixPrefix) {
   const std::string jwks_text = R"(
      {
         "kid1": "pubkey1",
+     }
+)";
+  auto jwks = Jwks::createFrom(jwks_text, Jwks::JWKS);
+  EXPECT_EQ(jwks->getStatus(), Status::JwksNoKeys);
+}
+
+TEST(JwksParseTest, JwksX509NotSuffix) {
+  const std::string jwks_text = R"(
+     {
+        "kid1": "-----BEGIN CERTIFICATE-----\npubkey1",
+     }
+)";
+  auto jwks = Jwks::createFrom(jwks_text, Jwks::JWKS);
+  EXPECT_EQ(jwks->getStatus(), Status::JwksNoKeys);
+}
+
+TEST(JwksParseTest, JwksX509NotPrefix) {
+  const std::string jwks_text = R"(
+     {
+        "kid1": "pubkey1\n-----END CERTIFICATE-----\n",
+     }
+)";
+  auto jwks = Jwks::createFrom(jwks_text, Jwks::JWKS);
+  EXPECT_EQ(jwks->getStatus(), Status::JwksNoKeys);
+}
+
+TEST(JwksParseTest, JwksX509WrongPubkey) {
+  const std::string jwks_text = R"(
+     {
+        "kid1": "-----BEGIN CERTIFICATE-----\nwrong-pubkey\n-----END CERTIFICATE-----\n",
      }
 )";
   auto jwks = Jwks::createFrom(jwks_text, Jwks::JWKS);

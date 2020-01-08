@@ -16,6 +16,7 @@
 #include <iostream>
 
 #include "absl/strings/escaping.h"
+#include "absl/strings/match.h"
 #include "google/protobuf/struct.pb.h"
 #include "google/protobuf/util/json_util.h"
 #include "jwt_verify_lib/jwks.h"
@@ -31,6 +32,11 @@ namespace google {
 namespace jwt_verify {
 
 namespace {
+
+// The x509 certificate prefix string
+const char kX509CertPrefix[] = "-----BEGIN CERTIFICATE-----\n";
+// The x509 certificate suffix string
+const char kX509CertSuffix[] = "\n-----END CERTIFICATE-----\n";
 
 // A convinence inline cast function.
 inline const uint8_t* castToUChar(const std::string& str) {
@@ -314,17 +320,22 @@ Status extractX509(const std::string& key, Jwks::Pubkey* jwk) {
 
 // A very simple check, as long as it is a map of string to string,
 bool shouldCheckX509(const ::google::protobuf::Struct& jwks_pb) {
-  int n = 0;
-  for (const auto& kid : jwks_pb.fields()) {
-    if (kid.second.kind_case() != google::protobuf::Value::kStringValue) {
-      return false;
-    }
-    if (kid.first.empty() || kid.second.string_value().empty()) {
-      return false;
-    }
-    ++n;
+  if (jwks_pb.fields().empty()) {
+    return false;
   }
-  return n > 0;
+
+  for (const auto& kid : jwks_pb.fields()) {
+    if (kid.first.empty() ||
+        kid.second.kind_case() != google::protobuf::Value::kStringValue) {
+      return false;
+    }
+    const std::string& cert = kid.second.string_value();
+    if (!absl::StartsWith(cert, kX509CertPrefix) ||
+        !absl::EndsWith(cert, kX509CertSuffix)) {
+      return false;
+    }
+  }
+  return true;
 }
 
 Status createFromX509(const ::google::protobuf::Struct& jwks_pb,
