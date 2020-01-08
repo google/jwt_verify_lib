@@ -318,7 +318,6 @@ Status extractX509(const std::string& key, Jwks::Pubkey* jwk) {
   return Status::Ok;
 }
 
-// A very simple check, as long as it is a map of string to string,
 bool shouldCheckX509(const ::google::protobuf::Struct& jwks_pb) {
   if (jwks_pb.fields().empty()) {
     return false;
