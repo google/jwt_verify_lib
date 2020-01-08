@@ -45,7 +45,7 @@ void fuzzJwtSignature(const Jwt& jwt,
 }
 
 // copy from ESP:
-// https://github.com/cloudendpoints/esp/src/api_manager/auth/lib/auth_jwt_validator_test.cc
+// https://github.com/cloudendpoints/esp/blob/master/src/api_manager/auth/lib/auth_jwt_validator_test.cc
 const char kPublicKeyX509[] =
     "{\"62a93512c9ee4c7f8067b5a216dade2763d32a47\": \"-----BEGIN "
     "CERTIFICATE-----"

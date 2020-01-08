@@ -82,6 +82,10 @@ TEST(VerifyX509Test, RealToken) {
   EXPECT_EQ(jwks->getStatus(), Status::Ok);
 
   EXPECT_EQ(verifyJwt(jwt, *jwks, 1), Status::Ok);
+
+  fuzzJwtSignature(jwt, [&jwks](const Jwt& jwt) {
+    EXPECT_EQ(verifyJwt(jwt, *jwks, 1), Status::JwtVerificationFail);
+  });
 }
 
 }  // namespace
