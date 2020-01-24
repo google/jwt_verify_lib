@@ -36,7 +36,7 @@ namespace jwt_verify {
 class Jwks : public WithStatus {
  public:
   // Format of public key.
-  enum Type { PEM, JWKS };
+  enum Type { PEM, JWKS, PKCS8 };
 
   // Create from string
   static std::unique_ptr<Jwks> createFrom(const std::string& pkey, Type type);
@@ -66,6 +66,8 @@ class Jwks : public WithStatus {
   void createFromPemCore(const std::string& pkey_pem);
   // Create Jwks
   void createFromJwksCore(const std::string& pkey_jwks);
+  // Create PKCS8
+  void createFromPkcs8Core(const std::string& pkey_pem);
 
   // List of Jwks
   std::vector<PubkeyPtr> keys_;

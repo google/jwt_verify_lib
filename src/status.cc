@@ -12,9 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <map>
-
 #include "jwt_verify_lib/status.h"
+
+#include <map>
 
 namespace google {
 namespace jwt_verify {
@@ -125,6 +125,14 @@ std::string getStatusString(Status status) {
       return "X509 parse pubkey fails";
     case Status::JwksX509GetPubkeyError:
       return "X509 parse pubkey internal fails: get pubkey";
+
+    case Status::Pkcs8NotImplementedKty:
+      return "PKCS8 Key type is not supported";
+    case Status::Pkcs8PemParseError:
+      return "PKCS8 pubkey parse fails";
+
+    case Status::BioAllocError:
+      return "Failed to create BIO due to memory allocation failure";
   };
   return "";
 }

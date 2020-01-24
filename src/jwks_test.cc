@@ -730,6 +730,88 @@ TEST(JwksParseTest, JwksX509WrongPubkey) {
   EXPECT_EQ(jwks->getStatus(), Status::JwksX509ParseError);
 }
 
+TEST(JwksParseTest, goodPKCS8RSA) {
+  const std::string pem_text = R"(
+-----BEGIN PUBLIC KEY-----
+MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAzUPYX/CJFCPg5fDfnTsV
+6J0Lq2zMqCIj0/2taAsQm7sqrc5SCIeiDXypNzYYqshScbHPEfyj4egEqMMf9its
+WY4khLWHcAd23ICHPdbga0YP4z+VTOkIMEpmJ8Oat68oeBaYhTMW1jr+9A2N/U/w
+1AnketucyFFk0bkkmGuOefytbuBoxA2mkM+ZBVFRCXeiWq4LjgHZNpMNZ9Dz30Jk
+6E+A0y2cMje4x6zMfulDf1ED6FN2LHqNE6uScFo5YL3tnvqMhkjJFMIzdvK4MWWh
+2uTclOhgCH5rA6wQO2vWH8RRewaEfF0ihtg1WafSrcWK2MPDFI9/XhwzkBPBCG9l
+ZQIDAQAB
+-----END PUBLIC KEY-----
+)";
+  auto jwks = Jwks::createFrom(pem_text, Jwks::PKCS8);
+  EXPECT_EQ(jwks->getStatus(), Status::Ok);
+  EXPECT_EQ(jwks->keys().size(), 1);
+  EXPECT_TRUE(jwks->keys()[0]->pem_format_);
+}
+
+TEST(JwksParseTest, Pkcs8WrongHeader) {
+  const std::string pem_text = R"(
+-----BEGIN CERTIFICATE KEY-----
+MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAzUPYX/CJFCPg5fDfnTsV
+6J0Lq2zMqCIj0/2taAsQm7sqrc5SCIeiDXypNzYYqshScbHPEfyj4egEqMMf9its
+WY4khLWHcAd23ICHPdbga0YP4z+VTOkIMEpmJ8Oat68oeBaYhTMW1jr+9A2N/U/w
+1AnketucyFFk0bkkmGuOefytbuBoxA2mkM+ZBVFRCXeiWq4LjgHZNpMNZ9Dz30Jk
+6E+A0y2cMje4x6zMfulDf1ED6FN2LHqNE6uScFo5YL3tnvqMhkjJFMIzdvK4MWWh
+2uTclOhgCH5rA6wQO2vWH8RRewaEfF0ihtg1WafSrcWK2MPDFI9/XhwzkBPBCG9l
+ZQIDAQAB
+-----END CERTIFICATE KEY-----
+)";
+  auto jwks = Jwks::createFrom(pem_text, Jwks::PKCS8);
+  EXPECT_EQ(jwks->getStatus(), Status::Pkcs8PemParseError);
+}
+
+TEST(JwksParseTest, Pkcs8InvalidKey) {
+  const std::string pem_text = R"(
+-----BEGIN PUBLIC KEY-----
+bad-pub-key
+-----END PUBLIC KEY-----
+)";
+  auto jwks = Jwks::createFrom(pem_text, Jwks::PKCS8);
+  EXPECT_EQ(jwks->getStatus(), Status::Pkcs8PemParseError);
+}
+
+TEST(JwksParseTest, Pkcs8EcUnimplimented) {
+  const std::string pem_text = R"(
+-----BEGIN PUBLIC KEY-----
+MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEYaOv1HVESfIWB6jnkijUTPKvwkFu
+CQnMe3gk4tp4DhYBSzTl6UXz9iRj15FMlmQpl9fV5nBfZMoUm47EkO7uaQ==
+-----END PUBLIC KEY-----
+)";
+  auto jwks = Jwks::createFrom(pem_text, Jwks::PKCS8);
+  EXPECT_EQ(jwks->getStatus(), Status::Pkcs8NotImplementedKty);
+}
+
+TEST(JwksParseTest, Pkcs8DsaUnimplimented) {
+  const std::string pem_text = R"(
+-----BEGIN PUBLIC KEY-----
+MIIDRjCCAjkGByqGSM44BAEwggIsAoIBAQDWMfB0ccDLpds14iKIKMu/O0WgIjHu
+yvUvDtnzdwiMDxOlbs5SkB2dFDUPRO+WNCuSJgYGsIgVBnHUEwTRm8jqXrjUoVRN
+Vj5eQO9/UXit/Kadt1lCHlUeVqeA8KAApN/gbr1y0hrkMyHNDpjznR3/z8uc0Za9
+iRkB4R0YDyGnrGI58WKuiOsSJpc7XOHHKhHFoXYy/g/De5pfV9d5s4FYjJNi2Ew8
+SdWy2gztUnf3BrIbwWSUXNtm2W+zql9qTCFwXMEArKYwlk/6au0tMCW2/rfUAfYU
+9Y9Vgi5rgEW3I/YV7mgYzw5sWFgj8wxEbUcvNM7iqgh/w054ZesTz58jAiEA7FKX
+3tTqBtTTiUYVHXjaPUBiAAQevbFEMr4dVo0os2ECggEAEdhxaTqMQ2Wb625cDaWI
+2OLpOXot2RTMSGQNKGi05OgsAKw6yVjwJuqqEdZi6XCtZ/SNUEZA8zmUyhdjj7ht
+SeM+Km3b2M+FjLm7Wtvgl2QjiLmKhZKTrlZETs18aTkS8OrU5S6w2LDzOtZ6T7Ap
+/A9tPf1F4CHnfykYmYDWcenZPhZHD/pv1ovSi5u7GNtvp1R2EsMV0+Pp0PwmSyX2
+RAGjkSGyEtDjaXHy2Wh7b5BsfO2ixJb+6m8eBGaLxCZ3Su16R9C1xQ/lFHj6HPTV
+3QvjayxaVVf3BjJgDaZX7b9gWuWhkP4eJ8M/xlfE2lJprl2RaDeZvpa22lP5Lcor
+GgOCAQUAAoIBADk+JlpQuV2D0yMnS5ewzkiU5KjcwSWgTrw4KLWRFFfYWtdHy/Ot
+xaafLzA04QM6Jh4q+iOJVhk2toxjW2+/6lYbmest83VPKGAaPs49gmWOVvU2gExp
+MobhZpB4uwTUwanooCYOt5pV2Ysw8iOYI7H84L02yJJDFcv9qJJaw6+ZzZoSVE5q
+17w7KTdUcvO46dDddIAknS1th2YrzFOj6syy56Y0nozMBgT6IQbbKD3WEWGc29Qw
++2/C+wusfP/gWpG6yCPpKXDLIWv583H+CoXD54dyJ3xH+c1UeDm+/pAM/oBynFFj
+9y24N/KIm3v5f4Fb1v3v/by0kcfcg6vkRiQ=
+-----END PUBLIC KEY-----
+)";
+  auto jwks = Jwks::createFrom(pem_text, Jwks::PKCS8);
+  EXPECT_EQ(jwks->getStatus(), Status::Pkcs8NotImplementedKty);
+}
+
 }  // namespace
 }  // namespace jwt_verify
 }  // namespace google
