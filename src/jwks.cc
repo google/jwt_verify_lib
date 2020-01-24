@@ -12,16 +12,18 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include "jwt_verify_lib/jwks.h"
+
 #include <assert.h>
+
 #include <iostream>
 
 #include "absl/strings/escaping.h"
 #include "absl/strings/match.h"
 #include "google/protobuf/struct.pb.h"
 #include "google/protobuf/util/json_util.h"
-#include "jwt_verify_lib/jwks.h"
 #include "jwt_verify_lib/struct_utils.h"
-
+#include "openssl/bio.h"
 #include "openssl/bn.h"
 #include "openssl/ecdsa.h"
 #include "openssl/evp.h"
@@ -71,6 +73,22 @@ class EvpPkeyGetter : public WithStatus {
       return nullptr;
     }
     return createEvpPkeyFromRsa(rsa.get());
+  }
+
+  bssl::UniquePtr<EVP_PKEY> createEvpPkeyFromPkcs8(
+      const std::string& pkey_pem) {
+    bssl::UniquePtr<BIO> buf(BIO_new_mem_buf(pkey_pem.data(), pkey_pem.size()));
+    if (buf == nullptr) {
+      updateStatus(Status::BioAllocError);
+      return nullptr;
+    }
+    bssl::UniquePtr<EVP_PKEY> key(
+        PEM_read_bio_PUBKEY(buf.get(), nullptr, nullptr, nullptr));
+    if (key == nullptr) {
+      updateStatus(Status::Pkcs8PemParseError);
+      return nullptr;
+    }
+    return key;
   }
 
   bssl::UniquePtr<EVP_PKEY> createEvpPkeyFromJwkRSA(const std::string& n,
@@ -365,10 +383,40 @@ JwksPtr Jwks::createFrom(const std::string& pkey, Type type) {
     case Type::PEM:
       keys->createFromPemCore(pkey);
       break;
+    case Type::PKCS8:
+      keys->createFromPkcs8Core(pkey);
+      break;
     default:
       break;
   }
   return keys;
+}
+
+// pkey_pem must be a PEM-encoded PKCS #8 public key.
+// This is the format that starts with -----BEGIN PUBLIC KEY-----.
+// Currently this only supports RSA. Support for ECC will be added soon.
+void Jwks::createFromPkcs8Core(const std::string& pkey_pem) {
+  keys_.clear();
+  PubkeyPtr key_ptr(new Pubkey());
+  EvpPkeyGetter e;
+  key_ptr->evp_pkey_ = e.createEvpPkeyFromPkcs8(pkey_pem);
+  updateStatus(e.getStatus());
+  if (key_ptr->evp_pkey_ == nullptr) {
+    assert(e.getStatus() != Status::Ok);
+    return;
+  }
+
+  key_ptr->pem_format_ = true;
+  switch (EVP_PKEY_type(key_ptr->evp_pkey_->type)) {
+    case EVP_PKEY_RSA:
+      key_ptr->alg_ = "RSA";
+      break;
+    default:
+      updateStatus(Status::Pkcs8NotImplementedKty);
+      return;
+  }
+
+  keys_.push_back(std::move(key_ptr));
 }
 
 void Jwks::createFromPemCore(const std::string& pkey_pem) {

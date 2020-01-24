@@ -65,8 +65,8 @@ cc_test(
 cc_test(
     name = "jwks_test",
     srcs = [
-        "src/test_common.h",
         "src/jwks_test.cc",
+        "src/test_common.h",
     ],
     linkopts = [
         "-lm",
@@ -186,6 +186,23 @@ cc_test(
     srcs = [
         "src/test_common.h",
         "src/verify_jwk_hmac_test.cc",
+    ],
+    linkopts = [
+        "-lm",
+        "-lpthread",
+    ],
+    linkstatic = 1,
+    deps = [
+        ":jwt_verify_lib",
+        "//external:googletest_main",
+    ],
+)
+
+cc_test(
+    name = "verify_pkcs_test",
+    srcs = [
+        "src/test_common.h",
+        "src/verify_pkcs_test.cc",
     ],
     linkopts = [
         "-lm",
