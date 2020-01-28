@@ -109,7 +109,6 @@ TEST(VerifyPKCSTestRs256, OKPem) {
   auto jwks = Jwks::createFrom(es256pubkey, Jwks::Type::PEM);
   EXPECT_EQ(jwks->getStatus(), Status::Ok);
   jwks->keys()[0]->alg_ = "ES256";
-  jwks->keys()[0]->alg_specified_ = true;
   jwks->keys()[0]->crv_ = "P-256";
   EXPECT_EQ(verifyJwt(jwt, *jwks, 1), Status::Ok);
   fuzzJwtSignature(jwt, [&jwks](const Jwt& jwt) {
@@ -122,7 +121,6 @@ TEST(VerifyPKCSTestES384, OKPem) {
   EXPECT_EQ(jwt.parseFromString(JwtPemEs384), Status::Ok);
   auto jwks = Jwks::createFrom(es384pubkey, Jwks::Type::PEM);
   jwks->keys()[0]->alg_ = "ES384";
-  jwks->keys()[0]->alg_specified_ = true;
   jwks->keys()[0]->crv_ = "P-384";
   EXPECT_EQ(jwks->getStatus(), Status::Ok);
   EXPECT_EQ(verifyJwt(jwt, *jwks, 1), Status::Ok);
@@ -136,7 +134,6 @@ TEST(VerifyPKCSTestES512, OKPem) {
   EXPECT_EQ(jwt.parseFromString(JwtPemEs512), Status::Ok);
   auto jwks = Jwks::createFrom(es512pubkey, Jwks::Type::PEM);
   jwks->keys()[0]->alg_ = "ES512";
-  jwks->keys()[0]->alg_specified_ = true;
   jwks->keys()[0]->crv_ = "P-512";
   EXPECT_EQ(jwks->getStatus(), Status::Ok);
   EXPECT_EQ(verifyJwt(jwt, *jwks, 1), Status::Ok);
@@ -173,7 +170,6 @@ TEST(VerifyPKCSTestRs256, jwksIncorrectAlgSpecifiedFail) {
   EXPECT_EQ(jwks->getStatus(), Status::Ok);
   // Add incorrect Alg to jwks.
   jwks->keys()[0]->alg_ = "ES512";
-  jwks->keys()[0]->alg_specified_ = true;
   jwks->keys()[0]->crv_ = "P-512";
   EXPECT_EQ(verifyJwt(jwt, *jwks, 1), Status::JwksKidAlgMismatch);
   fuzzJwtSignature(jwt, [&jwks](const Jwt& jwt) {

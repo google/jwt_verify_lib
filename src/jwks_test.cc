@@ -51,13 +51,9 @@ TEST(JwksParseTest, GoodJwks) {
 
   EXPECT_EQ(jwks->keys()[0]->alg_, "RS256");
   EXPECT_EQ(jwks->keys()[0]->kid_, "62a93512c9ee4c7f8067b5a216dade2763d32a47");
-  EXPECT_TRUE(jwks->keys()[0]->alg_specified_);
-  EXPECT_TRUE(jwks->keys()[0]->kid_specified_);
 
   EXPECT_EQ(jwks->keys()[1]->alg_, "RS256");
   EXPECT_EQ(jwks->keys()[1]->kid_, "b3319a147514df7ee5e4bcdee51350cc890cc89e");
-  EXPECT_TRUE(jwks->keys()[1]->alg_specified_);
-  EXPECT_TRUE(jwks->keys()[1]->kid_specified_);
 }
 
 TEST(JwksParseTest, GoodEC) {
@@ -108,29 +104,21 @@ TEST(JwksParseTest, GoodEC) {
   EXPECT_EQ(jwks->keys()[0]->kid_, "abc");
   EXPECT_EQ(jwks->keys()[0]->kty_, "EC");
   EXPECT_EQ(jwks->keys()[0]->crv_, "P-256");
-  EXPECT_TRUE(jwks->keys()[0]->alg_specified_);
-  EXPECT_TRUE(jwks->keys()[0]->kid_specified_);
 
   EXPECT_EQ(jwks->keys()[1]->alg_, "ES256");
   EXPECT_EQ(jwks->keys()[1]->kid_, "xyz");
   EXPECT_EQ(jwks->keys()[1]->kty_, "EC");
   EXPECT_EQ(jwks->keys()[1]->crv_, "P-256");
-  EXPECT_TRUE(jwks->keys()[1]->alg_specified_);
-  EXPECT_TRUE(jwks->keys()[1]->kid_specified_);
 
   EXPECT_EQ(jwks->keys()[2]->alg_, "ES384");
   EXPECT_EQ(jwks->keys()[2]->kid_, "es384");
   EXPECT_EQ(jwks->keys()[2]->kty_, "EC");
   EXPECT_EQ(jwks->keys()[2]->crv_, "P-384");
-  EXPECT_TRUE(jwks->keys()[2]->alg_specified_);
-  EXPECT_TRUE(jwks->keys()[2]->kid_specified_);
 
   EXPECT_EQ(jwks->keys()[3]->alg_, "ES512");
   EXPECT_EQ(jwks->keys()[3]->kid_, "es512");
   EXPECT_EQ(jwks->keys()[3]->kty_, "EC");
   EXPECT_EQ(jwks->keys()[3]->crv_, "P-521");
-  EXPECT_TRUE(jwks->keys()[3]->alg_specified_);
-  EXPECT_TRUE(jwks->keys()[3]->kid_specified_);
 }
 
 TEST(JwksParseTest, EmptyJwks) {
@@ -577,15 +565,12 @@ TEST(JwksParseTest, JwksECUnspecifiedCrv) {
 
   EXPECT_EQ(jwks->keys()[0]->alg_, "ES256");
   EXPECT_EQ(jwks->keys()[0]->crv_, "P-256");
-  EXPECT_TRUE(jwks->keys()[0]->alg_specified_);
 
   EXPECT_EQ(jwks->keys()[1]->alg_, "ES384");
   EXPECT_EQ(jwks->keys()[1]->crv_, "P-384");
-  EXPECT_TRUE(jwks->keys()[1]->alg_specified_);
 
   EXPECT_EQ(jwks->keys()[2]->alg_, "ES512");
   EXPECT_EQ(jwks->keys()[2]->crv_, "P-521");
-  EXPECT_TRUE(jwks->keys()[2]->alg_specified_);
 }
 
 TEST(JwksParseTest, JwksGoodX509) {
