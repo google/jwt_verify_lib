@@ -60,10 +60,6 @@ std::string getStatusString(Status status) {
       return "Jwks doesn't have any valid public key";
     case Status::JwksKidAlgMismatch:
       return "Jwks doesn't have key to match kid or alg from Jwt";
-    case Status::JwksPemBadBase64:
-      return "Jwks PEM public key is an invalid Base64";
-    case Status::JwksPemParseError:
-      return "Jwks PEM public key parse error";
     case Status::JwksRsaParseError:
       return "Jwks RSA [n] or [e] field is missing or has a parse error";
     case Status::JwksEcCreateKeyFail:

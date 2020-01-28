@@ -36,15 +36,13 @@ namespace jwt_verify {
 class Jwks : public WithStatus {
  public:
   // Format of public key.
-  enum Type { PEM, JWKS, PKCS8 };
+  enum Type { JWKS, PKCS8 };
 
   // Create from string
   static std::unique_ptr<Jwks> createFrom(const std::string& pkey, Type type);
 
   // Struct for JSON Web Key
   struct Pubkey {
-    bssl::UniquePtr<EVP_PKEY> evp_pkey_;
-    bssl::UniquePtr<EC_KEY> ec_key_;
     std::string hmac_key_;
     std::string kid_;
     std::string kty_;
@@ -52,7 +50,8 @@ class Jwks : public WithStatus {
     std::string crv_;
     bool alg_specified_ = false;
     bool kid_specified_ = false;
-    bool pem_format_ = false;
+    bssl::UniquePtr<RSA> rsa_;
+    bssl::UniquePtr<EC_KEY> ec_key_;
     bssl::UniquePtr<BIO> bio_;
     bssl::UniquePtr<X509> x509_;
   };
@@ -62,8 +61,6 @@ class Jwks : public WithStatus {
   const std::vector<PubkeyPtr>& keys() const { return keys_; }
 
  private:
-  // Create Pem
-  void createFromPemCore(const std::string& pkey_pem);
   // Create Jwks
   void createFromJwksCore(const std::string& pkey_jwks);
   // Create PKCS8
