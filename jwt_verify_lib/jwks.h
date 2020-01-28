@@ -48,8 +48,6 @@ class Jwks : public WithStatus {
     std::string kty_;
     std::string alg_;
     std::string crv_;
-    bool alg_specified_ = false;
-    bool kid_specified_ = false;
     bssl::UniquePtr<RSA> rsa_;
     bssl::UniquePtr<EC_KEY> ec_key_;
     bssl::UniquePtr<BIO> bio_;

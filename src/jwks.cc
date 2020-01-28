@@ -125,7 +125,7 @@ class KeyGetter : public WithStatus {
 
 Status extractJwkFromJwkRSA(const ::google::protobuf::Struct& jwk_pb,
                             Jwks::Pubkey* jwk) {
-  if (jwk->alg_specified_ &&
+  if (!jwk->alg_.empty() &&
       (jwk->alg_.size() < 2 || jwk->alg_.compare(0, 2, "RS") != 0)) {
     return Status::JwksRSAKeyBadAlg;
   }
@@ -156,7 +156,7 @@ Status extractJwkFromJwkRSA(const ::google::protobuf::Struct& jwk_pb,
 
 Status extractJwkFromJwkEC(const ::google::protobuf::Struct& jwk_pb,
                            Jwks::Pubkey* jwk) {
-  if (jwk->alg_specified_ &&
+  if (!jwk->alg_.empty() &&
       (jwk->alg_.size() < 2 || jwk->alg_.compare(0, 2, "ES") != 0)) {
     return Status::JwksECKeyBadAlg;
   }
@@ -173,7 +173,7 @@ Status extractJwkFromJwkEC(const ::google::protobuf::Struct& jwk_pb,
   jwk->crv_ = crv_str;
 
   // If both alg and crv specified, make sure they match
-  if (jwk->alg_specified_ && !jwk->crv_.empty()) {
+  if (!jwk->alg_.empty() && !jwk->crv_.empty()) {
     if (!((jwk->alg_ == "ES256" && jwk->crv_ == "P-256") ||
           (jwk->alg_ == "ES384" && jwk->crv_ == "P-384") ||
           (jwk->alg_ == "ES512" && jwk->crv_ == "P-521"))) {
@@ -182,7 +182,7 @@ Status extractJwkFromJwkEC(const ::google::protobuf::Struct& jwk_pb,
   }
 
   // If neither alg or crv is set, assume P-256
-  if (!jwk->alg_specified_ && jwk->crv_.empty()) {
+  if (jwk->alg_.empty() && jwk->crv_.empty()) {
     jwk->crv_ = "P-256";
   }
 
@@ -225,7 +225,7 @@ Status extractJwkFromJwkEC(const ::google::protobuf::Struct& jwk_pb,
 
 Status extractJwkFromJwkOct(const ::google::protobuf::Struct& jwk_pb,
                             Jwks::Pubkey* jwk) {
-  if (jwk->alg_specified_ && jwk->alg_ != "HS256" && jwk->alg_ != "HS384" &&
+  if (!jwk->alg_.empty() && jwk->alg_ != "HS256" && jwk->alg_ != "HS384" &&
       jwk->alg_ != "HS512") {
     return Status::JwksHMACKeyBadAlg;
   }
@@ -263,14 +263,8 @@ Status extractJwk(const ::google::protobuf::Struct& jwk_pb, Jwks::Pubkey* jwk) {
 
   // "kid", "alg" and "crv" are optional, if they do not exist, set them to
   // empty. https://tools.ietf.org/html/rfc7517#page-8
-  code = jwk_getter.GetString("kid", &jwk->kid_);
-  if (code == StructUtils::OK) {
-    jwk->kid_specified_ = true;
-  }
-  code = jwk_getter.GetString("alg", &jwk->alg_);
-  if (code == StructUtils::OK) {
-    jwk->alg_specified_ = true;
-  }
+  jwk_getter.GetString("kid", &jwk->kid_);
+  jwk_getter.GetString("alg", &jwk->alg_);
 
   // Extract public key according to "kty" value.
   // https://tools.ietf.org/html/rfc7518#section-6.1
@@ -334,7 +328,6 @@ Status createFromX509(const ::google::protobuf::Struct& jwks_pb,
     }
 
     key_ptr->kid_ = kid.first;
-    key_ptr->kid_specified_ = true;
     key_ptr->kty_ = "RSA";
     keys.push_back(std::move(key_ptr));
   }

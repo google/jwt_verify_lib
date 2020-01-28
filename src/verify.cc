@@ -175,12 +175,12 @@ Status verifyJwt(const Jwt& jwt, const Jwks& jwks, uint64_t now) {
     // If kid is specified in JWT, JWK with the same kid is used for
     // verification.
     // If kid is not specified in JWT, try all JWK.
-    if (!jwt.kid_.empty() && jwk->kid_specified_ && jwk->kid_ != jwt.kid_) {
+    if (!jwt.kid_.empty() && !jwk->kid_.empty() && jwk->kid_ != jwt.kid_) {
       continue;
     }
 
     // The same alg must be used.
-    if (jwk->alg_specified_ && jwk->alg_ != jwt.alg_) {
+    if (!jwk->alg_.empty() && jwk->alg_ != jwt.alg_) {
       continue;
     }
     kid_alg_matched = true;
