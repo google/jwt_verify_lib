@@ -399,17 +399,23 @@ void Jwks::createFromPkcs8Core(const std::string& pkey_pem) {
   keys_.clear();
   PubkeyPtr key_ptr(new Pubkey());
   EvpPkeyGetter e;
-  key_ptr->evp_pkey_ = e.createEvpPkeyFromPkcs8(pkey_pem);
+  auto evp_pkey = e.createEvpPkeyFromPkcs8(pkey_pem);
   updateStatus(e.getStatus());
-  if (key_ptr->evp_pkey_ == nullptr) {
+
+  if (evp_pkey == nullptr) {
     assert(e.getStatus() != Status::Ok);
     return;
   }
+  assert(e.getStatus() == Status::Ok);
 
-  key_ptr->pem_format_ = true;
-  switch (EVP_PKEY_type(key_ptr->evp_pkey_->type)) {
+  switch (EVP_PKEY_type(evp_pkey->type)) {
     case EVP_PKEY_RSA:
-      key_ptr->alg_ = "RSA";
+      key_ptr->evp_pkey_ = std::move(evp_pkey);
+      key_ptr->kty_ = "RSA";
+      break;
+    case EVP_PKEY_EC:
+      key_ptr->ec_key_.reset(EVP_PKEY_get1_EC_KEY(evp_pkey.get()));
+      key_ptr->kty_ = "EC";
       break;
     default:
       updateStatus(Status::Pkcs8NotImplementedKty);
