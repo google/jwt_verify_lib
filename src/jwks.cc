@@ -150,7 +150,7 @@ Status extractJwkFromJwkRSA(const ::google::protobuf::Struct& jwk_pb,
   }
 
   KeyGetter e;
-  jwk->rsa_ = std::move(e.createRsaFromJwk(n_str, e_str));
+  jwk->rsa_ = e.createRsaFromJwk(n_str, e_str);
   return e.getStatus();
 }
 
