@@ -693,7 +693,7 @@ TEST(JwksParseTest, JwksX509WrongPubkey) {
   EXPECT_EQ(jwks->getStatus(), Status::JwksX509ParseError);
 }
 
-TEST(JwksParseTest, goodPKCS8RSA) {
+TEST(JwksParseTest, goodPEMRSA) {
   const std::string pem_text = R"(
 -----BEGIN PUBLIC KEY-----
 MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAzUPYX/CJFCPg5fDfnTsV
@@ -705,24 +705,24 @@ WY4khLWHcAd23ICHPdbga0YP4z+VTOkIMEpmJ8Oat68oeBaYhTMW1jr+9A2N/U/w
 ZQIDAQAB
 -----END PUBLIC KEY-----
 )";
-  auto jwks = Jwks::createFrom(pem_text, Jwks::PKCS8);
+  auto jwks = Jwks::createFrom(pem_text, Jwks::PEM);
   EXPECT_EQ(jwks->getStatus(), Status::Ok);
   EXPECT_EQ(jwks->keys().size(), 1);
 }
 
-TEST(JwksParseTest, goodPKCS8EC) {
+TEST(JwksParseTest, goodPEMEC) {
   const std::string pem_text = R"(
 -----BEGIN PUBLIC KEY-----
 MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEYaOv1HVESfIWB6jnkijUTPKvwkFu
 CQnMe3gk4tp4DhYBSzTl6UXz9iRj15FMlmQpl9fV5nBfZMoUm47EkO7uaQ==
 -----END PUBLIC KEY-----
 )";
-  auto jwks = Jwks::createFrom(pem_text, Jwks::PKCS8);
+  auto jwks = Jwks::createFrom(pem_text, Jwks::PEM);
   EXPECT_EQ(jwks->getStatus(), Status::Ok);
   EXPECT_EQ(jwks->keys().size(), 1);
 }
 
-TEST(JwksParseTest, Pkcs8WrongHeader) {
+TEST(JwksParseTest, PemWrongHeader) {
   const std::string pem_text = R"(
 -----BEGIN CERTIFICATE KEY-----
 MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAzUPYX/CJFCPg5fDfnTsV
@@ -734,21 +734,21 @@ WY4khLWHcAd23ICHPdbga0YP4z+VTOkIMEpmJ8Oat68oeBaYhTMW1jr+9A2N/U/w
 ZQIDAQAB
 -----END CERTIFICATE KEY-----
 )";
-  auto jwks = Jwks::createFrom(pem_text, Jwks::PKCS8);
-  EXPECT_EQ(jwks->getStatus(), Status::Pkcs8PemParseError);
+  auto jwks = Jwks::createFrom(pem_text, Jwks::PEM);
+  EXPECT_EQ(jwks->getStatus(), Status::PemPemParseError);
 }
 
-TEST(JwksParseTest, Pkcs8InvalidKey) {
+TEST(JwksParseTest, PemInvalidKey) {
   const std::string pem_text = R"(
 -----BEGIN PUBLIC KEY-----
 bad-pub-key
 -----END PUBLIC KEY-----
 )";
-  auto jwks = Jwks::createFrom(pem_text, Jwks::PKCS8);
-  EXPECT_EQ(jwks->getStatus(), Status::Pkcs8PemParseError);
+  auto jwks = Jwks::createFrom(pem_text, Jwks::PEM);
+  EXPECT_EQ(jwks->getStatus(), Status::PemPemParseError);
 }
 
-TEST(JwksParseTest, Pkcs8DsaUnimplimented) {
+TEST(JwksParseTest, PemDsaUnimplimented) {
   const std::string pem_text = R"(
 -----BEGIN PUBLIC KEY-----
 MIIDRjCCAjkGByqGSM44BAEwggIsAoIBAQDWMfB0ccDLpds14iKIKMu/O0WgIjHu
@@ -771,8 +771,8 @@ MobhZpB4uwTUwanooCYOt5pV2Ysw8iOYI7H84L02yJJDFcv9qJJaw6+ZzZoSVE5q
 9y24N/KIm3v5f4Fb1v3v/by0kcfcg6vkRiQ=
 -----END PUBLIC KEY-----
 )";
-  auto jwks = Jwks::createFrom(pem_text, Jwks::PKCS8);
-  EXPECT_EQ(jwks->getStatus(), Status::Pkcs8NotImplementedKty);
+  auto jwks = Jwks::createFrom(pem_text, Jwks::PEM);
+  EXPECT_EQ(jwks->getStatus(), Status::PemNotImplementedKty);
 }
 
 }  // namespace

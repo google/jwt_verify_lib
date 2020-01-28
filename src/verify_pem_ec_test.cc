@@ -76,7 +76,7 @@ GVz1oT4lIRUYni2OfIk=
 // JWT with
 // Header:  { "alg": "ES256", "typ": "JWT" }
 // Payload: {"iss":"https://example.com","sub":"test@example.com" }
-const std::string JwtPkcs8Es256 =
+const std::string JwtPemEs256 =
     "eyJhbGciOiJFUzI1NiIsInR5cCI6IkpXVCJ9."
     "eyJpc3MiOiJodHRwczovL2V4YW1wbGUuY29tIiwic3ViIjoidGVzdEBleGFtcGxlLmNvbSJ9."
     "P2Ru0jfQrm4YgaN5aown5uf-LhV6QX6o-9eQ2D6TjWkJ62LxbIOu6eUnDYyn1QOaC6m2wdb-"
@@ -85,7 +85,7 @@ const std::string JwtPkcs8Es256 =
 // JWT with
 // Header:  { "alg": "ES384", "typ": "JWT" }
 // Payload: {"iss":"https://example.com","sub":"test@example.com" }
-const std::string JwtPkcs8Es384 =
+const std::string JwtPemEs384 =
     "eyJhbGciOiJFUzM4NCIsInR5cCI6IkpXVCJ9."
     "eyJpc3MiOiJodHRwczovL2V4YW1wbGUuY29tIiwic3ViIjoidGVzdEBleGFtcGxlLmNvbSJ9."
     "jE8oJhDNem-xMhmylecKVaYhHH_"
@@ -95,7 +95,7 @@ const std::string JwtPkcs8Es384 =
 // JWT with
 // Header:  { "alg": "ES512", "typ": "JWT" }
 // Payload: {"iss":"https://example.com","sub":"test@example.com" }
-const std::string JwtPkcs8Es512 =
+const std::string JwtPemEs512 =
     "eyJhbGciOiJFUzUxMiIsInR5cCI6IkpXVCJ9."
     "eyJpc3MiOiJodHRwczovL2V4YW1wbGUuY29tIiwic3ViIjoidGVzdEBleGFtcGxlLmNvbSJ9."
     "AMkxbTVhrtnX0Ylc8hI0nQFQkRhExqaQccHNJLL9aQd_"
@@ -105,8 +105,8 @@ const std::string JwtPkcs8Es512 =
 
 TEST(VerifyPKCSTestRs256, OKPem) {
   Jwt jwt;
-  EXPECT_EQ(jwt.parseFromString(JwtPkcs8Es256), Status::Ok);
-  auto jwks = Jwks::createFrom(es256pubkey, Jwks::Type::PKCS8);
+  EXPECT_EQ(jwt.parseFromString(JwtPemEs256), Status::Ok);
+  auto jwks = Jwks::createFrom(es256pubkey, Jwks::Type::PEM);
   EXPECT_EQ(jwks->getStatus(), Status::Ok);
   jwks->keys()[0]->alg_ = "ES256";
   jwks->keys()[0]->alg_specified_ = true;
@@ -119,8 +119,8 @@ TEST(VerifyPKCSTestRs256, OKPem) {
 
 TEST(VerifyPKCSTestES384, OKPem) {
   Jwt jwt;
-  EXPECT_EQ(jwt.parseFromString(JwtPkcs8Es384), Status::Ok);
-  auto jwks = Jwks::createFrom(es384pubkey, Jwks::Type::PKCS8);
+  EXPECT_EQ(jwt.parseFromString(JwtPemEs384), Status::Ok);
+  auto jwks = Jwks::createFrom(es384pubkey, Jwks::Type::PEM);
   jwks->keys()[0]->alg_ = "ES384";
   jwks->keys()[0]->alg_specified_ = true;
   jwks->keys()[0]->crv_ = "P-384";
@@ -133,8 +133,8 @@ TEST(VerifyPKCSTestES384, OKPem) {
 
 TEST(VerifyPKCSTestES512, OKPem) {
   Jwt jwt;
-  EXPECT_EQ(jwt.parseFromString(JwtPkcs8Es512), Status::Ok);
-  auto jwks = Jwks::createFrom(es512pubkey, Jwks::Type::PKCS8);
+  EXPECT_EQ(jwt.parseFromString(JwtPemEs512), Status::Ok);
+  auto jwks = Jwks::createFrom(es512pubkey, Jwks::Type::PEM);
   jwks->keys()[0]->alg_ = "ES512";
   jwks->keys()[0]->alg_specified_ = true;
   jwks->keys()[0]->crv_ = "P-512";
@@ -148,17 +148,17 @@ TEST(VerifyPKCSTestES512, OKPem) {
 // If the JWKS does not specific crv or alg, it will be inferred from the JWT.
 TEST(VerifyPKCSTestES384, ES384CurveUnspecifiedOK) {
   Jwt jwt;
-  EXPECT_EQ(jwt.parseFromString(JwtPkcs8Es384), Status::Ok);
-  auto jwks = Jwks::createFrom(es384pubkey, Jwks::Type::PKCS8);
+  EXPECT_EQ(jwt.parseFromString(JwtPemEs384), Status::Ok);
+  auto jwks = Jwks::createFrom(es384pubkey, Jwks::Type::PEM);
   EXPECT_EQ(jwks->getStatus(), Status::Ok);
   EXPECT_EQ(verifyJwt(jwt, *jwks, 1), Status::Ok);
 }
 
 TEST(VerifyPKCSTestRs256, jwksAlgUnspecifiedDoesNotMatchJwtFail) {
   Jwt jwt;
-  EXPECT_EQ(jwt.parseFromString(JwtPkcs8Es256), Status::Ok);
+  EXPECT_EQ(jwt.parseFromString(JwtPemEs256), Status::Ok);
   // Wrong public key, for a different algorithm.
-  auto jwks = Jwks::createFrom(es384pubkey, Jwks::Type::PKCS8);
+  auto jwks = Jwks::createFrom(es384pubkey, Jwks::Type::PEM);
   EXPECT_EQ(jwks->getStatus(), Status::Ok);
   EXPECT_EQ(verifyJwt(jwt, *jwks, 1), Status::JwtVerificationFail);
   fuzzJwtSignature(jwt, [&jwks](const Jwt& jwt) {
@@ -168,8 +168,8 @@ TEST(VerifyPKCSTestRs256, jwksAlgUnspecifiedDoesNotMatchJwtFail) {
 
 TEST(VerifyPKCSTestRs256, jwksIncorrectAlgSpecifiedFail) {
   Jwt jwt;
-  EXPECT_EQ(jwt.parseFromString(JwtPkcs8Es256), Status::Ok);
-  auto jwks = Jwks::createFrom(es256pubkey, Jwks::Type::PKCS8);
+  EXPECT_EQ(jwt.parseFromString(JwtPemEs256), Status::Ok);
+  auto jwks = Jwks::createFrom(es256pubkey, Jwks::Type::PEM);
   EXPECT_EQ(jwks->getStatus(), Status::Ok);
   // Add incorrect Alg to jwks.
   jwks->keys()[0]->alg_ = "ES512";

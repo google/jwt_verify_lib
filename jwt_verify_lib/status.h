@@ -151,9 +151,9 @@ enum class Status {
   JwksX509GetPubkeyError,
 
   // Key type is not supported.
-  Pkcs8NotImplementedKty,
+  PemNotImplementedKty,
   // Unable to parse public key
-  Pkcs8PemParseError,
+  PemPemParseError,
 
   // Failed to create BIO
   BioAllocError,
