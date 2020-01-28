@@ -182,10 +182,10 @@ cc_test(
 )
 
 cc_test(
-    name = "verify_pkcs_test",
+    name = "verify_pem_rsa_test",
     srcs = [
         "src/test_common.h",
-        "src/verify_pkcs_test.cc",
+        "src/verify_pem_rsa_test.cc",
     ],
     linkopts = [
         "-lm",
@@ -200,10 +200,10 @@ cc_test(
 
 
 cc_test(
-    name = "verify_pkcs_ec_test",
+    name = "verify_pem_ec_test",
     srcs = [
         "src/test_common.h",
-        "src/verify_pkcs_ec_test.cc",
+        "src/verify_pem_ec_test.cc",
     ],
     linkopts = [
         "-lm",
