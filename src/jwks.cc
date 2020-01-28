@@ -295,7 +295,11 @@ Status extractX509(const std::string& key, Jwks::Pubkey* jwk) {
   if (jwk->x509_ == nullptr) {
     return Status::JwksX509ParseError;
   }
-  jwk->rsa_.reset(EVP_PKEY_get1_RSA(X509_get_pubkey(jwk->x509_.get())));
+  bssl::UniquePtr<EVP_PKEY> tmp_pkey(X509_get_pubkey(jwk->x509_.get()));
+  if (tmp_pkey == nullptr) {
+    return Status::JwksX509GetPubkeyError; 
+  }
+  jwk->rsa_.reset(EVP_PKEY_get1_RSA(tmp_pkey.get()));
   if (jwk->rsa_ == nullptr) {
     return Status::JwksX509GetPubkeyError;
   }
