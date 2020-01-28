@@ -21,9 +21,10 @@ namespace jwt_verify {
 namespace {
 
 // To generate new keys:
-// openssl req -x509 -nodes -newkey rsa:2048 -keyout rsa_private.pem -subj "/CN=unused"
+// openssl req -x509 -nodes -newkey rsa:2048 -keyout rsa_private.pem -subj
+// "/CN=unused"
 // openssl rsa -in rsa_private.pem -pubout -out rsa_public.pem
-// To generate new JWTs: Use jwt.io with the generated private key. 
+// To generate new JWTs: Use jwt.io with the generated private key.
 
 const std::string pubkey = R"(
 -----BEGIN PUBLIC KEY-----

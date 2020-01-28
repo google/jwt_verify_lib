@@ -13,6 +13,7 @@
 // limitations under the License.
 
 #include "jwt_verify_lib/jwks.h"
+
 #include "gtest/gtest.h"
 #include "src/test_common.h"
 
@@ -748,6 +749,19 @@ ZQIDAQAB
   EXPECT_TRUE(jwks->keys()[0]->pem_format_);
 }
 
+TEST(JwksParseTest, goodPKCS8EC) {
+  const std::string pem_text = R"(
+-----BEGIN PUBLIC KEY-----
+MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEYaOv1HVESfIWB6jnkijUTPKvwkFu
+CQnMe3gk4tp4DhYBSzTl6UXz9iRj15FMlmQpl9fV5nBfZMoUm47EkO7uaQ==
+-----END PUBLIC KEY-----
+)";
+  auto jwks = Jwks::createFrom(pem_text, Jwks::PKCS8);
+  EXPECT_EQ(jwks->getStatus(), Status::Ok);
+  EXPECT_EQ(jwks->keys().size(), 1);
+  EXPECT_TRUE(jwks->keys()[0]->pem_format_);
+}
+
 TEST(JwksParseTest, Pkcs8WrongHeader) {
   const std::string pem_text = R"(
 -----BEGIN CERTIFICATE KEY-----
@@ -772,17 +786,6 @@ bad-pub-key
 )";
   auto jwks = Jwks::createFrom(pem_text, Jwks::PKCS8);
   EXPECT_EQ(jwks->getStatus(), Status::Pkcs8PemParseError);
-}
-
-TEST(JwksParseTest, Pkcs8EcUnimplimented) {
-  const std::string pem_text = R"(
------BEGIN PUBLIC KEY-----
-MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEYaOv1HVESfIWB6jnkijUTPKvwkFu
-CQnMe3gk4tp4DhYBSzTl6UXz9iRj15FMlmQpl9fV5nBfZMoUm47EkO7uaQ==
------END PUBLIC KEY-----
-)";
-  auto jwks = Jwks::createFrom(pem_text, Jwks::PKCS8);
-  EXPECT_EQ(jwks->getStatus(), Status::Pkcs8NotImplementedKty);
 }
 
 TEST(JwksParseTest, Pkcs8DsaUnimplimented) {
