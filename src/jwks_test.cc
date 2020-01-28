@@ -21,38 +21,6 @@ namespace google {
 namespace jwt_verify {
 namespace {
 
-TEST(JwksParseTest, GoodPem) {
-  // Public key PEM
-  const std::string jwks_text =
-      "MIIBCgKCAQEAtw7MNxUTxmzWROCD5BqJxmzT7xqc9KsnAjbXCoqEEHDx4WBlfcwk"
-      "XHt9e/2+Uwi3Arz3FOMNKwGGlbr7clBY3utsjUs8BTF0kO/poAmSTdSuGeh2mSbc"
-      "VHvmQ7X/kichWwx5Qj0Xj4REU3Gixu1gQIr3GATPAIULo5lj/ebOGAa+l0wIG80N"
-      "zz1pBtTIUx68xs5ZGe7cIJ7E8n4pMX10eeuh36h+aossePeuHulYmjr4N0/1jG7a"
-      "+hHYL6nqwOR3ej0VqCTLS0OloC0LuCpLV7CnSpwbp2Qg/c+MDzQ0TH8g8drIzR5h"
-      "Fe9a3NlNRMXgUU5RqbLnR9zfXr7b9oEszQIDAQAB";
-
-  auto jwks = Jwks::createFrom(jwks_text, Jwks::PEM);
-  EXPECT_EQ(jwks->getStatus(), Status::Ok);
-  EXPECT_EQ(jwks->keys().size(), 1);
-  EXPECT_TRUE(jwks->keys()[0]->pem_format_);
-}
-
-TEST(JwksParseTest, EmptyPem) {
-  auto jwks = Jwks::createFrom("", Jwks::PEM);
-  EXPECT_EQ(jwks->getStatus(), Status::JwksPemBadBase64);
-}
-
-TEST(JwksParseTest, BadBase64Pem) {
-  auto jwks = Jwks::createFrom("abc", Jwks::PEM);
-  EXPECT_EQ(jwks->getStatus(), Status::JwksPemParseError);
-}
-
-TEST(JwksParseTest, BadPem) {
-  // U2lnbmF0dXJl is Base64 of "Signature"
-  auto jwks = Jwks::createFrom("U2lnbmF0dXJl", Jwks::PEM);
-  EXPECT_EQ(jwks->getStatus(), Status::JwksPemParseError);
-}
-
 TEST(JwksParseTest, GoodJwks) {
   const std::string jwks_text = R"(
       {
@@ -85,13 +53,11 @@ TEST(JwksParseTest, GoodJwks) {
   EXPECT_EQ(jwks->keys()[0]->kid_, "62a93512c9ee4c7f8067b5a216dade2763d32a47");
   EXPECT_TRUE(jwks->keys()[0]->alg_specified_);
   EXPECT_TRUE(jwks->keys()[0]->kid_specified_);
-  EXPECT_FALSE(jwks->keys()[0]->pem_format_);
 
   EXPECT_EQ(jwks->keys()[1]->alg_, "RS256");
   EXPECT_EQ(jwks->keys()[1]->kid_, "b3319a147514df7ee5e4bcdee51350cc890cc89e");
   EXPECT_TRUE(jwks->keys()[1]->alg_specified_);
   EXPECT_TRUE(jwks->keys()[1]->kid_specified_);
-  EXPECT_FALSE(jwks->keys()[1]->pem_format_);
 }
 
 TEST(JwksParseTest, GoodEC) {
@@ -144,7 +110,6 @@ TEST(JwksParseTest, GoodEC) {
   EXPECT_EQ(jwks->keys()[0]->crv_, "P-256");
   EXPECT_TRUE(jwks->keys()[0]->alg_specified_);
   EXPECT_TRUE(jwks->keys()[0]->kid_specified_);
-  EXPECT_FALSE(jwks->keys()[0]->pem_format_);
 
   EXPECT_EQ(jwks->keys()[1]->alg_, "ES256");
   EXPECT_EQ(jwks->keys()[1]->kid_, "xyz");
@@ -152,7 +117,6 @@ TEST(JwksParseTest, GoodEC) {
   EXPECT_EQ(jwks->keys()[1]->crv_, "P-256");
   EXPECT_TRUE(jwks->keys()[1]->alg_specified_);
   EXPECT_TRUE(jwks->keys()[1]->kid_specified_);
-  EXPECT_FALSE(jwks->keys()[1]->pem_format_);
 
   EXPECT_EQ(jwks->keys()[2]->alg_, "ES384");
   EXPECT_EQ(jwks->keys()[2]->kid_, "es384");
@@ -160,7 +124,6 @@ TEST(JwksParseTest, GoodEC) {
   EXPECT_EQ(jwks->keys()[2]->crv_, "P-384");
   EXPECT_TRUE(jwks->keys()[2]->alg_specified_);
   EXPECT_TRUE(jwks->keys()[2]->kid_specified_);
-  EXPECT_FALSE(jwks->keys()[2]->pem_format_);
 
   EXPECT_EQ(jwks->keys()[3]->alg_, "ES512");
   EXPECT_EQ(jwks->keys()[3]->kid_, "es512");
@@ -168,7 +131,6 @@ TEST(JwksParseTest, GoodEC) {
   EXPECT_EQ(jwks->keys()[3]->crv_, "P-521");
   EXPECT_TRUE(jwks->keys()[3]->alg_specified_);
   EXPECT_TRUE(jwks->keys()[3]->kid_specified_);
-  EXPECT_FALSE(jwks->keys()[3]->pem_format_);
 }
 
 TEST(JwksParseTest, EmptyJwks) {
@@ -746,7 +708,6 @@ ZQIDAQAB
   auto jwks = Jwks::createFrom(pem_text, Jwks::PKCS8);
   EXPECT_EQ(jwks->getStatus(), Status::Ok);
   EXPECT_EQ(jwks->keys().size(), 1);
-  EXPECT_TRUE(jwks->keys()[0]->pem_format_);
 }
 
 TEST(JwksParseTest, goodPKCS8EC) {
@@ -759,7 +720,6 @@ CQnMe3gk4tp4DhYBSzTl6UXz9iRj15FMlmQpl9fV5nBfZMoUm47EkO7uaQ==
   auto jwks = Jwks::createFrom(pem_text, Jwks::PKCS8);
   EXPECT_EQ(jwks->getStatus(), Status::Ok);
   EXPECT_EQ(jwks->keys().size(), 1);
-  EXPECT_TRUE(jwks->keys()[0]->pem_format_);
 }
 
 TEST(JwksParseTest, Pkcs8WrongHeader) {

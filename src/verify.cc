@@ -35,16 +35,21 @@ inline const uint8_t* castToUChar(const absl::string_view& str) {
   return reinterpret_cast<const uint8_t*>(str.data());
 }
 
-bool verifySignatureRSA(EVP_PKEY* key, const EVP_MD* md,
-                        const uint8_t* signature, size_t signature_len,
-                        const uint8_t* signed_data, size_t signed_data_len) {
+bool verifySignatureRSA(RSA* key, const EVP_MD* md, const uint8_t* signature,
+                        size_t signature_len, const uint8_t* signed_data,
+                        size_t signed_data_len) {
   if (key == nullptr || md == nullptr || signature == nullptr ||
       signed_data == nullptr) {
     return false;
   }
-  bssl::UniquePtr<EVP_MD_CTX> md_ctx(EVP_MD_CTX_create());
+  bssl::UniquePtr<EVP_PKEY> evp_pkey(EVP_PKEY_new());
+  if (EVP_PKEY_set1_RSA(evp_pkey.get(), key) != 1) {
+    return false;
+  }
 
-  if (EVP_DigestVerifyInit(md_ctx.get(), nullptr, md, nullptr, key) == 1) {
+  bssl::UniquePtr<EVP_MD_CTX> md_ctx(EVP_MD_CTX_create());
+  if (EVP_DigestVerifyInit(md_ctx.get(), nullptr, md, nullptr,
+                           evp_pkey.get()) == 1) {
     if (EVP_DigestVerifyUpdate(md_ctx.get(), signed_data, signed_data_len) ==
         1) {
       if (EVP_DigestVerifyFinal(md_ctx.get(), signature, signature_len) == 1) {
@@ -56,8 +61,7 @@ bool verifySignatureRSA(EVP_PKEY* key, const EVP_MD* md,
   return false;
 }
 
-bool verifySignatureRSA(EVP_PKEY* key, const EVP_MD* md,
-                        absl::string_view signature,
+bool verifySignatureRSA(RSA* key, const EVP_MD* md, absl::string_view signature,
                         absl::string_view signed_data) {
   return verifySignatureRSA(key, md, castToUChar(signature), signature.length(),
                             castToUChar(signed_data), signed_data.length());
@@ -197,7 +201,7 @@ Status verifyJwt(const Jwt& jwt, const Jwks& jwks, uint64_t now) {
         // Verification succeeded.
         return Status::Ok;
       }
-    } else if (jwk->pem_format_ || jwk->kty_ == "RSA") {
+    } else if (jwk->kty_ == "RSA") {
       const EVP_MD* md;
       if (jwt.alg_ == "RS384") {
         md = EVP_sha384();
@@ -208,7 +212,7 @@ Status verifyJwt(const Jwt& jwt, const Jwks& jwks, uint64_t now) {
         md = EVP_sha256();
       }
 
-      if (verifySignatureRSA(jwk->evp_pkey_.get(), md, jwt.signature_,
+      if (verifySignatureRSA(jwk->rsa_.get(), md, jwt.signature_,
                              signed_data)) {
         // Verification succeeded.
         return Status::Ok;

@@ -83,12 +83,6 @@ enum class Status {
   // Jwks doesn't have key to match kid or alg from Jwt.
   JwksKidAlgMismatch,
 
-  // Jwks PEM public key is an invalid Base64.
-  JwksPemBadBase64,
-
-  // Jwks PEM public key parse error.
-  JwksPemParseError,
-
   // "n" or "e" field of a Jwk RSA is missing or has a parse error.
   JwksRsaParseError,
 
