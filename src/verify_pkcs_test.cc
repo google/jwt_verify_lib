@@ -41,7 +41,7 @@ dhGpdbcejNZhl1NN+0q1eogwJPM295/7xRSW77mmcUI8W4oLDHLz1zxRoX9yK9xv
 // JWT with
 // Header:  { "alg": "RS256", "typ": "JWT" }
 // Payload: {"iss":"https://example.com","sub":"test@example.com" }
-const std::string JwtPkcs8Rs256 =
+const std::string JwtPemRs256 =
     "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9."
     "eyJpc3MiOiJodHRwczovL2V4YW1wbGUuY29tIiwic3ViIjoidGVzdEBleGFtcGxlLmNvbSJ9."
     "FFSVKKWsuhwHaZDW-nsKcVY0_hEAHvfk7PNa-zRES9IPrhZU-dtZghhhP4xDdDc-"
@@ -54,7 +54,7 @@ const std::string JwtPkcs8Rs256 =
 // JWT with
 // Header:  { "alg": "RS384", "typ": "JWT" }
 // Payload: {"iss":"https://example.com", "sub":"test@example.com" }
-const std::string JwtPkcs8Rs384 =
+const std::string JwtPemRs384 =
     "eyJhbGciOiJSUzM4NCIsInR5cCI6IkpXVCJ9."
     "eyJpc3MiOiJodHRwczovL2V4YW1wbGUuY29tIiwic3ViIjoidGVzdEBleGFtcGxlLmNvbSJ9."
     "ec8gDlwNnT189m78UklZ239UcThdRUrlh3DICZcunjb0h6nRrn8xX1zhF9OWiDjIS6Cu7c6kzA"
@@ -67,7 +67,7 @@ const std::string JwtPkcs8Rs384 =
 // JWT with
 // Header:  { "alg": "RS512", "typ": "JWT" }
 // Payload: {"iss":"https://example.com", "sub":"test@example.com" }
-const std::string JwtPkcs8Rs512 =
+const std::string JwtPemRs512 =
     "eyJhbGciOiJSUzUxMiIsInR5cCI6IkpXVCJ9."
     "eyJpc3MiOiJodHRwczovL2V4YW1wbGUuY29tIiwic3ViIjoidGVzdEBleGFtcGxlLmNvbSJ9."
     "daL48TAqnpXWRltqVZSSVXwRxTuaI1hL5FqdUKNuUUHgDP511EOb_"
@@ -79,8 +79,8 @@ const std::string JwtPkcs8Rs512 =
 
 TEST(VerifyPKCSTestRs256, OKPem) {
   Jwt jwt;
-  EXPECT_EQ(jwt.parseFromString(JwtPkcs8Rs256), Status::Ok);
-  auto jwks = Jwks::createFrom(pubkey, Jwks::Type::PKCS8);
+  EXPECT_EQ(jwt.parseFromString(JwtPemRs256), Status::Ok);
+  auto jwks = Jwks::createFrom(pubkey, Jwks::Type::PEM);
   EXPECT_EQ(jwks->getStatus(), Status::Ok);
   EXPECT_EQ(verifyJwt(jwt, *jwks, 1), Status::Ok);
   fuzzJwtSignature(jwt, [&jwks](const Jwt& jwt) {
@@ -90,8 +90,8 @@ TEST(VerifyPKCSTestRs256, OKPem) {
 
 TEST(VerifyPKCSTestRs384, OKPem) {
   Jwt jwt;
-  EXPECT_EQ(jwt.parseFromString(JwtPkcs8Rs384), Status::Ok);
-  auto jwks = Jwks::createFrom(pubkey, Jwks::Type::PKCS8);
+  EXPECT_EQ(jwt.parseFromString(JwtPemRs384), Status::Ok);
+  auto jwks = Jwks::createFrom(pubkey, Jwks::Type::PEM);
   EXPECT_EQ(jwks->getStatus(), Status::Ok);
   EXPECT_EQ(verifyJwt(jwt, *jwks, 1), Status::Ok);
   fuzzJwtSignature(jwt, [&jwks](const Jwt& jwt) {
@@ -101,8 +101,8 @@ TEST(VerifyPKCSTestRs384, OKPem) {
 
 TEST(VerifyPKCSTestRs512, OKPem) {
   Jwt jwt;
-  EXPECT_EQ(jwt.parseFromString(JwtPkcs8Rs512), Status::Ok);
-  auto jwks = Jwks::createFrom(pubkey, Jwks::Type::PKCS8);
+  EXPECT_EQ(jwt.parseFromString(JwtPemRs512), Status::Ok);
+  auto jwks = Jwks::createFrom(pubkey, Jwks::Type::PEM);
   EXPECT_EQ(jwks->getStatus(), Status::Ok);
   EXPECT_EQ(verifyJwt(jwt, *jwks, 1), Status::Ok);
   fuzzJwtSignature(jwt, [&jwks](const Jwt& jwt) {

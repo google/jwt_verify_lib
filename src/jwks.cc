@@ -55,8 +55,7 @@ inline const uint8_t* castToUChar(const std::string& str) {
  */
 class KeyGetter : public WithStatus {
  public:
-  bssl::UniquePtr<EVP_PKEY> createEvpPkeyFromPkcs8(
-      const std::string& pkey_pem) {
+  bssl::UniquePtr<EVP_PKEY> createEvpPkeyFromPem(const std::string& pkey_pem) {
     bssl::UniquePtr<BIO> buf(BIO_new_mem_buf(pkey_pem.data(), pkey_pem.size()));
     if (buf == nullptr) {
       updateStatus(Status::BioAllocError);
@@ -65,7 +64,7 @@ class KeyGetter : public WithStatus {
     bssl::UniquePtr<EVP_PKEY> key(
         PEM_read_bio_PUBKEY(buf.get(), nullptr, nullptr, nullptr));
     if (key == nullptr) {
-      updateStatus(Status::Pkcs8PemParseError);
+      updateStatus(Status::PemPemParseError);
       return nullptr;
     }
     return key;
@@ -350,8 +349,8 @@ JwksPtr Jwks::createFrom(const std::string& pkey, Type type) {
     case Type::JWKS:
       keys->createFromJwksCore(pkey);
       break;
-    case Type::PKCS8:
-      keys->createFromPkcs8Core(pkey);
+    case Type::PEM:
+      keys->createFromPemCore(pkey);
       break;
     default:
       break;
@@ -362,11 +361,11 @@ JwksPtr Jwks::createFrom(const std::string& pkey, Type type) {
 // pkey_pem must be a PEM-encoded PKCS #8 public key.
 // This is the format that starts with -----BEGIN PUBLIC KEY-----.
 // Currently this only supports RSA. Support for ECC will be added soon.
-void Jwks::createFromPkcs8Core(const std::string& pkey_pem) {
+void Jwks::createFromPemCore(const std::string& pkey_pem) {
   keys_.clear();
   PubkeyPtr key_ptr(new Pubkey());
   KeyGetter e;
-  bssl::UniquePtr<EVP_PKEY> evp_pkey(e.createEvpPkeyFromPkcs8(pkey_pem));
+  bssl::UniquePtr<EVP_PKEY> evp_pkey(e.createEvpPkeyFromPem(pkey_pem));
   updateStatus(e.getStatus());
 
   if (evp_pkey == nullptr) {
@@ -385,7 +384,7 @@ void Jwks::createFromPkcs8Core(const std::string& pkey_pem) {
       key_ptr->kty_ = "EC";
       break;
     default:
-      updateStatus(Status::Pkcs8NotImplementedKty);
+      updateStatus(Status::PemNotImplementedKty);
       return;
   }
 
