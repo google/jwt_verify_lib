@@ -122,12 +122,12 @@ std::string getStatusString(Status status) {
     case Status::JwksX509GetPubkeyError:
       return "X509 parse pubkey internal fails: get pubkey";
 
-    case Status::PemNotImplementedKty:
+    case Status::JwksPemNotImplementedKty:
       return "PEM Key type is not supported";
-    case Status::PemPemParseError:
+    case Status::JwksPemBadBase64:
       return "PEM pubkey parse fails";
 
-    case Status::BioAllocError:
+    case Status::JwksBioAllocError:
       return "Failed to create BIO due to memory allocation failure";
   };
   return "";

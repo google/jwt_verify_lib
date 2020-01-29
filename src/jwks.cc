@@ -58,13 +58,13 @@ class KeyGetter : public WithStatus {
   bssl::UniquePtr<EVP_PKEY> createEvpPkeyFromPem(const std::string& pkey_pem) {
     bssl::UniquePtr<BIO> buf(BIO_new_mem_buf(pkey_pem.data(), pkey_pem.size()));
     if (buf == nullptr) {
-      updateStatus(Status::BioAllocError);
+      updateStatus(Status::JwksBioAllocError);
       return nullptr;
     }
     bssl::UniquePtr<EVP_PKEY> key(
         PEM_read_bio_PUBKEY(buf.get(), nullptr, nullptr, nullptr));
     if (key == nullptr) {
-      updateStatus(Status::PemPemParseError);
+      updateStatus(Status::JwksPemBadBase64);
       return nullptr;
     }
     return key;
@@ -150,7 +150,7 @@ Status extractJwkFromJwkRSA(const ::google::protobuf::Struct& jwk_pb,
   }
 
   KeyGetter e;
-  jwk->rsa_ = std::move(e.createRsaFromJwk(n_str, e_str));
+  jwk->rsa_ = e.createRsaFromJwk(n_str, e_str);
   return e.getStatus();
 }
 
@@ -377,7 +377,7 @@ void Jwks::createFromPemCore(const std::string& pkey_pem) {
       key_ptr->kty_ = "EC";
       break;
     default:
-      updateStatus(Status::PemNotImplementedKty);
+      updateStatus(Status::JwksPemNotImplementedKty);
       return;
   }
 
