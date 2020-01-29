@@ -151,12 +151,12 @@ enum class Status {
   JwksX509GetPubkeyError,
 
   // Key type is not supported.
-  PemNotImplementedKty,
+  JwksPemNotImplementedKty,
   // Unable to parse public key
-  PemPemParseError,
+  JwksPemBadBase64,
 
   // Failed to create BIO
-  BioAllocError,
+  JwksBioAllocError,
 };
 
 /**

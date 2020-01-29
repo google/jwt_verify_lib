@@ -720,7 +720,7 @@ ZQIDAQAB
 -----END CERTIFICATE KEY-----
 )";
   auto jwks = Jwks::createFrom(pem_text, Jwks::PEM);
-  EXPECT_EQ(jwks->getStatus(), Status::PemPemParseError);
+  EXPECT_EQ(jwks->getStatus(), Status::JwksPemBadBase64);
 }
 
 TEST(JwksParseTest, PemInvalidKey) {
@@ -730,7 +730,7 @@ bad-pub-key
 -----END PUBLIC KEY-----
 )";
   auto jwks = Jwks::createFrom(pem_text, Jwks::PEM);
-  EXPECT_EQ(jwks->getStatus(), Status::PemPemParseError);
+  EXPECT_EQ(jwks->getStatus(), Status::JwksPemBadBase64);
 }
 
 TEST(JwksParseTest, PemDsaUnimplimented) {
@@ -757,7 +757,7 @@ MobhZpB4uwTUwanooCYOt5pV2Ysw8iOYI7H84L02yJJDFcv9qJJaw6+ZzZoSVE5q
 -----END PUBLIC KEY-----
 )";
   auto jwks = Jwks::createFrom(pem_text, Jwks::PEM);
-  EXPECT_EQ(jwks->getStatus(), Status::PemNotImplementedKty);
+  EXPECT_EQ(jwks->getStatus(), Status::JwksPemNotImplementedKty);
 }
 
 }  // namespace
