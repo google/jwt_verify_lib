@@ -760,6 +760,94 @@ MobhZpB4uwTUwanooCYOt5pV2Ysw8iOYI7H84L02yJJDFcv9qJJaw6+ZzZoSVE5q
   EXPECT_EQ(jwks->getStatus(), Status::JwksPemNotImplementedKty);
 }
 
+TEST(JwksParseTest, CreateFromPemError) {
+  const std::string pem_text = R"(
+-----BEGIN CERTIFICATE KEY-----
+MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAzUPYX/CJFCPg5fDfnTsV
+6J0Lq2zMqCIj0/2taAsQm7sqrc5SCIeiDXypNzYYqshScbHPEfyj4egEqMMf9its
+WY4khLWHcAd23ICHPdbga0YP4z+VTOkIMEpmJ8Oat68oeBaYhTMW1jr+9A2N/U/w
+1AnketucyFFk0bkkmGuOefytbuBoxA2mkM+ZBVFRCXeiWq4LjgHZNpMNZ9Dz30Jk
+6E+A0y2cMje4x6zMfulDf1ED6FN2LHqNE6uScFo5YL3tnvqMhkjJFMIzdvK4MWWh
+2uTclOhgCH5rA6wQO2vWH8RRewaEfF0ihtg1WafSrcWK2MPDFI9/XhwzkBPBCG9l
+ZQIDAQAB
+-----END CERTIFICATE KEY-----
+)";
+  auto jwks = Jwks::createFromPem(pem_text, "", "");
+  EXPECT_EQ(jwks->getStatus(), Status::JwksPemBadBase64);
+}
+
+TEST(JwksParseTest, CreateFromPemPopulatesExpectedFields) {
+  const std::string pem_text = R"(
+-----BEGIN PUBLIC KEY-----
+MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEYaOv1HVESfIWB6jnkijUTPKvwkFu
+CQnMe3gk4tp4DhYBSzTl6UXz9iRj15FMlmQpl9fV5nBfZMoUm47EkO7uaQ==
+-----END PUBLIC KEY-----
+)";
+  auto jwks = Jwks::createFromPem(pem_text, "kid1", "ES256");
+  EXPECT_EQ(jwks->getStatus(), Status::Ok);
+  EXPECT_EQ(jwks->keys().size(), 1);
+  EXPECT_EQ(jwks->keys().at(0)->kid_, "kid1");
+  EXPECT_EQ(jwks->keys().at(0)->alg_, "ES256");
+  EXPECT_EQ(jwks->keys().at(0)->crv_, "P-256");
+}
+
+TEST(JwksParseTest, addKeyFromPemSuccess) {
+  const std::string pem_text = R"(
+-----BEGIN PUBLIC KEY-----
+MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAzUPYX/CJFCPg5fDfnTsV
+6J0Lq2zMqCIj0/2taAsQm7sqrc5SCIeiDXypNzYYqshScbHPEfyj4egEqMMf9its
+WY4khLWHcAd23ICHPdbga0YP4z+VTOkIMEpmJ8Oat68oeBaYhTMW1jr+9A2N/U/w
+1AnketucyFFk0bkkmGuOefytbuBoxA2mkM+ZBVFRCXeiWq4LjgHZNpMNZ9Dz30Jk
+6E+A0y2cMje4x6zMfulDf1ED6FN2LHqNE6uScFo5YL3tnvqMhkjJFMIzdvK4MWWh
+2uTclOhgCH5rA6wQO2vWH8RRewaEfF0ihtg1WafSrcWK2MPDFI9/XhwzkBPBCG9l
+ZQIDAQAB
+-----END PUBLIC KEY-----
+)";
+  auto jwks = Jwks::createFrom(pem_text, Jwks::PEM);
+  EXPECT_EQ(jwks->getStatus(), Status::Ok);
+
+  const std::string pem_text2 = R"(
+-----BEGIN PUBLIC KEY-----
+MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA4XGAA932qKSXzHIFfxiS
+VB0ZKKwPyg+LrIcTQnDH7XKcB6mkyRtcnPqXSFW21oi+m7uvSShhC1T1oYoYJqb8
+wzF249CPsj3a5h5cbyXfD9e0no+XDuMvuegPF7zCaVA1r6cNY6l66JtQpRC6LkT8
+xNajblo7/MCI0sky2S0q/V7BO3oOQAljNALIoPzc1N4bAMk2qL91Fs71gUj55Fvc
+d9i2BqBOzGLyq55aRkFsJh5pqDJTv0gWRgcgDPjen35hRHme0DfumfV2sKjvUayw
+seWc4K+j8vzyg/qn5bUE4Zbk3FksmK+hh3/btzRySD5sfHEv1MONWl+DYDCLNMlD
+WwIDAQAB
+-----END PUBLIC KEY-----
+)";
+  Status status = jwks->addKeyFromPem(pem_text2, "kid2", "RS256");
+  EXPECT_EQ(status, Status::Ok);
+  EXPECT_EQ(jwks->getStatus(), Status::Ok);
+  EXPECT_EQ(jwks->keys().size(), 2);
+  EXPECT_EQ(jwks->keys().at(0)->kid_, "");
+  EXPECT_EQ(jwks->keys().at(1)->kid_, "kid2");
+  EXPECT_EQ(jwks->keys().at(1)->crv_, "");
+}
+
+TEST(JwksParseTest, addKeyFromPemError) {
+  const std::string good_pem_text = R"(
+-----BEGIN PUBLIC KEY-----
+MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEYaOv1HVESfIWB6jnkijUTPKvwkFu
+CQnMe3gk4tp4DhYBSzTl6UXz9iRj15FMlmQpl9fV5nBfZMoUm47EkO7uaQ==
+-----END PUBLIC KEY-----
+)";
+  auto jwks = Jwks::createFromPem(good_pem_text, "kid1", "ES256");
+  EXPECT_EQ(jwks->getStatus(), Status::Ok);
+  EXPECT_EQ(jwks->keys().size(), 1);
+
+  const std::string pem_text = R"(
+-----BEGIN PUBLIC KEY-----
+bad-pub-key
+-----END PUBLIC KEY-----
+)";
+  Status status = jwks->addKeyFromPem(pem_text, "kid1", "EC256");
+  EXPECT_EQ(status, Status::JwksPemBadBase64);
+  EXPECT_EQ(jwks->getStatus(), Status::Ok);
+  EXPECT_EQ(jwks->keys().size(), 1);
+}
+
 }  // namespace
 }  // namespace jwt_verify
 }  // namespace google

@@ -40,6 +40,15 @@ class Jwks : public WithStatus {
 
   // Create from string
   static std::unique_ptr<Jwks> createFrom(const std::string& pkey, Type type);
+  // Executes to createFrom with type=PEM and sets additional JWKS paramaters
+  // not specified within the PEM.
+  static std::unique_ptr<Jwks> createFromPem(const std::string& pkey,
+                                             const std::string& kid,
+                                             const std::string& alg);
+
+  // Adds a key to this keyset.
+  Status addKeyFromPem(const std::string& pkey, const std::string& kid,
+                       const std::string& alg);
 
   // Struct for JSON Web Key
   struct Pubkey {
