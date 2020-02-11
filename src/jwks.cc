@@ -336,6 +336,17 @@ Status createFromX509(const ::google::protobuf::Struct& jwks_pb,
 
 }  // namespace
 
+Status Jwks::addKeyFromPem(const std::string& pkey, const std::string& kid,
+                           const std::string& alg) {
+  JwksPtr tmp = Jwks::createFromPem(pkey, kid, alg);
+  if (tmp->getStatus() != Status::Ok) {
+    return tmp->getStatus();
+  }
+  keys_.insert(keys_.end(), std::make_move_iterator(tmp->keys_.begin()),
+               std::make_move_iterator(tmp->keys_.end()));
+  return Status::Ok;
+}
+
 JwksPtr Jwks::createFrom(const std::string& pkey, Type type) {
   JwksPtr keys(new Jwks());
   switch (type) {
@@ -351,9 +362,35 @@ JwksPtr Jwks::createFrom(const std::string& pkey, Type type) {
   return keys;
 }
 
+JwksPtr Jwks::createFromPem(const std::string& pkey, const std::string& kid,
+                            const std::string& alg) {
+  std::unique_ptr<Jwks> ret = Jwks::createFrom(pkey, Jwks::PEM);
+  if (ret->getStatus() != Status::Ok) {
+    return ret;
+  }
+  if (ret->keys_.size() != 1) {
+    ret->updateStatus(Status::JwksPemBadBase64);
+    return ret;
+  }
+  Pubkey* jwk = ret->keys_.at(0).get();
+  jwk->kid_ = kid;
+  jwk->alg_ = alg;
+
+  // If alg is a known EC algorithm, set the correct crv as well.
+  if (jwk->alg_ == "ES256") {
+    jwk->crv_ = "P-256";
+  }
+  if (jwk->alg_ == "ES384") {
+    jwk->crv_ = "P-384";
+  }
+  if (jwk->alg_ == "ES512") {
+    jwk->crv_ = "P-521";
+  }
+  return ret;
+}
+
 // pkey_pem must be a PEM-encoded PKCS #8 public key.
 // This is the format that starts with -----BEGIN PUBLIC KEY-----.
-// Currently this only supports RSA. Support for ECC will be added soon.
 void Jwks::createFromPemCore(const std::string& pkey_pem) {
   keys_.clear();
   PubkeyPtr key_ptr(new Pubkey());
