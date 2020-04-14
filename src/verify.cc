@@ -154,20 +154,8 @@ bool verifySignatureOct(absl::string_view key, const EVP_MD* md,
 
 }  // namespace
 
-Status verifyJwt(const Jwt& jwt, const Jwks& jwks) {
-  return verifyJwt(jwt, jwks, absl::ToUnixSeconds(absl::Now()));
-}
-
-Status verifyJwt(const Jwt& jwt, const Jwks& jwks, uint64_t now) {
-  // First check that the JWT has not expired (exp) and is active (nbf).
-  if (now < jwt.nbf_) {
-    return Status::JwtNotYetValid;
-  }
-  if (jwt.exp_ && now > jwt.exp_) {
-    return Status::JwtExpired;
-  }
-
-  // Second verify signature.z
+Status verifyJwtWithoutTimeChecking(const Jwt& jwt, const Jwks& jwks) {
+  // Verify signature
   std::string signed_data =
       jwt.header_str_base64url_ + '.' + jwt.payload_str_base64url_;
   bool kid_alg_matched = false;
@@ -238,6 +226,22 @@ Status verifyJwt(const Jwt& jwt, const Jwks& jwks, uint64_t now) {
   // Verification failed.
   return kid_alg_matched ? Status::JwtVerificationFail
                          : Status::JwksKidAlgMismatch;
+}
+
+Status verifyJwt(const Jwt& jwt, const Jwks& jwks) {
+  return verifyJwt(jwt, jwks, absl::ToUnixSeconds(absl::Now()));
+}
+
+Status verifyJwt(const Jwt& jwt, const Jwks& jwks, uint64_t now) {
+  // First check that the JWT has not expired (exp) and is active (nbf).
+  if (now < jwt.nbf_) {
+    return Status::JwtNotYetValid;
+  }
+  if (jwt.exp_ && now > jwt.exp_) {
+    return Status::JwtExpired;
+  }
+
+  return verifyJwtWithoutTimeChecking(jwt, jwks);
 }
 
 Status verifyJwt(const Jwt& jwt, const Jwks& jwks,
