@@ -155,7 +155,7 @@ bool verifySignatureOct(absl::string_view key, const EVP_MD* md,
 }  // namespace
 
 Status verifyJwtWithoutTimeChecking(const Jwt& jwt, const Jwks& jwks) {
-  // Verify signature.z
+  // Verify signature
   std::string signed_data =
       jwt.header_str_base64url_ + '.' + jwt.payload_str_base64url_;
   bool kid_alg_matched = false;
