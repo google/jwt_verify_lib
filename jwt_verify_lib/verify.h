@@ -22,6 +22,16 @@ namespace google {
 namespace jwt_verify {
 
 /**
+ * This function verifies JWT signature is valid.
+ * If verification failed, returns the failure reason.
+ * Note this method does not verify the "aud" claim.
+ * @param jwt is Jwt object
+ * @param jwks is Jwks object
+ * @return the verification status
+ */
+Status verifyJwtWithoutTimeChecking(const Jwt& jwt, const Jwks& jwks);
+
+/**
  * This function verifies JWT signature is valid and that it has not expired
  * checking the "exp" and "nbf" claims against the system's current wall clock.
  * If verification failed, returns the failure reason.
