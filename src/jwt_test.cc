@@ -126,19 +126,40 @@ TEST(JwtParseTest, GoodJwtWithMultiAud) {
   EXPECT_EQ(jwt.signature_, "Signature");
 }
 
-TEST(JwtParseTest, EmptyJwt) {
+TEST(JwtParseTest, TestEmptyJwt) {
   Jwt jwt;
   ASSERT_EQ(jwt.parseFromString(""), Status::JwtBadFormat);
 }
 
-TEST(JwtParseTest, TooLargeJwt) {
+TEST(JwtParseTest, TestTooManySections) {
+  Jwt jwt;
+  std::string jwt_str = "aaa.bbb.ccc.ddd.eee";
+  ASSERT_EQ(jwt.parseFromString(jwt_str), Status::JwtBadFormat);
+}
+
+TEST(JwtParseTest, TestTooLargeJwt) {
   Jwt jwt;
   // string > 8096 of MaxJwtSize
   std::string jwt_str(10240, 'c');
   ASSERT_EQ(jwt.parseFromString(jwt_str), Status::JwtBadFormat);
 }
 
-TEST(JwtParseTest, BadJsonHeader) {
+TEST(JwtParseTest, TestParseHeaderBadBase64) {
+  /*
+   * jwt with header replaced by
+   * "{"alg":"RS256","typ":"JWT", this is a invalid json}"
+   */
+  const std::string jwt_text =
+      "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCIsIHRoaXMgaXMgYSBpbnZhbGlkIGpzb259+."
+      "eyJpc3MiOiJodHRwczovL2V4YW1wbGUuY29tIiwic3ViIjoidGVzdEBleGFtcGxlLmNvbSIs"
+      "ImV4cCI6MTUwMTI4MTA1OH0.VGVzdFNpZ25hdHVyZQ";
+
+  Jwt jwt;
+  ASSERT_EQ(jwt.parseFromString(jwt_text),
+            Status::JwtHeaderParseErrorBadBase64);
+}
+
+TEST(JwtParseTest, TestParseHeaderBadJson) {
   /*
    * jwt with header replaced by
    * "{"alg":"RS256","typ":"JWT", this is a invalid json}"
@@ -149,23 +170,10 @@ TEST(JwtParseTest, BadJsonHeader) {
       "ImV4cCI6MTUwMTI4MTA1OH0.VGVzdFNpZ25hdHVyZQ";
 
   Jwt jwt;
-  ASSERT_EQ(jwt.parseFromString(jwt_text), Status::JwtHeaderParseError);
+  ASSERT_EQ(jwt.parseFromString(jwt_text), Status::JwtHeaderParseErrorBadJson);
 }
 
-TEST(JwtParseTest, BadJsonPayload) {
-  /*
-   * jwt with payload replaced by
-   * "this is not a json"
-   */
-  const std::string jwt_text =
-      "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.dGhpcyBpcyBub3QgYSBqc29u."
-      "VGVzdFNpZ25hdHVyZQ";
-
-  Jwt jwt;
-  ASSERT_EQ(jwt.parseFromString(jwt_text), Status::JwtPayloadParseError);
-}
-
-TEST(JwtParseTest, AbsentAlg) {
+TEST(JwtParseTest, TestParseHeaderAbsentAlg) {
   /*
    * jwt with header replaced by
    * "{"typ":"JWT"}"
@@ -180,7 +188,7 @@ TEST(JwtParseTest, AbsentAlg) {
   ASSERT_EQ(jwt.parseFromString(jwt_text), Status::JwtHeaderBadAlg);
 }
 
-TEST(JwtParseTest, AlgIsNotString) {
+TEST(JwtParseTest, TestParseHeaderAlgIsNotString) {
   /*
    * jwt with header replaced by
    * "{"alg":256,"typ":"JWT"}"
@@ -194,7 +202,7 @@ TEST(JwtParseTest, AlgIsNotString) {
   ASSERT_EQ(jwt.parseFromString(jwt_text), Status::JwtHeaderBadAlg);
 }
 
-TEST(JwtParseTest, InvalidAlg) {
+TEST(JwtParseTest, TestParseHeaderInvalidAlg) {
   /*
    * jwt with header replaced by
    * "{"alg":"InvalidAlg","typ":"JWT"}"
@@ -208,7 +216,7 @@ TEST(JwtParseTest, InvalidAlg) {
   ASSERT_EQ(jwt.parseFromString(jwt_text), Status::JwtHeaderNotImplementedAlg);
 }
 
-TEST(JwtParseTest, BadFormatKid) {
+TEST(JwtParseTest, TestParseHeaderBadFormatKid) {
   // JWT with bad-formatted kid
   // Header:  {"alg":"RS256","typ":"JWT","kid":1}
   // Payload:
@@ -222,6 +230,159 @@ TEST(JwtParseTest, BadFormatKid) {
   ASSERT_EQ(jwt.parseFromString(jwt_text), Status::JwtHeaderBadKid);
 }
 
+TEST(JwtParseTest, TestParsePayloadBadBase64) {
+  /*
+   * jwt with payload replaced by
+   * "this is not a json"
+   */
+  const std::string jwt_text =
+      "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.dGhpcyBpcyBub3QgYSBqc29u+."
+      "VGVzdFNpZ25hdHVyZQ";
+
+  Jwt jwt;
+  ASSERT_EQ(jwt.parseFromString(jwt_text),
+            Status::JwtPayloadParseErrorBadBase64);
+}
+
+TEST(JwtParseTest, TestParsePayloadBadJson) {
+  /*
+   * jwt with payload replaced by
+   * "this is not a json"
+   */
+  const std::string jwt_text =
+      "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.dGhpcyBpcyBub3QgYSBqc29u."
+      "VGVzdFNpZ25hdHVyZQ";
+
+  Jwt jwt;
+  ASSERT_EQ(jwt.parseFromString(jwt_text), Status::JwtPayloadParseErrorBadJson);
+}
+
+TEST(JwtParseTest, TestParsePayloadIssNotString) {
+  /*
+   * jwt with payload { "iss": true, "sub": "test_subject", "exp": 123456789 }
+   */
+  const std::string jwt_text =
+      "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9."
+      "eyAiaXNzIjogdHJ1ZSwgICAgInN1YiI6ICJ0ZXN0X3N1YmplY3QiLCAgImV4cCI6ICAxMjM0"
+      "NTY3ODkgfQ."
+      "VGVzdFNpZ25hdHVyZQ";
+
+  Jwt jwt;
+  ASSERT_EQ(jwt.parseFromString(jwt_text),
+            Status::JwtPayloadParseErrorIssNotString);
+}
+
+TEST(JwtParseTest, TestParsePayloadSubNotString) {
+  /*
+   * jwt with payload {"iss": "test_issuer", "sub": 123456, "exp": 123456789 }
+   */
+  const std::string jwt_text =
+      "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9."
+      "eyAiaXNzIjoidGVzdF9pc3N1ZXIiLCAic3ViIjogMTIzNDU2LCAgImV4cCI6IDEyMzQ1Njc4"
+      "OSB9."
+      "VGVzdFNpZ25hdHVyZQ";
+
+  Jwt jwt;
+  ASSERT_EQ(jwt.parseFromString(jwt_text),
+            Status::JwtPayloadParseErrorSubNotString);
+}
+
+TEST(JwtParseTest, TestParsePayloadIatNotInteger) {
+  /*
+   * jwt with payload { "iss":"test_issuer", "sub": "test_subject", "iat":
+   * "123456789" }
+   */
+  const std::string jwt_text =
+      "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9."
+      "eyAiaXNzIjoidGVzdF9pc3N1ZXIiLCAic3ViIjogInRlc3Rfc3ViamVjdCIsICJpYXQiOiAi"
+      "MTIzNDU2Nzg5IiB9."
+      "VGVzdFNpZ25hdHVyZQ";
+
+  Jwt jwt;
+  ASSERT_EQ(jwt.parseFromString(jwt_text),
+            Status::JwtPayloadParseErrorIatNotInteger);
+}
+
+TEST(JwtParseTest, TestParsePayloadNbfNotInteger) {
+  /*
+   * jwt with payload { "iss":"test_issuer", "sub": "test_subject", "nbf":
+   * "123456789" }
+   */
+  const std::string jwt_text =
+      "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9."
+      "eyAiaXNzIjoidGVzdF9pc3N1ZXIiLCAic3ViIjogInRlc3Rfc3ViamVjdCIsICJuYmYiOiAi"
+      "MTIzNDU2Nzg5IiB9."
+      "VGVzdFNpZ25hdHVyZQ";
+
+  Jwt jwt;
+  ASSERT_EQ(jwt.parseFromString(jwt_text),
+            Status::JwtPayloadParseErrorNbfNotInteger);
+}
+
+TEST(JwtParseTest, TestParsePayloadExpNotInteger) {
+  /*
+   * jwt with payload { "iss":"test_issuer", "sub": "test_subject", "exp":
+   * "123456789" }
+   */
+  const std::string jwt_text =
+      "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9."
+      "eyAiaXNzIjoidGVzdF9pc3N1ZXIiLCAic3ViIjogInRlc3Rfc3ViamVjdCIsICJleHAiOiAi"
+      "MTIzNDU2Nzg5IiB9."
+      "VGVzdFNpZ25hdHVyZQ";
+
+  Jwt jwt;
+  ASSERT_EQ(jwt.parseFromString(jwt_text),
+            Status::JwtPayloadParseErrorExpNotInteger);
+}
+
+TEST(JwtParseTest, TestParsePayloadJtiNotString) {
+  /*
+   * jwt with payload { "iss":"test_issuer", "sub": "test_subject", "jti":
+   * 1234567}
+   */
+  const std::string jwt_text =
+      "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9."
+      "eyAiaXNzIjoidGVzdF9pc3N1ZXIiLCAic3ViIjogInRlc3Rfc3ViamVjdCIsICJqdGkiOiAx"
+      "MjM0NTY3fQ."
+      "VGVzdFNpZ25hdHVyZQ";
+
+  Jwt jwt;
+  ASSERT_EQ(jwt.parseFromString(jwt_text),
+            Status::JwtPayloadParseErrorJtiNotString);
+}
+
+TEST(JwtParseTest, TestParsePayloadAudInteger) {
+  /*
+   * jwt with payload { "iss":"test_issuer", "sub": "test_subject", "aud":
+   * 1234567}
+   */
+  const std::string jwt_text =
+      "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9."
+      "eyAiaXNzIjoidGVzdF9pc3N1ZXIiLCAic3ViIjogInRlc3Rfc3ViamVjdCIsICJhdWQiOiAx"
+      "MjM0NTY3fQ."
+      "VGVzdFNpZ25hdHVyZQ";
+
+  Jwt jwt;
+  ASSERT_EQ(jwt.parseFromString(jwt_text),
+            Status::JwtPayloadParseErrorAudNotString);
+}
+
+TEST(JwtParseTest, TestParsePayloadAudIntegerList) {
+  /*
+   * jwt with payload { "iss":"test_issuer", "sub": "test_subject", "aud": [1,2]
+   * }
+   */
+  const std::string jwt_text =
+      "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9."
+      "eyAiaXNzIjoidGVzdF9pc3N1ZXIiLCAic3ViIjogInRlc3Rfc3ViamVjdCIsICJhdWQiOiBb"
+      "MSwyXX0."
+      "VGVzdFNpZ25hdHVyZQ";
+
+  Jwt jwt;
+  ASSERT_EQ(jwt.parseFromString(jwt_text),
+            Status::JwtPayloadParseErrorAudNotString);
+}
+
 TEST(JwtParseTest, InvalidSignature) {
   // {"iss":"https://example.com","sub":"test@example.com","exp":1501281058,
   // aud: [aud1, aud2] }
@@ -233,7 +394,8 @@ TEST(JwtParseTest, InvalidSignature) {
       "4NjU5LCJzdWIiOiJodHRwczovL2V4YW1wbGUuY29tIn0.invalid-signature";
 
   Jwt jwt;
-  ASSERT_EQ(jwt.parseFromString(jwt_text), Status::JwtSignatureParseError);
+  ASSERT_EQ(jwt.parseFromString(jwt_text),
+            Status::JwtSignatureParseErrorBadBase64);
 }
 
 }  // namespace
