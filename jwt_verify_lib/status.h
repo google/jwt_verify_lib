@@ -39,8 +39,11 @@ enum class Status {
   // JWT is not in the form of Header.Payload.Signature
   JwtBadFormat,
 
-  // Jwt header is an invalid Base64url input or an invalid JSON.
-  JwtHeaderParseError,
+  // Jwt header is an invalid Base64url encoded.
+  JwtHeaderParseErrorBadBase64,
+
+  // Jwt header is an invalid JSON.
+  JwtHeaderParseErrorBadJson,
 
   // "alg" in the header is not a string.
   JwtHeaderBadAlg,
@@ -51,11 +54,35 @@ enum class Status {
   // "kid" in the header is not a string.
   JwtHeaderBadKid,
 
-  // Jwt payload is an invalid Base64url input or an invalid JSON.
-  JwtPayloadParseError,
+  // Jwt payload is an invalid Base64url encoded.
+  JwtPayloadParseErrorBadBase64,
+
+  // Jwt payload is an invalid JSON.
+  JwtPayloadParseErrorBadJson,
+
+  // Jwt payload field [iss] must be string.
+  JwtPayloadParseErrorIssNotString,
+
+  // Jwt payload field [sub] must be string.
+  JwtPayloadParseErrorSubNotString,
+
+  // Jwt payload field [iat] must be integer.
+  JwtPayloadParseErrorIatNotInteger,
+
+  // Jwt payload field [nbf] must be integer.
+  JwtPayloadParseErrorNbfNotInteger,
+
+  // Jwt payload field [exp] must be integer.
+  JwtPayloadParseErrorExpNotInteger,
+
+  // Jwt payload field [jti] must be string.
+  JwtPayloadParseErrorJtiNotString,
+
+  // Jwt payload field [aud] must be string or string list.
+  JwtPayloadParseErrorAudNotString,
 
   // Jwt signature is an invalid Base64url input.
-  JwtSignatureParseError,
+  JwtSignatureParseErrorBadBase64,
 
   // Issuer is not configured.
   JwtUnknownIssuer,

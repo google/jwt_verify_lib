@@ -30,19 +30,38 @@ std::string getStatusString(Status status) {
     case Status::JwtExpired:
       return "Jwt is expired";
     case Status::JwtBadFormat:
-      return "Jwt is not in the form of Header.Payload.Signature";
-    case Status::JwtHeaderParseError:
-      return "Jwt header is an invalid Base64url input or an invalid JSON";
+      return "Jwt is not in the form of Header.Payload.Signature with two dots "
+             "and 3 sections";
+    case Status::JwtHeaderParseErrorBadBase64:
+      return "Jwt header is an invalid Base64url encoded";
+    case Status::JwtHeaderParseErrorBadJson:
+      return "Jwt header is an invalid JSON";
     case Status::JwtHeaderBadAlg:
-      return "Jwt header [alg] field is not a string";
+      return "Jwt header [alg] field is required and must be a string";
     case Status::JwtHeaderNotImplementedAlg:
-      return "Jwt header [alg] field value is invalid";
+      return "Jwt header [alg] is not supported";
     case Status::JwtHeaderBadKid:
       return "Jwt header [kid] field is not a string";
-    case Status::JwtPayloadParseError:
-      return "Jwt payload is an invalid Base64 or an invalid JSON";
-    case Status::JwtSignatureParseError:
-      return "Jwt signature is an invalid Base64";
+    case Status::JwtPayloadParseErrorBadBase64:
+      return "Jwt payload is an invalid Base64url encoded";
+    case Status::JwtPayloadParseErrorBadJson:
+      return "Jwt payload is an invalid JSON";
+    case Status::JwtPayloadParseErrorIssNotString:
+      return "Jwt payload [iss] field is not a string";
+    case Status::JwtPayloadParseErrorSubNotString:
+      return "Jwt payload [sub] field is not a string";
+    case Status::JwtPayloadParseErrorIatNotInteger:
+      return "Jwt payload [iat] field is not an integer";
+    case Status::JwtPayloadParseErrorNbfNotInteger:
+      return "Jwt payload [nbf] field is not an integer";
+    case Status::JwtPayloadParseErrorExpNotInteger:
+      return "Jwt payload [exp] field is not an integer";
+    case Status::JwtPayloadParseErrorJtiNotString:
+      return "Jwt payload [jti] field is not a string";
+    case Status::JwtPayloadParseErrorAudNotString:
+      return "Jwt payload [aud] field is not a string or string list";
+    case Status::JwtSignatureParseErrorBadBase64:
+      return "Jwt signature is an invalid Base64url encoded";
     case Status::JwtUnknownIssuer:
       return "Jwt issuer is not configured";
     case Status::JwtAudienceNotAllowed:
