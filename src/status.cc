@@ -89,6 +89,12 @@ std::string getStatusString(Status status) {
       return "Jwks EC [x] and [y] fields have a parse error.";
     case Status::JwksOctBadBase64:
       return "Jwks Oct key is an invalid Base64";
+    case Status::JwksOKPCreateKeyFail:
+      return "Jwks OKP create key fail";
+    case Status::JwksOKPXBadBase64:
+      return "Jwks OKP [x] field is an invalid Base64.";
+    case Status::JwksOKPXWrongLength:
+      return "Jwks OKP [x] field is wrong length.";
     case Status::JwksFetchFail:
       return "Jwks remote fetch is failed";
 
@@ -133,6 +139,19 @@ std::string getStatusString(Status status) {
       return "[k] field is missing for an HMAC key";
     case Status::JwksHMACKeyBadK:
       return "[k] field is not string for an HMAC key";
+
+    case Status::JwksOKPKeyBadAlg:
+      return "[alg] is not [EdDSA] for an OKP key";
+    case Status::JwksOKPKeyMissingCrv:
+      return "[crv] field is missing for an OKP key";
+    case Status::JwksOKPKeyBadCrv:
+      return "[crv] field is not string for an OKP key";
+    case Status::JwksOKPKeyCrvUnsupported:
+      return "[crv] field is not supported for an OKP key";
+    case Status::JwksOKPKeyMissingX:
+      return "[x] field is missing for an OKP key";
+    case Status::JwksOKPKeyBadX:
+      return "[x] field is not string for an OKP key";
 
     case Status::JwksX509BioWriteError:
       return "X509 parse pubkey internal fails: memory allocation";

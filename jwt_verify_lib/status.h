@@ -125,6 +125,13 @@ enum class Status {
   // Jwks Oct key is an invalid Base64.
   JwksOctBadBase64,
 
+  // Failed to create a EVP_PKEY object.
+  JwksOKPCreateKeyFail,
+  // "x" field is invalid Base64
+  JwksOKPXBadBase64,
+  // "x" field is wrong length
+  JwksOKPXWrongLength,
+
   // Failed to fetch public key
   JwksFetchFail,
 
@@ -169,6 +176,19 @@ enum class Status {
   JwksHMACKeyMissingK,
   // "k" field is not string for an HMAC key
   JwksHMACKeyBadK,
+
+  // "alg" is not "EdDSA" for an OKP key
+  JwksOKPKeyBadAlg,
+  // "crv" field is missing for an OKP key
+  JwksOKPKeyMissingCrv,
+  // "crv" field is not string for an OKP key
+  JwksOKPKeyBadCrv,
+  // "crv" is not supported for an OKP key
+  JwksOKPKeyCrvUnsupported,
+  // "x" field is missing for an OKP key
+  JwksOKPKeyMissingX,
+  // "x" field is not string for an OKP key
+  JwksOKPKeyBadX,
 
   // X509 BIO_Write function fails
   JwksX509BioWriteError,

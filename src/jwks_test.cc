@@ -121,6 +121,42 @@ TEST(JwksParseTest, GoodEC) {
   EXPECT_EQ(jwks->keys()[3]->crv_, "P-521");
 }
 
+TEST(JwksParseTest, GoodOKP) {
+  const std::string jwks_text = R"(
+    {
+       "keys": [
+          {
+             "kty": "OKP",
+             "crv": "Ed25519",
+             "x": "EB54wykhS7YJFD6RYJNnwbWEz3cI7CF5bCDTXlrwI5k",
+             "alg": "EdDSA",
+             "kid": "ed25519"
+          },
+          {
+             "kty": "OKP",
+             "crv": "X25519",
+             "x": "C5wcZwCjjxXTAT6uxomdSYTLAHO04PNefc1HuuNvHD8",
+             "alg": "EdDSA",
+             "kid": "x25519"
+          },
+      ]
+     }
+)";
+  auto jwks = Jwks::createFrom(jwks_text, Jwks::JWKS);
+  EXPECT_EQ(jwks->getStatus(), Status::Ok);
+  EXPECT_EQ(jwks->keys().size(), 2);
+
+  EXPECT_EQ(jwks->keys()[0]->alg_, "EdDSA");
+  EXPECT_EQ(jwks->keys()[0]->kid_, "ed25519");
+  EXPECT_EQ(jwks->keys()[0]->kty_, "OKP");
+  EXPECT_EQ(jwks->keys()[0]->crv_, "Ed25519");
+
+  EXPECT_EQ(jwks->keys()[1]->alg_, "EdDSA");
+  EXPECT_EQ(jwks->keys()[1]->kid_, "x25519");
+  EXPECT_EQ(jwks->keys()[1]->kty_, "OKP");
+  EXPECT_EQ(jwks->keys()[1]->crv_, "X25519");
+}
+
 TEST(JwksParseTest, EmptyJwks) {
   auto jwks = Jwks::createFrom("", Jwks::JWKS);
   EXPECT_EQ(jwks->getStatus(), Status::JwksParseError);
@@ -317,6 +353,40 @@ TEST(JwksParseTest, JwksRSAInvalidN) {
       "}";
   auto jwks = Jwks::createFrom(BadPublicKeyRSA, Jwks::JWKS);
   EXPECT_EQ(jwks->getStatus(), Status::JwksRsaParseError);
+}
+
+TEST(JwksParseTest, JwksOKPXBadBase64) {
+  // OKP x is invalid base64
+  const std::string jwks_text = R"(
+     {
+        "keys": [
+           {
+               "kty": "OKP",
+               "crv": "Ed25519",
+               "x": "~}}"
+           }
+        ]
+     }
+)";
+  auto jwks = Jwks::createFrom(jwks_text, Jwks::JWKS);
+  EXPECT_EQ(jwks->getStatus(), Status::JwksOKPXBadBase64);
+}
+
+TEST(JwksParseTest, JwksOKPXWrongLength) {
+  // OKP x is the wrong length
+  const std::string jwks_text = R"(
+     {
+        "keys": [
+           {
+               "kty": "OKP",
+               "crv": "Ed25519",
+               "x": "dGVzdAo"
+           }
+        ]
+     }
+)";
+  auto jwks = Jwks::createFrom(jwks_text, Jwks::JWKS);
+  EXPECT_EQ(jwks->getStatus(), Status::JwksOKPXWrongLength);
 }
 
 TEST(JwksParseTest, JwksECMatchAlgES256CrvP256) {
@@ -573,6 +643,107 @@ TEST(JwksParseTest, JwksECUnspecifiedCrv) {
   EXPECT_EQ(jwks->keys()[2]->crv_, "P-521");
 }
 
+TEST(JwksParseTest, JwksOKPKeyBadAlg) {
+  // OKP alg doesn't match with kty
+  const std::string jwks_text = R"(
+     {
+        "keys": [
+           {
+               "kty": "OKP",
+               "alg": "ES256"
+           }
+        ]
+     }
+)";
+  auto jwks = Jwks::createFrom(jwks_text, Jwks::JWKS);
+  EXPECT_EQ(jwks->getStatus(), Status::JwksOKPKeyBadAlg);
+}
+
+TEST(JwksParseTest, JwksOKPKeyMissingCrv) {
+  // OKP crv is missing
+  const std::string jwks_text = R"(
+     {
+        "keys": [
+           {
+               "kty": "OKP",
+               "alg": "EdDSA"
+           }
+        ]
+     }
+)";
+  auto jwks = Jwks::createFrom(jwks_text, Jwks::JWKS);
+  EXPECT_EQ(jwks->getStatus(), Status::JwksOKPKeyMissingCrv);
+}
+
+TEST(JwksParseTest, JwksOKPKeyBadCrv) {
+  // OKP crv is wrong type (not a string)
+  const std::string jwks_text = R"(
+     {
+        "keys": [
+           {
+               "kty": "OKP",
+               "alg": "EdDSA",
+               "crv": 0
+           }
+        ]
+     }
+)";
+  auto jwks = Jwks::createFrom(jwks_text, Jwks::JWKS);
+  EXPECT_EQ(jwks->getStatus(), Status::JwksOKPKeyBadCrv);
+}
+
+TEST(JwksParseTest, JwksOKPKeyCrvUnsupported) {
+  // OKP crv is unsupported
+  const std::string jwks_text = R"(
+     {
+        "keys": [
+           {
+               "kty": "OKP",
+               "alg": "EdDSA",
+               "crv": "Ed448"
+           }
+        ]
+     }
+)";
+  auto jwks = Jwks::createFrom(jwks_text, Jwks::JWKS);
+  EXPECT_EQ(jwks->getStatus(), Status::JwksOKPKeyCrvUnsupported);
+}
+
+TEST(JwksParseTest, JwksOKPKeyMissingX) {
+  // OKP x is missing
+  const std::string jwks_text = R"(
+     {
+        "keys": [
+           {
+               "kty": "OKP",
+               "alg": "EdDSA",
+               "crv": "Ed25519"
+           }
+        ]
+     }
+)";
+  auto jwks = Jwks::createFrom(jwks_text, Jwks::JWKS);
+  EXPECT_EQ(jwks->getStatus(), Status::JwksOKPKeyMissingX);
+}
+
+TEST(JwksParseTest, JwksOKPKeyBadX) {
+  // OKP x is wrong type (not a string)
+  const std::string jwks_text = R"(
+     {
+        "keys": [
+           {
+               "kty": "OKP",
+               "alg": "EdDSA",
+               "crv": "Ed25519",
+               "x": 0
+           }
+        ]
+     }
+)";
+  auto jwks = Jwks::createFrom(jwks_text, Jwks::JWKS);
+  EXPECT_EQ(jwks->getStatus(), Status::JwksOKPKeyBadX);
+}
+
 TEST(JwksParseTest, JwksGoodX509) {
   auto jwks = Jwks::createFrom(kPublicKeyX509, Jwks::JWKS);
   EXPECT_EQ(jwks->getStatus(), Status::Ok);
@@ -700,6 +871,28 @@ TEST(JwksParseTest, goodPEMEC) {
 -----BEGIN PUBLIC KEY-----
 MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEYaOv1HVESfIWB6jnkijUTPKvwkFu
 CQnMe3gk4tp4DhYBSzTl6UXz9iRj15FMlmQpl9fV5nBfZMoUm47EkO7uaQ==
+-----END PUBLIC KEY-----
+)";
+  auto jwks = Jwks::createFrom(pem_text, Jwks::PEM);
+  EXPECT_EQ(jwks->getStatus(), Status::Ok);
+  EXPECT_EQ(jwks->keys().size(), 1);
+}
+
+TEST(JwksParseTest, goodPEMEd25519) {
+  const std::string pem_text = R"(
+-----BEGIN PUBLIC KEY-----
+MCowBQYDK2VwAyEAvWNRcLk4e4v62xnQqR+EksR7CHYdLQhFfFJibL1gYGA=
+-----END PUBLIC KEY-----
+)";
+  auto jwks = Jwks::createFrom(pem_text, Jwks::PEM);
+  EXPECT_EQ(jwks->getStatus(), Status::Ok);
+  EXPECT_EQ(jwks->keys().size(), 1);
+}
+
+TEST(JwksParseTest, goodPEMX25519) {
+  const std::string pem_text = R"(
+-----BEGIN PUBLIC KEY-----
+MCowBQYDK2VuAyEAqkzkwL7fYc4PCqt5PzB0kYgGFLqosYBqIYXjx9P/bR8=
 -----END PUBLIC KEY-----
 )";
   auto jwks = Jwks::createFrom(pem_text, Jwks::PEM);

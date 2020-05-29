@@ -18,6 +18,7 @@
 #include "jwt_verify_lib/check_audience.h"
 
 #include "openssl/bn.h"
+#include "openssl/curve25519.h"
 #include "openssl/ecdsa.h"
 #include "openssl/err.h"
 #include "openssl/evp.h"
@@ -152,6 +153,38 @@ bool verifySignatureOct(absl::string_view key, const EVP_MD* md,
                             castToUChar(signed_data), signed_data.length());
 }
 
+bool verifySignatureEd25519(EVP_PKEY* key, const uint8_t* signature,
+                            size_t signature_len, const uint8_t* signed_data,
+                            size_t signed_data_len) {
+  if (key == nullptr || signature == nullptr || signed_data == nullptr) {
+    return false;
+  }
+
+  if (signature_len != ED25519_SIGNATURE_LEN) {
+    return false;
+  }
+
+  uint8_t raw_key[ED25519_PUBLIC_KEY_LEN];
+  size_t out_len = ED25519_PUBLIC_KEY_LEN;
+  if (EVP_PKEY_get_raw_public_key(key, raw_key, &out_len) != 1 ||
+      out_len != ED25519_PUBLIC_KEY_LEN) {
+    return false;
+  }
+
+  if (ED25519_verify(signed_data, signed_data_len, signature, raw_key) == 1) {
+    return true;
+  }
+
+  ERR_clear_error();
+  return false;
+}
+
+bool verifySignatureEd25519(EVP_PKEY* key, absl::string_view signature,
+                            absl::string_view signed_data) {
+  return verifySignatureEd25519(key, castToUChar(signature), signature.length(),
+                                castToUChar(signed_data), signed_data.length());
+}
+
 }  // namespace
 
 Status verifyJwtWithoutTimeChecking(const Jwt& jwt, const Jwks& jwks) {
@@ -218,6 +251,11 @@ Status verifyJwtWithoutTimeChecking(const Jwt& jwt, const Jwks& jwks) {
 
       if (verifySignatureOct(jwk->hmac_key_, md, jwt.signature_, signed_data)) {
         // Verification succeeded.
+        return Status::Ok;
+      }
+    } else if (jwk->kty_ == "OKP" && jwk->crv_ == "Ed25519") {
+      if (verifySignatureEd25519(jwk->okp_key_.get(), jwt.signature_,
+                                 signed_data)) {
         return Status::Ok;
       }
     }
