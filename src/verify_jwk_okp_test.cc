@@ -59,7 +59,7 @@ const std::string PublicKeyJwkOKP = R"(
 )";
 
 // Header:  {"alg": "EdDSA", "kid": "abc", typ": "JWT"}
-// Payload: {"iss":"https://example.com", "sub":"test@example.com" }
+// Payload: {"iss":"https://example.com", "sub":"test@example.com"}
 const std::string JwtJWKEd25519 =
     "eyJ0eXAiOiJKV1QiLCJhbGciOiJFZERTQSIsImtpZCI6ImFiYyJ9."
     "eyJpc3MiOiJodHRwczovL2V4YW1wbGUuY29tIiwic3ViIjoidGVzdEBleGFtcGxlLmNvbSJ9."
@@ -67,7 +67,7 @@ const std::string JwtJWKEd25519 =
     "gEb2j1IALPtLA8TsYxQJ4Xxfucen9nFqxUBg";
 
 // Header:  {"alg": "EdDSA", "typ": "JWT"}
-// Payload: {"iss":"https://example.com", "sub":"test@example.com" }
+// Payload: {"iss":"https://example.com", "sub":"test@example.com"}
 const std::string JwtJWKEd25519NoKid =
     "eyJ0eXAiOiJKV1QiLCJhbGciOiJFZERTQSJ9."
     "eyJpc3MiOiJodHRwczovL2V4YW1wbGUuY29tIiwic3ViIjoidGVzdEBleGFtcGxlLmNvbSJ9."
@@ -75,12 +75,21 @@ const std::string JwtJWKEd25519NoKid =
     "aIKC7nwKUPOjBqN8df69JLiFtKxFCDINHtCNhoeLkgcDHHo2SJFincVH_OCg";
 
 // Header:  {"alg": "EdDSA", "kid": "abcdef", typ": "JWT"}
-// Payload: {"iss":"https://example.com", "sub":"test@example.com" }
+// Payload: {"iss":"https://example.com", "sub":"test@example.com"}
 const std::string JwtJWKEd25519NonExistKid =
     "eyJ0eXAiOiJKV1QiLCJhbGciOiJFZERTQSIsImtpZCI6ImFiY2RlZiJ9."
     "eyJpc3MiOiJodHRwczovL2V4YW1wbGUuY29tIiwic3ViIjoidGVzdEBleGFtcGxlLmNvbSJ9."
     "dqLWFow63rL9VFsjtea60hZn5wMZJxNM6pGcVcOEOE38HrkY1miLj2ZIavd8P7NkkqEsuZMkZ4"
     "QHcZxm8qRiCA";
+
+// Header:  {"alg": "EdDSA", "kid": "abc", typ": "JWT"}
+// Payload: {"iss":"https://example.com", "sub":"test@example.com"}
+// But signed by a different key
+const std::string JwtJWKEd25519WrongSignature =
+    "eyJ0eXAiOiJKV1QiLCJhbGciOiJFZERTQSIsImtpZCI6ImFiYyJ9."
+    "eyJpc3MiOiJodHRwczovL2V4YW1wbGUuY29tIiwic3ViIjoidGVzdEBleGFtcGxlLmNvbSJ9."
+    "Y-Podsv8NFAQX07NbXAm6O8jD7KdzMpulh-kgDbuT-AspA_"
+    "tT7aebOM2GHb2q6qex1O6BFkp5n8-2wrwKKE1BQ";
 
 class VerifyJwkOKPTest : public testing::Test {
  protected:
@@ -152,6 +161,12 @@ TEST_F(VerifyJwkOKPTest, PubkeyNoKidOK) {
   Jwt jwt;
   EXPECT_EQ(jwt.parseFromString(JwtJWKEd25519), Status::Ok);
   EXPECT_EQ(verifyJwt(jwt, *jwks_, 1), Status::Ok);
+}
+
+TEST_F(VerifyJwkOKPTest, WrongSignatureFail) {
+  Jwt jwt;
+  EXPECT_EQ(jwt.parseFromString(JwtJWKEd25519WrongSignature), Status::Ok);
+  EXPECT_EQ(verifyJwt(jwt, *jwks_), Status::JwtVerificationFail);
 }
 
 }  // namespace

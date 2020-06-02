@@ -112,25 +112,16 @@ class KeyGetter : public WithStatus {
     return rsa;
   }
 
-  bssl::UniquePtr<EVP_PKEY> createEvpPkeyFromJwkOKP(int nid, size_t keylen,
-                                                    const std::string& x) {
+  std::string createRawKeyFromJwkOKP(int nid, size_t keylen,
+                                     const std::string& x) {
     std::string x_decoded;
     if (!absl::WebSafeBase64Unescape(x, &x_decoded)) {
       updateStatus(Status::JwksOKPXBadBase64);
-      return nullptr;
-    }
-    if (x_decoded.length() != keylen) {
+    } else if (x_decoded.length() != keylen) {
       updateStatus(Status::JwksOKPXWrongLength);
-      return nullptr;
     }
-    const uint8_t* x_int = castToUChar(x_decoded);
-    bssl::UniquePtr<EVP_PKEY> okp_key(
-        EVP_PKEY_new_raw_public_key(nid, NULL, x_int, keylen));
-    if (!okp_key) {
-      updateStatus(Status::JwksOKPCreateKeyFail);
-      return nullptr;
-    }
-    return okp_key;
+    // For OKP the "x" value is the public key and can just be used as-is
+    return x_decoded;
   }
 
  private:
@@ -323,7 +314,7 @@ Status extractJwkFromJwkOKP(const ::google::protobuf::Struct& jwk_pb,
   }
 
   KeyGetter e;
-  jwk->okp_key_ = e.createEvpPkeyFromJwkOKP(nid, keylen, x_str);
+  jwk->okp_key_raw_ = e.createRawKeyFromJwkOKP(nid, keylen, x_str);
   return e.getStatus();
 }
 
@@ -493,16 +484,32 @@ void Jwks::createFromPemCore(const std::string& pkey_pem) {
       key_ptr->ec_key_.reset(EVP_PKEY_get1_EC_KEY(evp_pkey.get()));
       key_ptr->kty_ = "EC";
       break;
-    case EVP_PKEY_ED25519:
-      key_ptr->okp_key_ = std::move(evp_pkey);
+    case EVP_PKEY_ED25519: {
+      uint8_t raw_key[ED25519_PUBLIC_KEY_LEN];
+      size_t out_len = ED25519_PUBLIC_KEY_LEN;
+      if (EVP_PKEY_get_raw_public_key(evp_pkey.get(), raw_key, &out_len) != 1 ||
+          out_len != ED25519_PUBLIC_KEY_LEN) {
+        updateStatus(Status::JwksPemGetRawEd25519Error);
+        return;
+      }
+      key_ptr->okp_key_raw_ = (char*)raw_key;
       key_ptr->kty_ = "OKP";
       key_ptr->crv_ = "Ed25519";
       break;
-    case EVP_PKEY_X25519:
-      key_ptr->okp_key_ = std::move(evp_pkey);
+    }
+    case EVP_PKEY_X25519: {
+      uint8_t raw_key[X25519_PUBLIC_VALUE_LEN];
+      size_t out_len = X25519_PUBLIC_VALUE_LEN;
+      if (EVP_PKEY_get_raw_public_key(evp_pkey.get(), raw_key, &out_len) != 1 ||
+          out_len != X25519_PUBLIC_VALUE_LEN) {
+        updateStatus(Status::JwksPemGetRawX25519Error);
+        return;
+      }
+      key_ptr->okp_key_raw_ = (char*)raw_key;
       key_ptr->kty_ = "OKP";
       key_ptr->crv_ = "X25519";
       break;
+    }
     default:
       updateStatus(Status::JwksPemNotImplementedKty);
       return;

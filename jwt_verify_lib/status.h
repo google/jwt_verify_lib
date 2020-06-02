@@ -125,8 +125,6 @@ enum class Status {
   // Jwks Oct key is an invalid Base64.
   JwksOctBadBase64,
 
-  // Failed to create a EVP_PKEY object.
-  JwksOKPCreateKeyFail,
   // "x" field is invalid Base64
   JwksOKPXBadBase64,
   // "x" field is wrong length
@@ -201,6 +199,10 @@ enum class Status {
   JwksPemNotImplementedKty,
   // Unable to parse public key
   JwksPemBadBase64,
+  // Failed to get raw ED25519 key from PEM
+  JwksPemGetRawEd25519Error,
+  // Failed to get raw X25519 key from PEM
+  JwksPemGetRawX25519Error,
 
   // Failed to create BIO
   JwksBioAllocError,

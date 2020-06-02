@@ -89,8 +89,6 @@ std::string getStatusString(Status status) {
       return "Jwks EC [x] and [y] fields have a parse error.";
     case Status::JwksOctBadBase64:
       return "Jwks Oct key is an invalid Base64";
-    case Status::JwksOKPCreateKeyFail:
-      return "Jwks OKP create key fail";
     case Status::JwksOKPXBadBase64:
       return "Jwks OKP [x] field is an invalid Base64.";
     case Status::JwksOKPXWrongLength:
@@ -164,6 +162,10 @@ std::string getStatusString(Status status) {
       return "PEM Key type is not supported";
     case Status::JwksPemBadBase64:
       return "PEM pubkey parse fails";
+    case Status::JwksPemGetRawEd25519Error:
+      return "PEM failed to get raw ED25519 key";
+    case Status::JwksPemGetRawX25519Error:
+      return "PEM failed to get raw X25519 key";
 
     case Status::JwksBioAllocError:
       return "Failed to create BIO due to memory allocation failure";

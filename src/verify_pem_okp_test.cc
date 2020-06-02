@@ -36,12 +36,21 @@ MCowBQYDK2VwAyEA6hH43mEbo+h7iigPm9zLKHH5oEc+bjIXD/t4PLPqHLQ=
 
 // JWT with
 // Header:  {"alg": "EdDSA", "typ": "JWT"}
-// Payload: {"iss":"https://example.com", "sub":"test@example.com" }
+// Payload: {"iss":"https://example.com", "sub":"test@example.com"}
 const std::string JwtPemEd25519 =
     "eyJ0eXAiOiJKV1QiLCJhbGciOiJFZERTQSJ9."
     "eyJpc3MiOiJodHRwczovL2V4YW1wbGUuY29tIiwic3ViIjoidGVzdEBleGFtcGxlLmNvbSJ9."
     "rn-h5xTejtilHiAG6aKJEQ3e5_"
     "aIKC7nwKUPOjBqN8df69JLiFtKxFCDINHtCNhoeLkgcDHHo2SJFincVH_OCg";
+
+// Header:  {"alg": "EdDSA", typ": "JWT"}
+// Payload: {"iss":"https://example.com", "sub":"test@example.com"}
+// But signed by a different key
+const std::string JwtPemEd25519WrongSignature =
+    "eyJ0eXAiOiJKV1QiLCJhbGciOiJFZERTQSJ9."
+    "eyJpc3MiOiJodHRwczovL2V4YW1wbGUuY29tIiwic3ViIjoidGVzdEBleGFtcGxlLmNvbSJ9."
+    "Ob8ljAEmEwAoJFEf_v0YZozGlLLPCLVL2C-6B20S8tVNHTzL1-"
+    "ZiFENdpY53gGakwJ7mm7aLYFikPKUQ62bYCg";
 
 TEST(VerifyPEMTestOKP, VerifyOK) {
   Jwt jwt;
@@ -63,6 +72,14 @@ TEST(VerifyPEMTestOKP, jwksIncorrectAlgSpecifiedFail) {
   // Add incorrect alg to jwks
   jwks->keys()[0]->alg_ = "RS256";
   EXPECT_EQ(verifyJwt(jwt, *jwks, 1), Status::JwksKidAlgMismatch);
+}
+
+TEST(VerifyPEMTestOKP, WrongSignatureFail) {
+  Jwt jwt;
+  EXPECT_EQ(jwt.parseFromString(JwtPemEd25519WrongSignature), Status::Ok);
+  auto jwks = Jwks::createFrom(ed25519pubkey, Jwks::Type::PEM);
+  EXPECT_EQ(jwks->getStatus(), Status::Ok);
+  EXPECT_EQ(verifyJwt(jwt, *jwks, 1), Status::JwtVerificationFail);
 }
 
 }  // namespace
