@@ -44,6 +44,8 @@ std::string getStatusString(Status status) {
       return "Jwt header [kid] field is not a string";
     case Status::JwtPayloadParseErrorBadBase64:
       return "Jwt payload is an invalid Base64url encoded";
+    case Status::JwtEd25519SignatureWrongLength:
+      return "Jwt ED25519 signature is wrong length";
     case Status::JwtPayloadParseErrorBadJson:
       return "Jwt payload is an invalid JSON";
     case Status::JwtPayloadParseErrorIssNotString:
@@ -89,6 +91,10 @@ std::string getStatusString(Status status) {
       return "Jwks EC [x] and [y] fields have a parse error.";
     case Status::JwksOctBadBase64:
       return "Jwks Oct key is an invalid Base64";
+    case Status::JwksOKPXBadBase64:
+      return "Jwks OKP [x] field is an invalid Base64.";
+    case Status::JwksOKPXWrongLength:
+      return "Jwks OKP [x] field is wrong length.";
     case Status::JwksFetchFail:
       return "Jwks remote fetch is failed";
 
@@ -134,6 +140,19 @@ std::string getStatusString(Status status) {
     case Status::JwksHMACKeyBadK:
       return "[k] field is not string for an HMAC key";
 
+    case Status::JwksOKPKeyBadAlg:
+      return "[alg] is not [EdDSA] for an OKP key";
+    case Status::JwksOKPKeyMissingCrv:
+      return "[crv] field is missing for an OKP key";
+    case Status::JwksOKPKeyBadCrv:
+      return "[crv] field is not string for an OKP key";
+    case Status::JwksOKPKeyCrvUnsupported:
+      return "[crv] field is not supported for an OKP key";
+    case Status::JwksOKPKeyMissingX:
+      return "[x] field is missing for an OKP key";
+    case Status::JwksOKPKeyBadX:
+      return "[x] field is not string for an OKP key";
+
     case Status::JwksX509BioWriteError:
       return "X509 parse pubkey internal fails: memory allocation";
     case Status::JwksX509ParseError:
@@ -145,6 +164,8 @@ std::string getStatusString(Status status) {
       return "PEM Key type is not supported";
     case Status::JwksPemBadBase64:
       return "PEM pubkey parse fails";
+    case Status::JwksPemGetRawEd25519Error:
+      return "PEM failed to get raw ED25519 key";
 
     case Status::JwksBioAllocError:
       return "Failed to create BIO due to memory allocation failure";

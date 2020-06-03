@@ -1,7 +1,7 @@
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 
-BORINGSSL_COMMIT = "9df0c47bc034d60d73d216cd0e090707b3fbea58"  # same as Envoy
-BORINGSSL_SHA256 = "86d0614bb9e6cb4e6444b83bb1f031755eff4bbe52cd8f4cd5720bb84a7ea9f5"
+BORINGSSL_COMMIT = "107c03cf6d364939469194396bf7a6b2572d0f9c" # 2020-03-16, same as Envoy
+BORINGSSL_SHA256 = "8ae14b52b7889cf92f3b107610b12afb5011506c77f90c7b3d4a36ed7283905a"
 
 def boringssl_repositories(bind = True):
     http_archive(

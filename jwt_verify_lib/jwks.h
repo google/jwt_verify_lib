@@ -59,6 +59,7 @@ class Jwks : public WithStatus {
     std::string crv_;
     bssl::UniquePtr<RSA> rsa_;
     bssl::UniquePtr<EC_KEY> ec_key_;
+    std::string okp_key_raw_;
     bssl::UniquePtr<BIO> bio_;
     bssl::UniquePtr<X509> x509_;
   };

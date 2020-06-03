@@ -20,11 +20,8 @@
 namespace google {
 namespace jwt_verify {
 
-/**
- * This function fuzz the signature in two loops
- */
-void fuzzJwtSignature(const Jwt& jwt,
-                      std::function<void(const Jwt& jwt)> test_fn) {
+void fuzzJwtSignatureBits(const Jwt& jwt,
+                          std::function<void(const Jwt& jwt)> test_fn) {
   // alter 1 bit
   for (size_t b = 0; b < jwt.signature_.size(); ++b) {
     for (int bit = 0; bit < 8; ++bit) {
@@ -35,13 +32,22 @@ void fuzzJwtSignature(const Jwt& jwt,
       test_fn(fuzz_jwt);
     }
   }
+}
 
+void fuzzJwtSignatureLength(const Jwt& jwt,
+                            std::function<void(const Jwt& jwt)> test_fn) {
   // truncate bytes
   for (size_t count = 1; count < jwt.signature_.size(); ++count) {
     Jwt fuzz_jwt(jwt);
     fuzz_jwt.signature_ = jwt.signature_.substr(0, count);
     test_fn(fuzz_jwt);
   }
+}
+
+void fuzzJwtSignature(const Jwt& jwt,
+                      std::function<void(const Jwt& jwt)> test_fn) {
+  fuzzJwtSignatureBits(jwt, test_fn);
+  fuzzJwtSignatureLength(jwt, test_fn);
 }
 
 // copy from ESP:

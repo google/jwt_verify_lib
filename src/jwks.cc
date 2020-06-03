@@ -25,6 +25,7 @@
 #include "jwt_verify_lib/struct_utils.h"
 #include "openssl/bio.h"
 #include "openssl/bn.h"
+#include "openssl/curve25519.h"
 #include "openssl/ecdsa.h"
 #include "openssl/evp.h"
 #include "openssl/rsa.h"
@@ -109,6 +110,18 @@ class KeyGetter : public WithStatus {
       return nullptr;
     }
     return rsa;
+  }
+
+  std::string createRawKeyFromJwkOKP(int nid, size_t keylen,
+                                     const std::string& x) {
+    std::string x_decoded;
+    if (!absl::WebSafeBase64Unescape(x, &x_decoded)) {
+      updateStatus(Status::JwksOKPXBadBase64);
+    } else if (x_decoded.length() != keylen) {
+      updateStatus(Status::JwksOKPXWrongLength);
+    }
+    // For OKP the "x" value is the public key and can just be used as-is
+    return x_decoded;
   }
 
  private:
@@ -249,6 +262,57 @@ Status extractJwkFromJwkOct(const ::google::protobuf::Struct& jwk_pb,
   return Status::Ok;
 }
 
+// The "OKP" key type is defined in https://tools.ietf.org/html/rfc8037
+Status extractJwkFromJwkOKP(const ::google::protobuf::Struct& jwk_pb,
+                            Jwks::Pubkey* jwk) {
+  // alg is not required, but if present it must be EdDSA
+  if (!jwk->alg_.empty() && jwk->alg_ != "EdDSA") {
+    return Status::JwksOKPKeyBadAlg;
+  }
+
+  // crv is required per https://tools.ietf.org/html/rfc8037#section-2
+  StructUtils jwk_getter(jwk_pb);
+  std::string crv_str;
+  auto code = jwk_getter.GetString("crv", &crv_str);
+  if (code == StructUtils::MISSING) {
+    return Status::JwksOKPKeyMissingCrv;
+  }
+  if (code == StructUtils::WRONG_TYPE) {
+    return Status::JwksOKPKeyBadCrv;
+  }
+  jwk->crv_ = crv_str;
+
+  // Valid crv values:
+  // https://tools.ietf.org/html/rfc8037#section-3
+  // https://www.iana.org/assignments/jose/jose.xhtml#web-key-elliptic-curve
+  // In addition to Ed25519 there are:
+  // X25519: Implemented in boringssl but not used for JWT and thus not
+  // supported here
+  // Ed448 and X448: Not implemented in boringssl
+  int nid;
+  size_t keylen;
+  if (jwk->crv_ == "Ed25519") {
+    nid = EVP_PKEY_ED25519;
+    keylen = ED25519_PUBLIC_KEY_LEN;
+  } else {
+    return Status::JwksOKPKeyCrvUnsupported;
+  }
+
+  // x is required per https://tools.ietf.org/html/rfc8037#section-2
+  std::string x_str;
+  code = jwk_getter.GetString("x", &x_str);
+  if (code == StructUtils::MISSING) {
+    return Status::JwksOKPKeyMissingX;
+  }
+  if (code == StructUtils::WRONG_TYPE) {
+    return Status::JwksOKPKeyBadX;
+  }
+
+  KeyGetter e;
+  jwk->okp_key_raw_ = e.createRawKeyFromJwkOKP(nid, keylen, x_str);
+  return e.getStatus();
+}
+
 Status extractJwk(const ::google::protobuf::Struct& jwk_pb, Jwks::Pubkey* jwk) {
   StructUtils jwk_getter(jwk_pb);
   // Check "kty" parameter, it should exist.
@@ -261,7 +325,7 @@ Status extractJwk(const ::google::protobuf::Struct& jwk_pb, Jwks::Pubkey* jwk) {
     return Status::JwksBadKty;
   }
 
-  // "kid", "alg" and "crv" are optional, if they do not exist, set them to
+  // "kid" and "alg" are optional, if they do not exist, set them to
   // empty. https://tools.ietf.org/html/rfc7517#page-8
   jwk_getter.GetString("kid", &jwk->kid_);
   jwk_getter.GetString("alg", &jwk->alg_);
@@ -274,6 +338,8 @@ Status extractJwk(const ::google::protobuf::Struct& jwk_pb, Jwks::Pubkey* jwk) {
     return extractJwkFromJwkRSA(jwk_pb, jwk);
   } else if (jwk->kty_ == "oct") {
     return extractJwkFromJwkOct(jwk_pb, jwk);
+  } else if (jwk->kty_ == "OKP") {
+    return extractJwkFromJwkOKP(jwk_pb, jwk);
   }
   return Status::JwksNotImplementedKty;
 }
@@ -413,6 +479,20 @@ void Jwks::createFromPemCore(const std::string& pkey_pem) {
       key_ptr->ec_key_.reset(EVP_PKEY_get1_EC_KEY(evp_pkey.get()));
       key_ptr->kty_ = "EC";
       break;
+    case EVP_PKEY_ED25519: {
+      uint8_t raw_key[ED25519_PUBLIC_KEY_LEN];
+      size_t out_len = ED25519_PUBLIC_KEY_LEN;
+      if (EVP_PKEY_get_raw_public_key(evp_pkey.get(), raw_key, &out_len) != 1 ||
+          out_len != ED25519_PUBLIC_KEY_LEN) {
+        updateStatus(Status::JwksPemGetRawEd25519Error);
+        return;
+      }
+      key_ptr->okp_key_raw_ =
+          std::string(reinterpret_cast<const char*>(raw_key), out_len);
+      key_ptr->kty_ = "OKP";
+      key_ptr->crv_ = "Ed25519";
+      break;
+    }
     default:
       updateStatus(Status::JwksPemNotImplementedKty);
       return;

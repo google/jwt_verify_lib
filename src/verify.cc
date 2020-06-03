@@ -18,6 +18,7 @@
 #include "jwt_verify_lib/check_audience.h"
 
 #include "openssl/bn.h"
+#include "openssl/curve25519.h"
 #include "openssl/ecdsa.h"
 #include "openssl/err.h"
 #include "openssl/evp.h"
@@ -152,6 +153,22 @@ bool verifySignatureOct(absl::string_view key, const EVP_MD* md,
                             castToUChar(signed_data), signed_data.length());
 }
 
+Status verifySignatureEd25519(absl::string_view key,
+                              absl::string_view signature,
+                              absl::string_view signed_data) {
+  if (signature.length() != ED25519_SIGNATURE_LEN) {
+    return Status::JwtEd25519SignatureWrongLength;
+  }
+
+  if (ED25519_verify(castToUChar(signed_data), signed_data.length(),
+                     castToUChar(signature), castToUChar(key.data())) == 1) {
+    return Status::Ok;
+  }
+
+  ERR_clear_error();
+  return Status::JwtVerificationFail;
+}
+
 }  // namespace
 
 Status verifyJwtWithoutTimeChecking(const Jwt& jwt, const Jwks& jwks) {
@@ -219,6 +236,16 @@ Status verifyJwtWithoutTimeChecking(const Jwt& jwt, const Jwks& jwks) {
       if (verifySignatureOct(jwk->hmac_key_, md, jwt.signature_, signed_data)) {
         // Verification succeeded.
         return Status::Ok;
+      }
+    } else if (jwk->kty_ == "OKP" && jwk->crv_ == "Ed25519") {
+      Status status = verifySignatureEd25519(jwk->okp_key_raw_, jwt.signature_,
+                                             signed_data);
+      // For verification failures keep going and try the rest of the keys in
+      // the JWKS. Otherwise status is either OK or an error with the JWT and we
+      // can return immediately.
+      if (status == Status::Ok ||
+          status == Status::JwtEd25519SignatureWrongLength) {
+        return status;
       }
     }
   }

@@ -84,6 +84,9 @@ enum class Status {
   // Jwt signature is an invalid Base64url input.
   JwtSignatureParseErrorBadBase64,
 
+  // Jwt ED25519 signature is wrong length
+  JwtEd25519SignatureWrongLength,
+
   // Issuer is not configured.
   JwtUnknownIssuer,
 
@@ -124,6 +127,11 @@ enum class Status {
 
   // Jwks Oct key is an invalid Base64.
   JwksOctBadBase64,
+
+  // "x" field is invalid Base64
+  JwksOKPXBadBase64,
+  // "x" field is wrong length
+  JwksOKPXWrongLength,
 
   // Failed to fetch public key
   JwksFetchFail,
@@ -170,6 +178,19 @@ enum class Status {
   // "k" field is not string for an HMAC key
   JwksHMACKeyBadK,
 
+  // "alg" is not "EdDSA" for an OKP key
+  JwksOKPKeyBadAlg,
+  // "crv" field is missing for an OKP key
+  JwksOKPKeyMissingCrv,
+  // "crv" field is not string for an OKP key
+  JwksOKPKeyBadCrv,
+  // "crv" is not supported for an OKP key
+  JwksOKPKeyCrvUnsupported,
+  // "x" field is missing for an OKP key
+  JwksOKPKeyMissingX,
+  // "x" field is not string for an OKP key
+  JwksOKPKeyBadX,
+
   // X509 BIO_Write function fails
   JwksX509BioWriteError,
   // X509 parse pubkey fails
@@ -181,6 +202,8 @@ enum class Status {
   JwksPemNotImplementedKty,
   // Unable to parse public key
   JwksPemBadBase64,
+  // Failed to get raw ED25519 key from PEM
+  JwksPemGetRawEd25519Error,
 
   // Failed to create BIO
   JwksBioAllocError,
