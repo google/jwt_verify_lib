@@ -124,37 +124,25 @@ TEST(JwksParseTest, GoodEC) {
 TEST(JwksParseTest, GoodOKP) {
   const std::string jwks_text = R"(
     {
-       "keys": [
-          {
-             "kty": "OKP",
-             "crv": "Ed25519",
-             "x": "EB54wykhS7YJFD6RYJNnwbWEz3cI7CF5bCDTXlrwI5k",
-             "alg": "EdDSA",
-             "kid": "ed25519"
-          },
-          {
-             "kty": "OKP",
-             "crv": "X25519",
-             "x": "C5wcZwCjjxXTAT6uxomdSYTLAHO04PNefc1HuuNvHD8",
-             "alg": "EdDSA",
-             "kid": "x25519"
-          },
+      "keys": [
+        {
+          "kty": "OKP",
+          "crv": "Ed25519",
+          "x": "EB54wykhS7YJFD6RYJNnwbWEz3cI7CF5bCDTXlrwI5k",
+          "alg": "EdDSA",
+          "kid": "ed25519"
+        }
       ]
-     }
+    }
 )";
   auto jwks = Jwks::createFrom(jwks_text, Jwks::JWKS);
   EXPECT_EQ(jwks->getStatus(), Status::Ok);
-  EXPECT_EQ(jwks->keys().size(), 2);
+  EXPECT_EQ(jwks->keys().size(), 1);
 
   EXPECT_EQ(jwks->keys()[0]->alg_, "EdDSA");
   EXPECT_EQ(jwks->keys()[0]->kid_, "ed25519");
   EXPECT_EQ(jwks->keys()[0]->kty_, "OKP");
   EXPECT_EQ(jwks->keys()[0]->crv_, "Ed25519");
-
-  EXPECT_EQ(jwks->keys()[1]->alg_, "EdDSA");
-  EXPECT_EQ(jwks->keys()[1]->kid_, "x25519");
-  EXPECT_EQ(jwks->keys()[1]->kty_, "OKP");
-  EXPECT_EQ(jwks->keys()[1]->crv_, "X25519");
 }
 
 TEST(JwksParseTest, EmptyJwks) {
@@ -882,17 +870,6 @@ TEST(JwksParseTest, goodPEMEd25519) {
   const std::string pem_text = R"(
 -----BEGIN PUBLIC KEY-----
 MCowBQYDK2VwAyEAvWNRcLk4e4v62xnQqR+EksR7CHYdLQhFfFJibL1gYGA=
------END PUBLIC KEY-----
-)";
-  auto jwks = Jwks::createFrom(pem_text, Jwks::PEM);
-  EXPECT_EQ(jwks->getStatus(), Status::Ok);
-  EXPECT_EQ(jwks->keys().size(), 1);
-}
-
-TEST(JwksParseTest, goodPEMX25519) {
-  const std::string pem_text = R"(
------BEGIN PUBLIC KEY-----
-MCowBQYDK2VuAyEAqkzkwL7fYc4PCqt5PzB0kYgGFLqosYBqIYXjx9P/bR8=
 -----END PUBLIC KEY-----
 )";
   auto jwks = Jwks::createFrom(pem_text, Jwks::PEM);

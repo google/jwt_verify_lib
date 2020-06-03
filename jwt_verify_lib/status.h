@@ -204,8 +204,6 @@ enum class Status {
   JwksPemBadBase64,
   // Failed to get raw ED25519 key from PEM
   JwksPemGetRawEd25519Error,
-  // Failed to get raw X25519 key from PEM
-  JwksPemGetRawX25519Error,
 
   // Failed to create BIO
   JwksBioAllocError,

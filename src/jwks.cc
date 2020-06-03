@@ -285,20 +285,15 @@ Status extractJwkFromJwkOKP(const ::google::protobuf::Struct& jwk_pb,
   // Valid crv values:
   // https://tools.ietf.org/html/rfc8037#section-3
   // https://www.iana.org/assignments/jose/jose.xhtml#web-key-elliptic-curve
+  // In addition to Ed25519 there are:
+  // X25519: Implemented in boringssl but not used for JWT and thus not
+  // supported here
+  // Ed448 and X448: Not implemented in boringssl
   int nid;
   size_t keylen;
   if (jwk->crv_ == "Ed25519") {
     nid = EVP_PKEY_ED25519;
     keylen = ED25519_PUBLIC_KEY_LEN;
-  } else if (jwk->crv_ == "X25519") {
-    nid = EVP_PKEY_X25519;
-    keylen = X25519_PUBLIC_VALUE_LEN;
-    // These nids are defined in boringssl's evp.h, but with a note that they
-    // are not implemented
-    // } else if (jwk->crv_ == "Ed448") {
-    //   nid = EVP_PKEY_ED448;
-    // } else if (jwk->crv_ == "X448") {
-    //   nid = EVP_PKEY_X448;
   } else {
     return Status::JwksOKPKeyCrvUnsupported;
   }
@@ -496,20 +491,6 @@ void Jwks::createFromPemCore(const std::string& pkey_pem) {
           std::string(reinterpret_cast<const char*>(raw_key), out_len);
       key_ptr->kty_ = "OKP";
       key_ptr->crv_ = "Ed25519";
-      break;
-    }
-    case EVP_PKEY_X25519: {
-      uint8_t raw_key[X25519_PUBLIC_VALUE_LEN];
-      size_t out_len = X25519_PUBLIC_VALUE_LEN;
-      if (EVP_PKEY_get_raw_public_key(evp_pkey.get(), raw_key, &out_len) != 1 ||
-          out_len != X25519_PUBLIC_VALUE_LEN) {
-        updateStatus(Status::JwksPemGetRawX25519Error);
-        return;
-      }
-      key_ptr->okp_key_raw_ =
-          std::string(reinterpret_cast<const char*>(raw_key), out_len);
-      key_ptr->kty_ = "OKP";
-      key_ptr->crv_ = "X25519";
       break;
     }
     default:

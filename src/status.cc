@@ -166,8 +166,6 @@ std::string getStatusString(Status status) {
       return "PEM pubkey parse fails";
     case Status::JwksPemGetRawEd25519Error:
       return "PEM failed to get raw ED25519 key";
-    case Status::JwksPemGetRawX25519Error:
-      return "PEM failed to get raw X25519 key";
 
     case Status::JwksBioAllocError:
       return "Failed to create BIO due to memory allocation failure";
