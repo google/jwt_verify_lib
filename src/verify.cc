@@ -243,7 +243,8 @@ Status verifyJwtWithoutTimeChecking(const Jwt& jwt, const Jwks& jwks) {
       // For verification failures keep going and try the rest of the keys in
       // the JWKS. Otherwise status is either OK or an error with the JWT and we
       // can return immediately.
-      if (status != Status::JwtVerificationFail) {
+      if (status == Status::Ok ||
+          status == Status::JwtEd25519SignatureWrongLength) {
         return status;
       }
     }
