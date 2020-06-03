@@ -537,14 +537,16 @@ void Jwks::createFromJwksCore(const std::string& jwks_json) {
     Status status = extractJwk(key_value.struct_value(), key_ptr.get());
     if (status == Status::Ok) {
       keys_.push_back(std::move(key_ptr));
+      resetStatus(status);
     } else {
       updateStatus(status);
-      break;
     }
   }
 
   if (keys_.empty()) {
     updateStatus(Status::JwksNoValidKeys);
+  } else {
+    resetStatus(Status::Ok);
   }
 }
 
