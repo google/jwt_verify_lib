@@ -492,7 +492,8 @@ void Jwks::createFromPemCore(const std::string& pkey_pem) {
         updateStatus(Status::JwksPemGetRawEd25519Error);
         return;
       }
-      key_ptr->okp_key_raw_ = (char*)raw_key;
+      key_ptr->okp_key_raw_ =
+          std::string(reinterpret_cast<const char*>(raw_key), out_len);
       key_ptr->kty_ = "OKP";
       key_ptr->crv_ = "Ed25519";
       break;
@@ -505,7 +506,8 @@ void Jwks::createFromPemCore(const std::string& pkey_pem) {
         updateStatus(Status::JwksPemGetRawX25519Error);
         return;
       }
-      key_ptr->okp_key_raw_ = (char*)raw_key;
+      key_ptr->okp_key_raw_ =
+          std::string(reinterpret_cast<const char*>(raw_key), out_len);
       key_ptr->kty_ = "OKP";
       key_ptr->crv_ = "X25519";
       break;
