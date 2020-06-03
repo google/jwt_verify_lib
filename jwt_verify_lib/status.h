@@ -84,6 +84,9 @@ enum class Status {
   // Jwt signature is an invalid Base64url input.
   JwtSignatureParseErrorBadBase64,
 
+  // Jwt ED25519 signature is wrong length
+  JwtEd25519SignatureWrongLength,
+
   // Issuer is not configured.
   JwtUnknownIssuer,
 

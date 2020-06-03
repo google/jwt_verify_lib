@@ -44,6 +44,8 @@ std::string getStatusString(Status status) {
       return "Jwt header [kid] field is not a string";
     case Status::JwtPayloadParseErrorBadBase64:
       return "Jwt payload is an invalid Base64url encoded";
+    case Status::JwtEd25519SignatureWrongLength:
+      return "Jwt ED25519 signature is wrong length";
     case Status::JwtPayloadParseErrorBadJson:
       return "Jwt payload is an invalid JSON";
     case Status::JwtPayloadParseErrorIssNotString:

@@ -106,8 +106,12 @@ TEST_F(VerifyJwkOKPTest, KidOK) {
   EXPECT_EQ(jwt.parseFromString(JwtJWKEd25519), Status::Ok);
   EXPECT_EQ(verifyJwt(jwt, *jwks_), Status::Ok);
 
-  fuzzJwtSignature(jwt, [this](const Jwt& jwt) {
+  fuzzJwtSignatureBits(jwt, [this](const Jwt& jwt) {
     EXPECT_EQ(verifyJwt(jwt, *jwks_, 1), Status::JwtVerificationFail);
+  });
+  fuzzJwtSignatureLength(jwt, [this](const Jwt& jwt) {
+    EXPECT_EQ(verifyJwt(jwt, *jwks_, 1),
+              Status::JwtEd25519SignatureWrongLength);
   });
 }
 
@@ -116,8 +120,12 @@ TEST_F(VerifyJwkOKPTest, NoKidOK) {
   EXPECT_EQ(jwt.parseFromString(JwtJWKEd25519NoKid), Status::Ok);
   EXPECT_EQ(verifyJwt(jwt, *jwks_), Status::Ok);
 
-  fuzzJwtSignature(jwt, [this](const Jwt& jwt) {
+  fuzzJwtSignatureBits(jwt, [this](const Jwt& jwt) {
     EXPECT_EQ(verifyJwt(jwt, *jwks_, 1), Status::JwtVerificationFail);
+  });
+  fuzzJwtSignatureLength(jwt, [this](const Jwt& jwt) {
+    EXPECT_EQ(verifyJwt(jwt, *jwks_, 1),
+              Status::JwtEd25519SignatureWrongLength);
   });
 }
 

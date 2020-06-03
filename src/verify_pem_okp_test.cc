@@ -59,8 +59,11 @@ TEST(VerifyPEMTestOKP, VerifyOK) {
   EXPECT_EQ(jwks->getStatus(), Status::Ok);
   EXPECT_EQ(verifyJwt(jwt, *jwks, 1), Status::Ok);
 
-  fuzzJwtSignature(jwt, [&jwks](const Jwt& jwt) {
+  fuzzJwtSignatureBits(jwt, [&jwks](const Jwt& jwt) {
     EXPECT_EQ(verifyJwt(jwt, *jwks, 1), Status::JwtVerificationFail);
+  });
+  fuzzJwtSignatureLength(jwt, [&jwks](const Jwt& jwt) {
+    EXPECT_EQ(verifyJwt(jwt, *jwks, 1), Status::JwtEd25519SignatureWrongLength);
   });
 }
 

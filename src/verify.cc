@@ -153,30 +153,20 @@ bool verifySignatureOct(absl::string_view key, const EVP_MD* md,
                             castToUChar(signed_data), signed_data.length());
 }
 
-bool verifySignatureEd25519(const uint8_t* key, const uint8_t* signature,
-                            size_t signature_len, const uint8_t* signed_data,
-                            size_t signed_data_len) {
-  if (key == nullptr || signature == nullptr || signed_data == nullptr) {
-    return false;
+Status verifySignatureEd25519(absl::string_view key,
+                              absl::string_view signature,
+                              absl::string_view signed_data) {
+  if (signature.length() != ED25519_SIGNATURE_LEN) {
+    return Status::JwtEd25519SignatureWrongLength;
   }
 
-  if (signature_len != ED25519_SIGNATURE_LEN) {
-    return false;
-  }
-
-  if (ED25519_verify(signed_data, signed_data_len, signature, key) == 1) {
-    return true;
+  if (ED25519_verify(castToUChar(signed_data), signed_data.length(),
+                     castToUChar(signature), castToUChar(key.data())) == 1) {
+    return Status::Ok;
   }
 
   ERR_clear_error();
-  return false;
-}
-
-bool verifySignatureEd25519(std::string key, absl::string_view signature,
-                            absl::string_view signed_data) {
-  return verifySignatureEd25519(castToUChar(key.data()), castToUChar(signature),
-                                signature.length(), castToUChar(signed_data),
-                                signed_data.length());
+  return Status::JwtVerificationFail;
 }
 
 }  // namespace
@@ -248,9 +238,13 @@ Status verifyJwtWithoutTimeChecking(const Jwt& jwt, const Jwks& jwks) {
         return Status::Ok;
       }
     } else if (jwk->kty_ == "OKP" && jwk->crv_ == "Ed25519") {
-      if (verifySignatureEd25519(jwk->okp_key_raw_, jwt.signature_,
-                                 signed_data)) {
-        return Status::Ok;
+      Status status = verifySignatureEd25519(jwk->okp_key_raw_, jwt.signature_,
+                                             signed_data);
+      // For verification failures keep going and try the rest of the keys in
+      // the JWKS. Otherwise status is either OK or an error with the JWT and we
+      // can return immediately.
+      if (status != Status::JwtVerificationFail) {
+        return status;
       }
     }
   }
