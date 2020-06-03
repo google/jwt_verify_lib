@@ -213,6 +213,105 @@ TEST(JwksParseTest, JwksMismatchKty2) {
   EXPECT_EQ(jwks->getStatus(), Status::JwksECKeyBadAlg);
 }
 
+TEST(JwksParseTest, JwksIgnoreUnsupportedKey) {
+  // An unsupported key is ignored and no error is returned, even though the
+  // unsupported key is the last key.
+  const std::string jwks_text = R"(
+    {
+      "keys": [
+        {
+          "kty": "OKP",
+          "crv": "Ed25519",
+          "x": "EB54wykhS7YJFD6RYJNnwbWEz3cI7CF5bCDTXlrwI5k",
+          "alg": "EdDSA",
+          "kid": "one"
+        },
+        {
+          "kty": "OKP",
+          "crv": "X25519",
+          "x": "GiUzxNZKFGhuciavqsugxhvs40PGQ7C4tQzKBUGttEE",
+          "alg": "EdDSA",
+          "kid": "two"
+        }
+      ]
+    }
+)";
+  auto jwks = Jwks::createFrom(jwks_text, Jwks::JWKS);
+  EXPECT_EQ(jwks->getStatus(), Status::Ok);
+  EXPECT_EQ(jwks->keys().size(), 1);
+
+  EXPECT_EQ(jwks->keys()[0]->alg_, "EdDSA");
+  EXPECT_EQ(jwks->keys()[0]->kid_, "one");
+  EXPECT_EQ(jwks->keys()[0]->kty_, "OKP");
+  EXPECT_EQ(jwks->keys()[0]->crv_, "Ed25519");
+}
+
+TEST(JwksParseTest, JwksIgnoreUnsupportedKeyInMiddle) {
+  // An unsupported key is ignored even though it is in the middle of the
+  // JWKS, good keys after the unsupported key are still read.
+  const std::string jwks_text = R"(
+    {
+      "keys": [
+        {
+          "kty": "OKP",
+          "crv": "Ed25519",
+          "x": "EB54wykhS7YJFD6RYJNnwbWEz3cI7CF5bCDTXlrwI5k",
+          "alg": "EdDSA",
+          "kid": "one"
+        },
+        {
+          "kty": "OKP",
+          "crv": "X25519",
+          "x": "GiUzxNZKFGhuciavqsugxhvs40PGQ7C4tQzKBUGttEE",
+          "alg": "EdDSA",
+          "kid": "two"
+        },
+        {
+           "kty": "EC",
+           "crv": "P-256",
+           "x": "EB54wykhS7YJFD6RYJNnwbWEz3cI7CF5bCDTXlrwI5k",
+           "y": "92bCBTvMFQ8lKbS2MbgjT3YfmYo6HnPEE2tsAqWUJw8",
+           "alg": "ES256",
+           "kid": "three"
+        }
+      ]
+    }
+)";
+  auto jwks = Jwks::createFrom(jwks_text, Jwks::JWKS);
+  EXPECT_EQ(jwks->getStatus(), Status::Ok);
+  EXPECT_EQ(jwks->keys().size(), 2);
+
+  EXPECT_EQ(jwks->keys()[0]->alg_, "EdDSA");
+  EXPECT_EQ(jwks->keys()[0]->kid_, "one");
+  EXPECT_EQ(jwks->keys()[0]->kty_, "OKP");
+  EXPECT_EQ(jwks->keys()[0]->crv_, "Ed25519");
+
+  EXPECT_EQ(jwks->keys()[1]->alg_, "ES256");
+  EXPECT_EQ(jwks->keys()[1]->kid_, "three");
+  EXPECT_EQ(jwks->keys()[1]->kty_, "EC");
+  EXPECT_EQ(jwks->keys()[1]->crv_, "P-256");
+}
+
+TEST(JwksParseTest, JwksIgnoreUnsupportedKeySolo) {
+  // If the only key is unsupported then an error is returned.
+  const std::string jwks_text = R"(
+    {
+      "keys": [
+        {
+          "kty": "OKP",
+          "crv": "X25519",
+          "x": "GiUzxNZKFGhuciavqsugxhvs40PGQ7C4tQzKBUGttEE",
+          "alg": "EdDSA",
+          "kid": "two"
+        }
+      ]
+    }
+)";
+  auto jwks = Jwks::createFrom(jwks_text, Jwks::JWKS);
+  EXPECT_EQ(jwks->getStatus(), Status::JwksOKPKeyCrvUnsupported);
+  EXPECT_EQ(jwks->keys().size(), 0);
+}
+
 TEST(JwksParseTest, JwksECNoXY) {
   const std::string jwks_text = R"(
      {
