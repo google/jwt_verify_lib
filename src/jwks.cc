@@ -479,6 +479,7 @@ void Jwks::createFromPemCore(const std::string& pkey_pem) {
       key_ptr->ec_key_.reset(EVP_PKEY_get1_EC_KEY(evp_pkey.get()));
       key_ptr->kty_ = "EC";
       break;
+#ifndef BORINGSSL_FIPS
     case EVP_PKEY_ED25519: {
       uint8_t raw_key[ED25519_PUBLIC_KEY_LEN];
       size_t out_len = ED25519_PUBLIC_KEY_LEN;
@@ -493,6 +494,7 @@ void Jwks::createFromPemCore(const std::string& pkey_pem) {
       key_ptr->crv_ = "Ed25519";
       break;
     }
+#endif
     default:
       updateStatus(Status::JwksPemNotImplementedKty);
       return;
