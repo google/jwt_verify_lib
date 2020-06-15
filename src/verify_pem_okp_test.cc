@@ -10,6 +10,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#ifndef BORINGSSL_FIPS
+
 #include "gtest/gtest.h"
 #include "jwt_verify_lib/verify.h"
 #include "src/test_common.h"
@@ -88,3 +90,5 @@ TEST(VerifyPEMTestOKP, WrongSignatureFail) {
 }  // namespace
 }  // namespace jwt_verify
 }  // namespace google
+
+#endif
