@@ -73,6 +73,17 @@ TEST(CheckAudienceTest, TestConfigHttpsPrefixWithTailing) {
   EXPECT_TRUE(checker.areAudiencesAllowed({"http://example_service/"}));
 }
 
+TEST(CheckAudienceTest, TestAudiencesAllowedWhenNoAudiencesConfigured) {
+  CheckAudience checker({});
+  EXPECT_TRUE(checker.areAudiencesAllowed({"foo", "bar"}));
+}
+
+TEST(CheckAudienceTest, TestAnyAudienceMatch) {
+  CheckAudience checker({"bar", "quux", "foo"});
+  EXPECT_TRUE(checker.areAudiencesAllowed({"quux"}));
+  EXPECT_TRUE(checker.areAudiencesAllowed({"baz", "quux"}));
+}
+
 }  // namespace
 }  // namespace jwt_verify
 }  // namespace google
