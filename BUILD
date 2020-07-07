@@ -148,6 +148,23 @@ cc_test(
 )
 
 cc_test(
+    name = "verify_jwk_rsa_pss_test",
+    srcs = [
+        "src/test_common.h",
+        "src/verify_jwk_rsa_pss_test.cc",
+    ],
+    linkopts = [
+        "-lm",
+        "-lpthread",
+    ],
+    linkstatic = 1,
+    deps = [
+        ":jwt_verify_lib",
+        "//external:googletest_main",
+    ],
+)
+
+cc_test(
     name = "verify_jwk_ec_test",
     srcs = [
         "src/test_common.h",
