@@ -15,6 +15,7 @@
 #include "jwt_verify_lib/status.h"
 
 #include <map>
+#include <iostream>
 
 namespace google {
 namespace jwt_verify {
@@ -171,6 +172,13 @@ std::string getStatusString(Status status) {
       return "Failed to create BIO due to memory allocation failure";
   };
   return "";
+}
+
+std::ostream& operator<<(std::ostream& os, const Status& status) {
+  return os <<
+      "Status(" <<
+      static_cast<int>(status) << ", " <<
+      getStatusString(status) << ")";
 }
 
 }  // namespace jwt_verify
