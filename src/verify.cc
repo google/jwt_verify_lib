@@ -208,9 +208,9 @@ Status verifyJwtWithoutTimeChecking(const Jwt& jwt, const Jwks& jwks) {
       }
     } else if (jwk->kty_ == "RSA") {
       const EVP_MD* md;
-      if (jwt.alg_ == "RS384") {
+      if (jwt.alg_ == "RS384" || jwt.alg_ == "PS384") {
         md = EVP_sha384();
-      } else if (jwt.alg_ == "RS512") {
+      } else if (jwt.alg_ == "RS512" || jwt.alg_ == "PS512") {
         md = EVP_sha512();
       } else {
         // default to SHA256
