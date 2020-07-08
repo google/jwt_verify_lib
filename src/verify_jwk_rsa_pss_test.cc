@@ -95,7 +95,7 @@ const std::string PublicKeyRSAPSS = R"(
 //   "family_name": "Zero",
 //   "email": "user0@mail.com"
 // }
-const std::string JwtTextWithCorrectKid =
+const std::string Ps256JwtTextWithCorrectKid =
     "eyJhbGciOiJQUzI1NiIsInR5cCIgOiAiSldUIiwia2lkIiA6ICI0aG1PNjViYmM3SVZJLTNQ"
     "ZkEyZW1BbE8wcWh2NHJCX195dzhCUFE1OHE4In0."
     "eyJleHAiOjE1OTM5MTI4MTEsImlhdCI6MTU5MzkxMjUxMSwianRpIjoiM2M5ZWU5MDktM2Nh"
@@ -127,7 +127,7 @@ class VerifyJwkRsaPssTest : public testing::Test {
 
 TEST_F(VerifyJwkRsaPssTest, CorrectKidOK) {
   Jwt jwt;
-  EXPECT_EQ(jwt.parseFromString(JwtTextWithCorrectKid), Status::Ok);
+  EXPECT_EQ(jwt.parseFromString(Ps256JwtTextWithCorrectKid), Status::Ok);
   EXPECT_EQ(verifyJwt(jwt, *jwks_, 1), Status::Ok);
 
   fuzzJwtSignature(jwt, [this](const Jwt& jwt) {
