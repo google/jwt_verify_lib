@@ -174,12 +174,5 @@ std::string getStatusString(Status status) {
   return "";
 }
 
-std::ostream& operator<<(std::ostream& os, const Status& status) {
-  return os <<
-      "Status(" <<
-      static_cast<int>(status) << ", " <<
-      getStatusString(status) << ")";
-}
-
 }  // namespace jwt_verify
 }  // namespace google

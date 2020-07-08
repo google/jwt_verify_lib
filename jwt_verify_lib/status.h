@@ -210,14 +210,6 @@ enum class Status {
 };
 
 /**
- * Overload << to output a Status to std::ostream
- * @param os the std::ostream to write to
- * @param status is the enum status.
- * @return the std::ostream os
- */
-std::ostream& operator<<(std::ostream& os, const Status& status);
-
-/**
  * Convert enum status to string.
  * @param status is the enum status.
  * @return the string status.

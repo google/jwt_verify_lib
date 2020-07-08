@@ -14,6 +14,7 @@
 
 #pragma once
 
+#include <iostream>
 #include <functional>
 #include "jwt_verify_lib/jwt.h"
 
@@ -111,6 +112,19 @@ const std::string kRealX509Jwks = R"(
   "aeb0d379d4a71b561b77e1e05fe5a8a0ef2cf089": "-----BEGIN CERTIFICATE-----\nMIIC+jCCAeKgAwIBAgIIJWEK8Mx3fIgwDQYJKoZIhvcNAQEFBQAwIDEeMBwGA1UE\nAxMVMTA2OTQ3MDEyMjYwNDg4NzM2MTU3MB4XDTE2MDMwMTE3NDExM1oXDTI2MDIy\nNzE3NDExM1owIDEeMBwGA1UEAxMVMTA2OTQ3MDEyMjYwNDg4NzM2MTU3MIIBIjAN\nBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAt/D2PDPvrMb4KPJM712b9J3CQDLe\nBN5FxNh0/C72QngZFRyVSdarwen2MlddZGD6zsNSBwDVM0mkGi+fFHOgEe6WRlRT\nYnKUFibhR0Oh+G4jKVeMbed8wWGBhq4Fxo5i3230NMK0Iqkvc83wy1IpCHtK5dU1\natuOunh1DoKV9pM0bZwevHigLoNBjbyzpu6MaMh9WIGZ1JRTBtN1TdXI+yBvoNCA\nG284CjeTy1NTOynj11Nw8FevzeVWsOyKH5kzbvNZICfxeELD3GyQVF7WG5U80c8R\nxpcvm6wkYXoEoeQ9uOey9cJpXfvz1FLMts5IpafEf2STqjfl6vRdfhOOuQIDAQAB\nozgwNjAMBgNVHRMBAf8EAjAAMA4GA1UdDwEB/wQEAwIHgDAWBgNVHSUBAf8EDDAK\nBggrBgEFBQcDAjANBgkqhkiG9w0BAQUFAAOCAQEAWTWrwEoWodbxXBtCrlHTAyrv\nigJio3mMZFVcEQJ23/H83R4+sk2Pri4QnR575Jyz/ddOn/b6QU7j/oYf5PUK93Gg\nTQ/5BZBXGTRno8YM2tO/joiIV3hwKtZNh51uiB+/0zkq76yEQ38lu9ZrRMMlsr85\nZ8tdMf6qlxIlbU46X1Jq0x8ETuhS5qtxKovqo6XwSAvcZaUNf5PgZ7lXEV3i/Og4\nQJGVjh9vuAfanZWMvoaMOtEiYyaRdpKVcXA+Tsrq13XUlk5cUgxrOj0gUO85WiPk\nFGSx3g1sIdsD/bUpy5XGV5CDFN4QUXDvTzwdeFPh8WH/alf1jp2xMoiYYx5HeQ==\n-----END CERTIFICATE-----\n"
 }
 )";
+
+/**
+ * Provide an overloaded << to output a Status to std::ostream for better error messages in test output
+ * @param os the std::ostream to write to
+ * @param status is the enum status.
+ * @return the std::ostream os
+ */
+std::ostream& operator<<(std::ostream& os, const Status& status) {
+  return os <<
+      "Status(" <<
+      static_cast<int>(status) << ", " <<
+      getStatusString(status) << ")";
+}
 
 }  // namespace jwt_verify
 }  // namespace google
