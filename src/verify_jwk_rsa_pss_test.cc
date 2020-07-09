@@ -95,6 +95,7 @@ const std::string PublicKeyRSAPSS = R"(
 //   "family_name": "Zero",
 //   "email": "user0@mail.com"
 // }
+
 const std::string Ps256JwtTextWithCorrectKid =
     "eyJhbGciOiJQUzI1NiIsInR5cCIgOiAiSldUIiwia2lkIiA6ICI0aG1PNjViYmM3SVZJLTNQ"
     "ZkEyZW1BbE8wcWh2NHJCX195dzhCUFE1OHE4In0."
@@ -140,7 +141,6 @@ const std::string Ps256JwtTextWithCorrectKid =
 //   "family_name": "Zero",
 //   "email": "user0@mail.com"
 // }
-
 
 const std::string Ps384JwtTextWithCorrectKid =
     "eyJhbGciOiJQUzM4NCIsInR5cCIgOiAiSldUIiwia2lkIiA6ICJSR2xWOWE1NFhkQXN1aVlV"
@@ -188,7 +188,6 @@ const std::string Ps384JwtTextWithCorrectKid =
 //   "email": "user0@mail.com"
 // }
 
-
 const std::string Ps512JwtTextWithCorrectKid =
     "eyJhbGciOiJQUzUxMiIsInR5cCIgOiAiSldUIiwia2lkIiA6ICJ1X1paQW9yclFodEwyTUEt"
     "YldrWjBxcHpqaWE0RDN1NlFVdkJSc2NITHJnIn0."
@@ -219,18 +218,9 @@ class VerifyJwkRsaPssTest : public testing::Test {
 };
 
 
-class VerifyJwkRsaPssJwtsTest : public VerifyJwkRsaPssTest,
-                                public testing::WithParamInterface<std::string> {
- protected:
-  void SetUp() {
-    VerifyJwkRsaPssTest::SetUp();
-  }
-};
-
-
-TEST_P(VerifyJwkRsaPssJwtsTest, CorrectKidOK) {
+TEST_F(VerifyJwkRsaPssTest, Ps256CorrectKidOK) {
   Jwt jwt;
-  EXPECT_EQ(jwt.parseFromString(GetParam()), Status::Ok);
+  EXPECT_EQ(jwt.parseFromString(Ps256JwtTextWithCorrectKid), Status::Ok);
   EXPECT_EQ(verifyJwt(jwt, *jwks_, 1), Status::Ok);
 
   fuzzJwtSignature(jwt, [this](const Jwt& jwt) {
@@ -239,24 +229,26 @@ TEST_P(VerifyJwkRsaPssJwtsTest, CorrectKidOK) {
 }
 
 
-INSTANTIATE_TEST_CASE_P(
-    VerifyJwkRsaPssJwtsTests,
-    VerifyJwkRsaPssJwtsTest,
-    testing::Values(
-        Ps256JwtTextWithCorrectKid,
-        Ps384JwtTextWithCorrectKid,
-        Ps512JwtTextWithCorrectKid),
-    [](const testing::TestParamInfo<VerifyJwkRsaPssJwtsTest::ParamType>& info) {
-      if (info.param == Ps256JwtTextWithCorrectKid) {
-        return "PS256";
-      } else if (info.param == Ps384JwtTextWithCorrectKid) {
-        return "PS384";
-      } else if (info.param == Ps512JwtTextWithCorrectKid) {
-        return "PS512";
-      } else {
-        return "Unknown";
-      }
-    });
+TEST_F(VerifyJwkRsaPssTest, Ps384CorrectKidOK) {
+  Jwt jwt;
+  EXPECT_EQ(jwt.parseFromString(Ps384JwtTextWithCorrectKid), Status::Ok);
+  EXPECT_EQ(verifyJwt(jwt, *jwks_, 1), Status::Ok);
+
+  fuzzJwtSignature(jwt, [this](const Jwt& jwt) {
+    EXPECT_EQ(verifyJwt(jwt, *jwks_, 1), Status::JwtVerificationFail);
+  });
+}
+
+
+TEST_F(VerifyJwkRsaPssTest, Ps512CorrectKidOK) {
+  Jwt jwt;
+  EXPECT_EQ(jwt.parseFromString(Ps512JwtTextWithCorrectKid), Status::Ok);
+  EXPECT_EQ(verifyJwt(jwt, *jwks_, 1), Status::Ok);
+
+  fuzzJwtSignature(jwt, [this](const Jwt& jwt) {
+    EXPECT_EQ(verifyJwt(jwt, *jwks_, 1), Status::JwtVerificationFail);
+  });
+}
 
 
 // This set of keys and jwts were generated at https://jwt.io/
