@@ -327,6 +327,11 @@ const std::string JwtTextWithNonExistentKid =
     "kmNidJOxkGlawLtOwE7u0WtZdYmcppx99Qw5U4gYdQQx0wJqgj_d8g";
 
 
+// Expected behavior for VerifyKidMatchingTest:
+// If kid is not specified in the jwt, allow verification as long as any of the
+//   keys in the jwks are appropriate.
+// If kid is specified in the jwt, use only the requested key in the jwks for
+//   verification.
 class VerifyKidMatchingTest : public testing::Test {
  protected:
   void SetUp() {
@@ -354,7 +359,7 @@ TEST_F(VerifyKidMatchingTest, JwtTextWithNoKidNoMatchingKey) {
 TEST_F(VerifyKidMatchingTest, JwtTextWithNoKidOk) {
   Jwt jwt;
   EXPECT_EQ(jwt.parseFromString(JwtTextWithNoKid), Status::Ok);
-  // jwt has no kid, but one of the keys in the jwks can be used to verify,
+  // jwt has no kid, and one of the keys in the jwks can be used to verify,
   //   hence verification is ok
   EXPECT_EQ(verifyJwt(jwt, *jwks_containing_appropriate_key_, 1), Status::Ok);
 }
@@ -363,8 +368,10 @@ TEST_F(VerifyKidMatchingTest, JwtTextWithNoKidOk) {
 TEST_F(VerifyKidMatchingTest, JwtTextWithNonExistentKid) {
   Jwt jwt;
   EXPECT_EQ(jwt.parseFromString(JwtTextWithNonExistentKid), Status::Ok);
-  // jwt has a kid, which did not match any of the keys in the jwks
-  EXPECT_EQ(verifyJwt(jwt, *jwks_containing_appropriate_key_, 1), Status::JwksKidAlgMismatch);
+  // jwt has a kid, which did not match any of the keys in the jwks (even
+  //   though the jwks does contain an appropriate key)
+  EXPECT_EQ(verifyJwt(jwt, *jwks_containing_appropriate_key_, 1),
+            Status::JwksKidAlgMismatch);
 }
 
 
