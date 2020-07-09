@@ -339,11 +339,11 @@ class JwtIoVerifyJwkRsaPssTest : public VerifyJwkRsaPssTest {
  protected:
   void SetUp() {
     VerifyJwkRsaPssTest::SetUp();
-    jwtIoJwks = Jwks::createFrom(JwtIoPublicKeyRSAPSS, Jwks::Type::JWKS);
-    EXPECT_EQ(jwtIoJwks->getStatus(), Status::Ok);
+    jwt_io_jwks_ = Jwks::createFrom(JwtIoPublicKeyRSAPSS, Jwks::Type::JWKS);
+    EXPECT_EQ(jwt_io_jwks_->getStatus(), Status::Ok);
   }
 
-  JwksPtr jwtIoJwks;
+  JwksPtr jwt_io_jwks_;
 };
 
 
@@ -358,14 +358,14 @@ TEST_F(JwtIoVerifyJwkRsaPssTest, JwtTextWithNoKidNoMatchingKey) {
 TEST_F(JwtIoVerifyJwkRsaPssTest, JwtTextWithNoKidOk) {
   Jwt jwt;
   EXPECT_EQ(jwt.parseFromString(JwtTextWithNoKid), Status::Ok);
-  EXPECT_EQ(verifyJwt(jwt, *jwtIoJwks, 1), Status::Ok);
+  EXPECT_EQ(verifyJwt(jwt, *jwt_io_jwks_, 1), Status::Ok);
 }
 
 
 TEST_F(JwtIoVerifyJwkRsaPssTest, JwtTextWithNonExistentKid) {
   Jwt jwt;
   EXPECT_EQ(jwt.parseFromString(JwtTextWithNonExistentKid), Status::Ok);
-  EXPECT_EQ(verifyJwt(jwt, *jwtIoJwks, 1), Status::JwksKidAlgMismatch);
+  EXPECT_EQ(verifyJwt(jwt, *jwt_io_jwks_, 1), Status::JwksKidAlgMismatch);
 }
 
 
