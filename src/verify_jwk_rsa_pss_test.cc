@@ -69,7 +69,7 @@ const std::string PublicKeyRSAPSS = R"(
 }
 )";
 
-// JWT with correct kid
+// PS256 JWT with correct kid
 // Header:
 // {
 //   "alg": "PS256",
@@ -114,6 +114,100 @@ const std::string Ps256JwtTextWithCorrectKid =
     "fRWY4Za6RRqymammehv7ZiE4HjDy5Q_AdLGdRefrTxtiQrHIThLqAw";
 
 
+// PS384 JWT with correct kid
+// Header:
+// {
+//   "alg": "PS384",
+//   "typ": "JWT",
+//   "kid": "RGlV9a54XdAsuiYUDkQ0hDkiSZ92TJCgneh7-HvN-sk"
+// }
+// Payload:
+// {
+//   "exp": 1593913901,
+//   "iat": 1593913601,
+//   "jti": "375242be-54c3-4c06-ad07-22457d493390",
+//   "iss": "https://keycloak.localhost/auth/realms/applications",
+//   "sub": "c3cfd999-ca22-4080-9863-277427db4321",
+//   "typ": "Bearer",
+//   "azp": "foo",
+//   "session_state": "a0cc48a5-1eea-4078-b965-3f8edee8a15e",
+//   "acr": "1",
+//   "scope": "email profile",
+//   "email_verified": false,
+//   "name": "User Zero",
+//   "preferred_username": "user0",
+//   "given_name": "User",
+//   "family_name": "Zero",
+//   "email": "user0@mail.com"
+// }
+
+
+const std::string Ps384JwtTextWithCorrectKid =
+    "eyJhbGciOiJQUzM4NCIsInR5cCIgOiAiSldUIiwia2lkIiA6ICJSR2xWOWE1NFhkQXN1aVlV"
+    "RGtRMGhEa2lTWjkyVEpDZ25laDctSHZOLXNrIn0."
+    "eyJleHAiOjE1OTM5MTM5MDEsImlhdCI6MTU5MzkxMzYwMSwianRpIjoiMzc1MjQyYmUtNTRj"
+    "My00YzA2LWFkMDctMjI0NTdkNDkzMzkwIiwiaXNzIjoiaHR0cHM6Ly9rZXljbG9hay5sb2Nh"
+    "bGhvc3QvYXV0aC9yZWFsbXMvYXBwbGljYXRpb25zIiwic3ViIjoiYzNjZmQ5OTktY2EyMi00"
+    "MDgwLTk4NjMtMjc3NDI3ZGI0MzIxIiwidHlwIjoiQmVhcmVyIiwiYXpwIjoiZm9vIiwic2Vz"
+    "c2lvbl9zdGF0ZSI6ImEwY2M0OGE1LTFlZWEtNDA3OC1iOTY1LTNmOGVkZWU4YTE1ZSIsImFj"
+    "ciI6IjEiLCJzY29wZSI6ImVtYWlsIHByb2ZpbGUiLCJlbWFpbF92ZXJpZmllZCI6ZmFsc2Us"
+    "Im5hbWUiOiJVc2VyIFplcm8iLCJwcmVmZXJyZWRfdXNlcm5hbWUiOiJ1c2VyMCIsImdpdmVu"
+    "X25hbWUiOiJVc2VyIiwiZmFtaWx5X25hbWUiOiJaZXJvIiwiZW1haWwiOiJ1c2VyMEBtYWls"
+    "LmNvbSJ9."
+    "lQdbyqQH0dBYA0yIMVmV-KMGOYc7-BuuQUggKqEi9kpmvZAeXaX1v04n6XkyZdIRMxLgxVoK"
+    "LH3XJLg7zwW_luYR5ZlYj5SLYxUSkrlG3RfOvRpphXzhH-TcRQMdwSFEbNUiibZ6NkSmzMLi"
+    "Weryi3JHCHAxt2e9Z6_dWlrKXXSvpmZgrn--NdU433TmePFdgoEGUH8F9q7T1Nd1S5FnsS2i"
+    "-ywZzNMQIfQ59k_r1_WlH81bwoNgd4ffTlVsosZrw84UYBJdNt73-RWu1NNTXvIY2MiImods"
+    "oo7DAD__ZDMgnJ8cpBmrq0YASz04SESNt1jiwCWbasJQx_B73hmd1A";
+
+
+// PS512 JWT with correct kid
+// Header:
+// {
+//   "alg": "PS512",
+//   "typ": "JWT",
+//   "kid": "u_ZZAorrQhtL2MA-bWkZ0qpzjia4D3u6QUvBRscHLrg"
+// }
+// Payload:
+// {
+//   "exp": 1593913918,
+//   "iat": 1593913618,
+//   "jti": "7c1f8cba-7f7c-4e05-b02c-2a0a77914f5d",
+//   "iss": "https://keycloak.localhost/auth/realms/applications",
+//   "sub": "c3cfd999-ca22-4080-9863-277427db4321",
+//   "typ": "Bearer",
+//   "azp": "foo",
+//   "session_state": "d8dbe685-cd10-42da-841c-f7ae6cd4d588",
+//   "acr": "1",
+//   "scope": "email profile",
+//   "email_verified": false,
+//   "name": "User Zero",
+//   "preferred_username": "user0",
+//   "given_name": "User",
+//   "family_name": "Zero",
+//   "email": "user0@mail.com"
+// }
+
+
+const std::string Ps512JwtTextWithCorrectKid =
+    "eyJhbGciOiJQUzUxMiIsInR5cCIgOiAiSldUIiwia2lkIiA6ICJ1X1paQW9yclFodEwyTUEt"
+    "YldrWjBxcHpqaWE0RDN1NlFVdkJSc2NITHJnIn0."
+    "eyJleHAiOjE1OTM5MTM5MTgsImlhdCI6MTU5MzkxMzYxOCwianRpIjoiN2MxZjhjYmEtN2Y3"
+    "Yy00ZTA1LWIwMmMtMmEwYTc3OTE0ZjVkIiwiaXNzIjoiaHR0cHM6Ly9rZXljbG9hay5sb2Nh"
+    "bGhvc3QvYXV0aC9yZWFsbXMvYXBwbGljYXRpb25zIiwic3ViIjoiYzNjZmQ5OTktY2EyMi00"
+    "MDgwLTk4NjMtMjc3NDI3ZGI0MzIxIiwidHlwIjoiQmVhcmVyIiwiYXpwIjoiZm9vIiwic2Vz"
+    "c2lvbl9zdGF0ZSI6ImQ4ZGJlNjg1LWNkMTAtNDJkYS04NDFjLWY3YWU2Y2Q0ZDU4OCIsImFj"
+    "ciI6IjEiLCJzY29wZSI6ImVtYWlsIHByb2ZpbGUiLCJlbWFpbF92ZXJpZmllZCI6ZmFsc2Us"
+    "Im5hbWUiOiJVc2VyIFplcm8iLCJwcmVmZXJyZWRfdXNlcm5hbWUiOiJ1c2VyMCIsImdpdmVu"
+    "X25hbWUiOiJVc2VyIiwiZmFtaWx5X25hbWUiOiJaZXJvIiwiZW1haWwiOiJ1c2VyMEBtYWls"
+    "LmNvbSJ9."
+    "p-NqE3q9BVakZNkKX3-X5FKIm64PloIjBjWfajQuRayHv4cj6xwvDve3uCuZa2oKyefJRNLy"
+    "6rCJUGNsYM9Q-WRCtD6SuWLPkuqh-SUFtZqW7sWGOqTLKbMBx5StLZx7eEgdRWqzIxwLVLdF"
+    "VuO-3L88qHFTU2Vv8UAu_nX-uyFKOV5bYgyFlxqgpSqvsbm6lZ0EZghPuidOmnMPQdS8-Evk"
+    "jwSAYEgoQ1crXY8dEUc_AJfq84jtuMJMnFhfVQvk_8hN71wYWWYThXtEATFySUFrkoCvB-da"
+    "Sl9FNeK5UPE9vYBi7QJ-Wt3Ikg7kEgPiuADlIao_ZxKdzoA51isGBg";
+
+
 class VerifyJwkRsaPssTest : public testing::Test {
  protected:
   void SetUp() {
@@ -125,15 +219,44 @@ class VerifyJwkRsaPssTest : public testing::Test {
 };
 
 
-TEST_F(VerifyJwkRsaPssTest, CorrectKidOK) {
+class VerifyJwkRsaPssJwtsTest : public VerifyJwkRsaPssTest,
+                                public testing::WithParamInterface<std::string> {
+ protected:
+  void SetUp() {
+    VerifyJwkRsaPssTest::SetUp();
+  }
+};
+
+
+TEST_P(VerifyJwkRsaPssJwtsTest, CorrectKidOK) {
   Jwt jwt;
-  EXPECT_EQ(jwt.parseFromString(Ps256JwtTextWithCorrectKid), Status::Ok);
+  EXPECT_EQ(jwt.parseFromString(GetParam()), Status::Ok);
   EXPECT_EQ(verifyJwt(jwt, *jwks_, 1), Status::Ok);
 
   fuzzJwtSignature(jwt, [this](const Jwt& jwt) {
     EXPECT_EQ(verifyJwt(jwt, *jwks_, 1), Status::JwtVerificationFail);
   });
 }
+
+
+INSTANTIATE_TEST_CASE_P(
+    VerifyJwkRsaPssJwtsTests,
+    VerifyJwkRsaPssJwtsTest,
+    testing::Values(
+        Ps256JwtTextWithCorrectKid,
+        Ps384JwtTextWithCorrectKid,
+        Ps512JwtTextWithCorrectKid),
+    [](const testing::TestParamInfo<VerifyJwkRsaPssJwtsTest::ParamType>& info) {
+      if (info.param == Ps256JwtTextWithCorrectKid) {
+        return "PS256";
+      } else if (info.param == Ps384JwtTextWithCorrectKid) {
+        return "PS384";
+      } else if (info.param == Ps512JwtTextWithCorrectKid) {
+        return "PS512";
+      } else {
+        return "Unknown";
+      }
+    });
 
 }  // namespace
 }  // namespace jwt_verify
