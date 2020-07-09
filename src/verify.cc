@@ -81,6 +81,7 @@ bool verifySignatureRSAPSS(RSA* key, const EVP_MD* md, const uint8_t* signature,
   }
 
   bssl::UniquePtr<EVP_MD_CTX> md_ctx(EVP_MD_CTX_create());
+  // pctx is owned by md_ctx, no need to free it separately.
   EVP_PKEY_CTX *pctx;
   if (EVP_DigestVerifyInit(md_ctx.get(), &pctx, md, nullptr,
                            evp_pkey.get()) == 1 &&
