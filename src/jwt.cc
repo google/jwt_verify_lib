@@ -26,7 +26,7 @@ namespace jwt_verify {
 
 namespace {
 
-static absl::flat_hash_set<std::string> implemented_algs = {
+static const absl::flat_hash_set<std::string> kImplementedAlgs = {
     {"ES256"}, {"ES384"}, {"ES512"},
     {"HS256"}, {"HS384"}, {"HS512"},
     {"RS256"}, {"RS384"}, {"RS512"},
@@ -74,7 +74,7 @@ Status Jwt::parseFromString(const std::string& jwt) {
     return Status::JwtHeaderBadAlg;
   }
 
-  if (implemented_algs.find(alg_) == implemented_algs.end()) {
+  if (kImplementedAlgs.find(alg_) == kImplementedAlgs.end()) {
     return Status::JwtHeaderNotImplementedAlg;
   }
 
