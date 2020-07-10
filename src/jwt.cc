@@ -24,6 +24,8 @@
 namespace google {
 namespace jwt_verify {
 
+namespace {
+
 bool isImplemented(absl::string_view alg) {
   static const absl::flat_hash_set<absl::string_view> *implemented_algs =
       new absl::flat_hash_set<absl::string_view>({
@@ -35,6 +37,8 @@ bool isImplemented(absl::string_view alg) {
         });
 
   return implemented_algs->find(alg) != implemented_algs->end();
+}
+
 }
 
 Jwt::Jwt(const Jwt& instance) { *this = instance; }
