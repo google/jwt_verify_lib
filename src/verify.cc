@@ -13,10 +13,10 @@
 // limitations under the License.
 
 #include "jwt_verify_lib/verify.h"
+
 #include "absl/strings/string_view.h"
 #include "absl/time/clock.h"
 #include "jwt_verify_lib/check_audience.h"
-
 #include "openssl/bn.h"
 #include "openssl/curve25519.h"
 #include "openssl/ecdsa.h"
@@ -66,6 +66,42 @@ bool verifySignatureRSA(RSA* key, const EVP_MD* md, absl::string_view signature,
                         absl::string_view signed_data) {
   return verifySignatureRSA(key, md, castToUChar(signature), signature.length(),
                             castToUChar(signed_data), signed_data.length());
+}
+
+bool verifySignatureRSAPSS(RSA* key, const EVP_MD* md, const uint8_t* signature,
+                           size_t signature_len, const uint8_t* signed_data,
+                           size_t signed_data_len) {
+  if (key == nullptr || md == nullptr || signature == nullptr ||
+      signed_data == nullptr) {
+    return false;
+  }
+  bssl::UniquePtr<EVP_PKEY> evp_pkey(EVP_PKEY_new());
+  if (EVP_PKEY_set1_RSA(evp_pkey.get(), key) != 1) {
+    return false;
+  }
+
+  bssl::UniquePtr<EVP_MD_CTX> md_ctx(EVP_MD_CTX_create());
+  // pctx is owned by md_ctx, no need to free it separately.
+  EVP_PKEY_CTX* pctx;
+  if (EVP_DigestVerifyInit(md_ctx.get(), &pctx, md, nullptr, evp_pkey.get()) ==
+          1 &&
+      EVP_PKEY_CTX_set_rsa_padding(pctx, RSA_PKCS1_PSS_PADDING) == 1 &&
+      EVP_PKEY_CTX_set_rsa_mgf1_md(pctx, md) == 1 &&
+      EVP_DigestVerify(md_ctx.get(), signature, signature_len, signed_data,
+                       signed_data_len) == 1) {
+    return true;
+  }
+
+  ERR_clear_error();
+  return false;
+}
+
+bool verifySignatureRSAPSS(RSA* key, const EVP_MD* md,
+                           absl::string_view signature,
+                           absl::string_view signed_data) {
+  return verifySignatureRSAPSS(key, md, castToUChar(signature),
+                               signature.length(), castToUChar(signed_data),
+                               signed_data.length());
 }
 
 bool verifySignatureEC(EC_KEY* key, const EVP_MD* md, const uint8_t* signature,
@@ -208,19 +244,27 @@ Status verifyJwtWithoutTimeChecking(const Jwt& jwt, const Jwks& jwks) {
       }
     } else if (jwk->kty_ == "RSA") {
       const EVP_MD* md;
-      if (jwt.alg_ == "RS384") {
+      if (jwt.alg_ == "RS384" || jwt.alg_ == "PS384") {
         md = EVP_sha384();
-      } else if (jwt.alg_ == "RS512") {
+      } else if (jwt.alg_ == "RS512" || jwt.alg_ == "PS512") {
         md = EVP_sha512();
       } else {
         // default to SHA256
         md = EVP_sha256();
       }
 
-      if (verifySignatureRSA(jwk->rsa_.get(), md, jwt.signature_,
-                             signed_data)) {
-        // Verification succeeded.
-        return Status::Ok;
+      if (jwt.alg_.compare(0, 2, "RS") == 0) {
+        if (verifySignatureRSA(jwk->rsa_.get(), md, jwt.signature_,
+                               signed_data)) {
+          // Verification succeeded.
+          return Status::Ok;
+        }
+      } else if (jwt.alg_.compare(0, 2, "PS") == 0) {
+        if (verifySignatureRSAPSS(jwk->rsa_.get(), md, jwt.signature_,
+                                  signed_data)) {
+          // Verification succeeded.
+          return Status::Ok;
+        }
       }
     } else if (jwk->kty_ == "oct") {
       const EVP_MD* md;

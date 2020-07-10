@@ -12,16 +12,32 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include "jwt_verify_lib/jwt.h"
+
 #include <algorithm>
 
+#include "absl/container/flat_hash_set.h"
 #include "absl/strings/escaping.h"
 #include "absl/strings/str_split.h"
 #include "google/protobuf/util/json_util.h"
-#include "jwt_verify_lib/jwt.h"
 #include "jwt_verify_lib/struct_utils.h"
 
 namespace google {
 namespace jwt_verify {
+
+namespace {
+
+bool isImplemented(absl::string_view alg) {
+  static const absl::flat_hash_set<absl::string_view> implemented_algs = {
+      {"ES256"}, {"ES384"}, {"ES512"}, {"HS256"}, {"HS384"},
+      {"HS512"}, {"RS256"}, {"RS384"}, {"RS512"}, {"PS256"},
+      {"PS384"}, {"PS512"}, {"EdDSA"},
+  };
+
+  return implemented_algs.find(alg) != implemented_algs.end();
+}
+
+}  // namespace
 
 Jwt::Jwt(const Jwt& instance) { *this = instance; }
 
@@ -61,10 +77,7 @@ Status Jwt::parseFromString(const std::string& jwt) {
     return Status::JwtHeaderBadAlg;
   }
 
-  if (alg_ != "ES256" && alg_ != "ES384" && alg_ != "ES512" &&
-      alg_ != "HS256" && alg_ != "HS384" && alg_ != "HS512" &&
-      alg_ != "RS256" && alg_ != "RS384" && alg_ != "RS512" &&
-      alg_ != "EdDSA") {
+  if (!isImplemented(alg_)) {
     return Status::JwtHeaderNotImplementedAlg;
   }
 

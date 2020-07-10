@@ -139,7 +139,8 @@ class KeyGetter : public WithStatus {
 Status extractJwkFromJwkRSA(const ::google::protobuf::Struct& jwk_pb,
                             Jwks::Pubkey* jwk) {
   if (!jwk->alg_.empty() &&
-      (jwk->alg_.size() < 2 || jwk->alg_.compare(0, 2, "RS") != 0)) {
+      (jwk->alg_.size() < 2 || (jwk->alg_.compare(0, 2, "RS") != 0 &&
+                                jwk->alg_.compare(0, 2, "PS") != 0))) {
     return Status::JwksRSAKeyBadAlg;
   }
 

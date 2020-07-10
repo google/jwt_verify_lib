@@ -13,6 +13,7 @@
 // limitations under the License.
 
 #include "jwt_verify_lib/jwt.h"
+
 #include "google/protobuf/util/message_differencer.h"
 #include "gtest/gtest.h"
 #include "jwt_verify_lib/struct_utils.h"

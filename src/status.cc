@@ -14,6 +14,7 @@
 
 #include "jwt_verify_lib/status.h"
 
+#include <iostream>
 #include <map>
 
 namespace google {
@@ -106,7 +107,7 @@ std::string getStatusString(Status status) {
       return "[kty] is not supported in [keys]";
 
     case Status::JwksRSAKeyBadAlg:
-      return "[alg] is not started with [RS] for a RSA key";
+      return "[alg] is not started with [RS] or [PS] for an RSA key";
     case Status::JwksRSAKeyMissingN:
       return "[n] field is missing for a RSA key";
     case Status::JwksRSAKeyBadN:
