@@ -27,16 +27,15 @@ namespace jwt_verify {
 namespace {
 
 bool isImplemented(absl::string_view alg) {
-  static const absl::flat_hash_set<absl::string_view> *implemented_algs =
-      new absl::flat_hash_set<absl::string_view>({
-          {"ES256"}, {"ES384"}, {"ES512"},
-          {"HS256"}, {"HS384"}, {"HS512"},
-          {"RS256"}, {"RS384"}, {"RS512"},
-          {"PS256"}, {"PS384"}, {"PS512"},
-          {"EdDSA"},
-        });
+  static const absl::flat_hash_set<absl::string_view> implemented_algs = {
+    {"ES256"}, {"ES384"}, {"ES512"},
+    {"HS256"}, {"HS384"}, {"HS512"},
+    {"RS256"}, {"RS384"}, {"RS512"},
+    {"PS256"}, {"PS384"}, {"PS512"},
+    {"EdDSA"},
+  };
 
-  return implemented_algs->find(alg) != implemented_algs->end();
+  return implemented_algs.find(alg) != implemented_algs.end();
 }
 
 }
