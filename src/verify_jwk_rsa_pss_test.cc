@@ -335,14 +335,16 @@ const std::string JwtTextWithNonExistentKid =
 class VerifyKidMatchingTest : public testing::Test {
  protected:
   void SetUp() {
-    jwks_containing_appropriate_key_ = Jwks::createFrom(JwtIoPublicKeyRSAPSS, Jwks::Type::JWKS);
-    EXPECT_EQ(jwks_containing_appropriate_key_->getStatus(), Status::Ok);
-    jwks_that_does_not_contain_appropriate_key_ = Jwks::createFrom(PublicKeyRSAPSS, Jwks::Type::JWKS);
-    EXPECT_EQ(jwks_that_does_not_contain_appropriate_key_->getStatus(), Status::Ok);
+    correct_jwks_ = Jwks::createFrom(JwtIoPublicKeyRSAPSS, Jwks::Type::JWKS);
+    EXPECT_EQ(correct_jwks_->getStatus(), Status::Ok);
+    wrong_jwks_ = Jwks::createFrom(PublicKeyRSAPSS, Jwks::Type::JWKS);
+    EXPECT_EQ(wrong_jwks_->getStatus(), Status::Ok);
   }
 
-  JwksPtr jwks_containing_appropriate_key_;
-  JwksPtr jwks_that_does_not_contain_appropriate_key_;
+  // This jwks contains the appropriate key for signature verification
+  JwksPtr correct_jwks_;
+  // This jwks does not contain the appropriate key for signature verification
+  JwksPtr wrong_jwks_;
 };
 
 
@@ -351,7 +353,7 @@ TEST_F(VerifyKidMatchingTest, JwtTextWithNoKidNoMatchingKey) {
   EXPECT_EQ(jwt.parseFromString(JwtTextWithNoKid), Status::Ok);
   // jwt has no kid, and none of the keys in the jwks can be used to verify,
   //   hence verification fails
-  EXPECT_EQ(verifyJwt(jwt, *jwks_that_does_not_contain_appropriate_key_),
+  EXPECT_EQ(verifyJwt(jwt, *wrong_jwks_),
             Status::JwtVerificationFail);
 }
 
@@ -361,7 +363,7 @@ TEST_F(VerifyKidMatchingTest, JwtTextWithNoKidOk) {
   EXPECT_EQ(jwt.parseFromString(JwtTextWithNoKid), Status::Ok);
   // jwt has no kid, and one of the keys in the jwks can be used to verify,
   //   hence verification is ok
-  EXPECT_EQ(verifyJwt(jwt, *jwks_containing_appropriate_key_, 1), Status::Ok);
+  EXPECT_EQ(verifyJwt(jwt, *correct_jwks_, 1), Status::Ok);
 }
 
 
@@ -370,7 +372,7 @@ TEST_F(VerifyKidMatchingTest, JwtTextWithNonExistentKid) {
   EXPECT_EQ(jwt.parseFromString(JwtTextWithNonExistentKid), Status::Ok);
   // jwt has a kid, which did not match any of the keys in the jwks (even
   //   though the jwks does contain an appropriate key)
-  EXPECT_EQ(verifyJwt(jwt, *jwks_containing_appropriate_key_, 1),
+  EXPECT_EQ(verifyJwt(jwt, *correct_jwks_, 1),
             Status::JwksKidAlgMismatch);
 }
 
