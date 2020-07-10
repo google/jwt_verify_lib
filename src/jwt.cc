@@ -24,8 +24,8 @@
 namespace google {
 namespace jwt_verify {
 
-bool isImplemented(std::string alg) {
-  static const absl::flat_hash_set<std::string> implemented_algs = {
+bool isImplemented(absl::string_view alg) {
+  static const absl::flat_hash_set<absl::string_view> implemented_algs = {
     {"ES256"}, {"ES384"}, {"ES512"},
     {"HS256"}, {"HS384"}, {"HS512"},
     {"RS256"}, {"RS384"}, {"RS512"},
