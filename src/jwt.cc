@@ -24,16 +24,16 @@
 namespace google {
 namespace jwt_verify {
 
-namespace {
-
-static const absl::flat_hash_set<std::string> kImplementedAlgs = {
+bool hasImplementedAlg(std::string alg) {
+  static const absl::flat_hash_set<std::string> implemented_algs = {
     {"ES256"}, {"ES384"}, {"ES512"},
     {"HS256"}, {"HS384"}, {"HS512"},
     {"RS256"}, {"RS384"}, {"RS512"},
     {"PS256"}, {"PS384"}, {"PS512"},
     {"EdDSA"},
-};
+  };
 
+  return implemented_algs.find(alg) != implemented_algs.end();
 }
 
 Jwt::Jwt(const Jwt& instance) { *this = instance; }
@@ -74,7 +74,7 @@ Status Jwt::parseFromString(const std::string& jwt) {
     return Status::JwtHeaderBadAlg;
   }
 
-  if (kImplementedAlgs.find(alg_) == kImplementedAlgs.end()) {
+  if (!hasImplementedAlg(alg_)) {
     return Status::JwtHeaderNotImplementedAlg;
   }
 
