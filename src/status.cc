@@ -71,6 +71,8 @@ std::string getStatusString(Status status) {
       return "Audiences in Jwt are not allowed";
     case Status::JwtVerificationFail:
       return "Jwt verification fails";
+    case Status::JwtMultipleTokens:
+      return "Found multiple Jwt tokens";
 
     case Status::JwksParseError:
       return "Jwks is an invalid JSON";
