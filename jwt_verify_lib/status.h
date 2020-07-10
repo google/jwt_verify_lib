@@ -96,6 +96,9 @@ enum class Status {
   // Jwt verification fails.
   JwtVerificationFail,
 
+  // Found multiple Jwt tokens.
+  JwtMultipleTokens,
+
   // Jwks errors
 
   // Jwks is an invalid JSON.
