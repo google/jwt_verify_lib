@@ -14,8 +14,8 @@
 
 #include "jwt_verify_lib/status.h"
 
-#include <map>
 #include <iostream>
+#include <map>
 
 namespace google {
 namespace jwt_verify {

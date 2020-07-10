@@ -13,10 +13,10 @@
 // limitations under the License.
 
 #include "jwt_verify_lib/verify.h"
+
 #include "absl/strings/string_view.h"
 #include "absl/time/clock.h"
 #include "jwt_verify_lib/check_audience.h"
-
 #include "openssl/bn.h"
 #include "openssl/curve25519.h"
 #include "openssl/ecdsa.h"
@@ -82,13 +82,13 @@ bool verifySignatureRSAPSS(RSA* key, const EVP_MD* md, const uint8_t* signature,
 
   bssl::UniquePtr<EVP_MD_CTX> md_ctx(EVP_MD_CTX_create());
   // pctx is owned by md_ctx, no need to free it separately.
-  EVP_PKEY_CTX *pctx;
-  if (EVP_DigestVerifyInit(md_ctx.get(), &pctx, md, nullptr,
-                           evp_pkey.get()) == 1 &&
+  EVP_PKEY_CTX* pctx;
+  if (EVP_DigestVerifyInit(md_ctx.get(), &pctx, md, nullptr, evp_pkey.get()) ==
+          1 &&
       EVP_PKEY_CTX_set_rsa_padding(pctx, RSA_PKCS1_PSS_PADDING) == 1 &&
       EVP_PKEY_CTX_set_rsa_mgf1_md(pctx, md) == 1 &&
-      EVP_DigestVerify(md_ctx.get(), signature, signature_len,
-                       signed_data, signed_data_len) == 1) {
+      EVP_DigestVerify(md_ctx.get(), signature, signature_len, signed_data,
+                       signed_data_len) == 1) {
     return true;
   }
 
@@ -96,10 +96,12 @@ bool verifySignatureRSAPSS(RSA* key, const EVP_MD* md, const uint8_t* signature,
   return false;
 }
 
-bool verifySignatureRSAPSS(RSA* key, const EVP_MD* md, absl::string_view signature,
+bool verifySignatureRSAPSS(RSA* key, const EVP_MD* md,
+                           absl::string_view signature,
                            absl::string_view signed_data) {
-  return verifySignatureRSAPSS(key, md, castToUChar(signature), signature.length(),
-                               castToUChar(signed_data), signed_data.length());
+  return verifySignatureRSAPSS(key, md, castToUChar(signature),
+                               signature.length(), castToUChar(signed_data),
+                               signed_data.length());
 }
 
 bool verifySignatureEC(EC_KEY* key, const EVP_MD* md, const uint8_t* signature,

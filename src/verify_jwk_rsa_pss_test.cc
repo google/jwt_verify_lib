@@ -20,7 +20,8 @@ namespace google {
 namespace jwt_verify {
 namespace {
 
-// The following is the jwks from querying a private temporary instance of keycloak at
+// The following is the jwks from querying a private temporary instance of
+// keycloak at
 // https://keycloak.localhost/auth/realms/applications/protocol/openid-connect/certs
 
 const std::string PublicKeyRSAPSS = R"(
@@ -114,7 +115,6 @@ const std::string Ps256JwtTextWithCorrectKid =
     "tA0sDcexoylL7xB_E1XTs3St0sYyq_pz9920vHScr9KXQ3y9k-fbPvgBs2gGY0iK63E0lEwD"
     "fRWY4Za6RRqymammehv7ZiE4HjDy5Q_AdLGdRefrTxtiQrHIThLqAw";
 
-
 // PS384 JWT with correct kid
 // Header:
 // {
@@ -159,7 +159,6 @@ const std::string Ps384JwtTextWithCorrectKid =
     "Weryi3JHCHAxt2e9Z6_dWlrKXXSvpmZgrn--NdU433TmePFdgoEGUH8F9q7T1Nd1S5FnsS2i"
     "-ywZzNMQIfQ59k_r1_WlH81bwoNgd4ffTlVsosZrw84UYBJdNt73-RWu1NNTXvIY2MiImods"
     "oo7DAD__ZDMgnJ8cpBmrq0YASz04SESNt1jiwCWbasJQx_B73hmd1A";
-
 
 // PS512 JWT with correct kid
 // Header:
@@ -206,7 +205,6 @@ const std::string Ps512JwtTextWithCorrectKid =
     "jwSAYEgoQ1crXY8dEUc_AJfq84jtuMJMnFhfVQvk_8hN71wYWWYThXtEATFySUFrkoCvB-da"
     "Sl9FNeK5UPE9vYBi7QJ-Wt3Ikg7kEgPiuADlIao_ZxKdzoA51isGBg";
 
-
 class VerifyJwkRsaPssTest : public testing::Test {
  protected:
   void SetUp() {
@@ -216,7 +214,6 @@ class VerifyJwkRsaPssTest : public testing::Test {
 
   JwksPtr jwks_;
 };
-
 
 TEST_F(VerifyJwkRsaPssTest, Ps256CorrectKidOK) {
   Jwt jwt;
@@ -228,7 +225,6 @@ TEST_F(VerifyJwkRsaPssTest, Ps256CorrectKidOK) {
   });
 }
 
-
 TEST_F(VerifyJwkRsaPssTest, Ps384CorrectKidOK) {
   Jwt jwt;
   EXPECT_EQ(jwt.parseFromString(Ps384JwtTextWithCorrectKid), Status::Ok);
@@ -239,7 +235,6 @@ TEST_F(VerifyJwkRsaPssTest, Ps384CorrectKidOK) {
   });
 }
 
-
 TEST_F(VerifyJwkRsaPssTest, Ps512CorrectKidOK) {
   Jwt jwt;
   EXPECT_EQ(jwt.parseFromString(Ps512JwtTextWithCorrectKid), Status::Ok);
@@ -249,7 +244,6 @@ TEST_F(VerifyJwkRsaPssTest, Ps512CorrectKidOK) {
     EXPECT_EQ(verifyJwt(jwt, *jwks_, 1), Status::JwtVerificationFail);
   });
 }
-
 
 // This set of keys and jwts were generated at https://jwt.io/
 // public key:
@@ -315,7 +309,6 @@ const std::string JwtTextWithNoKid =
     "ARZ1paXHGV5Kd1CljcZtkNZYIGcwnj65gvuCwohbkIxAnhZMJXCLaVvHqv9l-AAUV7esZvkQ"
     "R1IpwBAiDQJh4qxPjFGylyXrHMqh5NlT_pWL2ZoULWTg_TJjMO9TuQ";
 
-
 const std::string JwtTextWithNonExistentKid =
     "eyJhbGciOiJQUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6Im5vbmV4aXN0ZW50In0."
     "eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWUsImlh"
@@ -325,7 +318,6 @@ const std::string JwtTextWithNonExistentKid =
     "7s23XuSKbq4rpp6cmbDODARfTj6OTQWTqwhOkX0Xo7i2q1foreKI8PnOyrvbs7oXrLJGZhg_"
     "6mRnP0wRJJFkIu2uYKcLDcgJ0OWXY6dQ-8agj-yjZ5ZUX8GUcy347P0UUpsGVNd1pUawLwTi"
     "kmNidJOxkGlawLtOwE7u0WtZdYmcppx99Qw5U4gYdQQx0wJqgj_d8g";
-
 
 // Expected behavior for VerifyKidMatchingTest:
 // If kid is not specified in the jwt, allow verification as long as any of the
@@ -347,16 +339,13 @@ class VerifyKidMatchingTest : public testing::Test {
   JwksPtr wrong_jwks_;
 };
 
-
 TEST_F(VerifyKidMatchingTest, JwtTextWithNoKidNoMatchingKey) {
   Jwt jwt;
   EXPECT_EQ(jwt.parseFromString(JwtTextWithNoKid), Status::Ok);
   // jwt has no kid, and none of the keys in the jwks can be used to verify,
   //   hence verification fails
-  EXPECT_EQ(verifyJwt(jwt, *wrong_jwks_),
-            Status::JwtVerificationFail);
+  EXPECT_EQ(verifyJwt(jwt, *wrong_jwks_), Status::JwtVerificationFail);
 }
-
 
 TEST_F(VerifyKidMatchingTest, JwtTextWithNoKidOk) {
   Jwt jwt;
@@ -366,16 +355,13 @@ TEST_F(VerifyKidMatchingTest, JwtTextWithNoKidOk) {
   EXPECT_EQ(verifyJwt(jwt, *correct_jwks_, 1), Status::Ok);
 }
 
-
 TEST_F(VerifyKidMatchingTest, JwtTextWithNonExistentKid) {
   Jwt jwt;
   EXPECT_EQ(jwt.parseFromString(JwtTextWithNonExistentKid), Status::Ok);
   // jwt has a kid, which did not match any of the keys in the jwks (even
   //   though the jwks does contain an appropriate key)
-  EXPECT_EQ(verifyJwt(jwt, *correct_jwks_, 1),
-            Status::JwksKidAlgMismatch);
+  EXPECT_EQ(verifyJwt(jwt, *correct_jwks_, 1), Status::JwksKidAlgMismatch);
 }
-
 
 }  // namespace
 }  // namespace jwt_verify

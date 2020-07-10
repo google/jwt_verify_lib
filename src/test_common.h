@@ -14,8 +14,9 @@
 
 #pragma once
 
-#include <iostream>
 #include <functional>
+#include <iostream>
+
 #include "jwt_verify_lib/jwt.h"
 
 namespace google {
@@ -114,16 +115,15 @@ const std::string kRealX509Jwks = R"(
 )";
 
 /**
- * Provide an overloaded << to output a Status to std::ostream for better error messages in test output
+ * Provide an overloaded << to output a Status to std::ostream for better error
+ * messages in test output
  * @param os the std::ostream to write to
  * @param status is the enum status.
  * @return the std::ostream os
  */
 std::ostream& operator<<(std::ostream& os, const Status& status) {
-  return os <<
-      "Status(" <<
-      static_cast<int>(status) << ", " <<
-      getStatusString(status) << ")";
+  return os << "Status(" << static_cast<int>(status) << ", "
+            << getStatusString(status) << ")";
 }
 
 }  // namespace jwt_verify
