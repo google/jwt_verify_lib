@@ -220,6 +220,13 @@ enum class Status {
 std::string getStatusString(Status status);
 
 /**
+ * Convert enum status to string name.
+ * @param status is the enum status.
+ * @return the status name.
+ */
+std::string getStatusName(Status status);
+
+/**
  * Base class to keep the status that represents "OK" or the first failure.
  */
 class WithStatus {

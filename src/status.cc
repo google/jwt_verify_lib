@@ -176,5 +176,161 @@ std::string getStatusString(Status status) {
   return "";
 }
 
+
+std::string getStatusName(Status status) {
+  switch (status) {
+    case Status::Ok:
+      return "OK";
+    case Status::JwtMissed:
+      return "JWT_MISSED";
+    case Status::JwtNotYetValid:
+      return "JWT_NOT_YET_VALID";
+    case Status::JwtExpired:
+      return "JWT_EXPIRED";
+    case Status::JwtBadFormat:
+      return "JWT_BAD_FORMAT";
+    case Status::JwtHeaderParseErrorBadBase64:
+      return "JWT_HEADER_PARSE_ERROR_BAD_BASE64";
+    case Status::JwtHeaderParseErrorBadJson:
+      return "JWT_HEADER_PARSE_ERROR_BAD_JSON";
+    case Status::JwtHeaderBadAlg:
+      return "JWT_HEADER_BAD_ALG";
+    case Status::JwtHeaderNotImplementedAlg:
+      return "JWT_HEADER_NOT_IMPLEMENTED_ALG";
+    case Status::JwtHeaderBadKid:
+      return "JWT_HEADER_BAD_KID";
+    case Status::JwtPayloadParseErrorBadBase64:
+      return "JWT_PAYLOAD_PARSE_ERROR_BAD_BASE64";
+    case Status::JwtEd25519SignatureWrongLength:
+      return "JWT_ED25519_SIGNATURE_WRONG_LENGTH";
+    case Status::JwtPayloadParseErrorBadJson:
+      return "JWT_PAYLOAD_PARSE_ERROR_BAD_JSON";
+    case Status::JwtPayloadParseErrorIssNotString:
+      return "JWT_PAYLOAD_PARSE_ERROR_ISS_NOT_STRING";
+    case Status::JwtPayloadParseErrorSubNotString:
+      return "JWT_PAYLOAD_PARSE_ERROR_SUB_NOT_STRING";
+    case Status::JwtPayloadParseErrorIatNotInteger:
+      return "JWT_PAYLOAD_PARSE_ERROR_IAT_NOT_INTEGER";
+    case Status::JwtPayloadParseErrorNbfNotInteger:
+      return "JWT_PAYLOAD_PARSE_ERROR_NBF_NOT_INTEGER";
+    case Status::JwtPayloadParseErrorExpNotInteger:
+      return "JWT_PAYLOAD_PARSE_ERROR_EXP_NOT_INTEGER";
+    case Status::JwtPayloadParseErrorJtiNotString:
+      return "JWT_PAYLOAD_PARSE_ERROR_JTI_NOT_STRING";
+    case Status::JwtPayloadParseErrorAudNotString:
+      return "JWT_PAYLOAD_PARSE_ERROR_AUD_NOT_STRING";
+    case Status::JwtSignatureParseErrorBadBase64:
+      return "JWT_PAYLOAD_PARSE_ERROR_BAD_BASE64";
+    case Status::JwtUnknownIssuer:
+      return "JWT_UNKNOWN_ISSUER";
+    case Status::JwtAudienceNotAllowed:
+      return "JWT_AUDIENCE_NOT_ALLOWED";
+    case Status::JwtVerificationFail:
+      return "JWT_VERIFICATION_FAIL";
+    case Status::JwtMultipleTokens:
+      return "JWT_MULTIPLE_TOKENS";
+
+    case Status::JwksParseError:
+      return "JWKS_PARSE_ERROR";
+    case Status::JwksNoKeys:
+      return "JWKS_NO_KEYS";
+    case Status::JwksBadKeys:
+      return "JWKS_BAD_KEYS";
+    case Status::JwksNoValidKeys:
+      return "JWKS_NO_VALID_KEYS";
+    case Status::JwksKidAlgMismatch:
+      return "JWKS_KID_ALG_MISMATCH";
+    case Status::JwksRsaParseError:
+      return "JWKS_RSA_PARSE_ERROR";
+    case Status::JwksEcCreateKeyFail:
+      return "JWKS_EC_CREATE_KEY_FAIL";
+    case Status::JwksEcXorYBadBase64:
+      return "JWKS_EC_XOR_Y_BAD_BASE64";
+    case Status::JwksEcParseError:
+      return "JWKS_EC_PARSE_ERROR";
+    case Status::JwksOctBadBase64:
+      return "JJWKS_OCT_BAD_BASE64";
+    case Status::JwksOKPXBadBase64:
+      return "JWKS_OKP_X_BAD_BASE64";
+    case Status::JwksOKPXWrongLength:
+      return "JWKS_OKP_X_WRONG_LENGTH";
+    case Status::JwksFetchFail:
+      return "JWKS_FETCH_FAIL";
+
+    case Status::JwksMissingKty:
+      return "JWKS_MISSING_KTY";
+    case Status::JwksBadKty:
+      return "JWKS_BAD_KTY";
+    case Status::JwksNotImplementedKty:
+      return "JWKS_NOT_IMPLEMENTED_KTY";
+
+    case Status::JwksRSAKeyBadAlg:
+      return "JWKS_RSA_KEY_BAD_ALG";
+    case Status::JwksRSAKeyMissingN:
+      return "JWKS_RSA_KEY_MISSING_N";
+    case Status::JwksRSAKeyBadN:
+      return "JWKS_RSA_KEY_BAD_N";
+    case Status::JwksRSAKeyMissingE:
+      return "JWKS_RSA_KEY_MISSING_E";
+    case Status::JwksRSAKeyBadE:
+      return "JWKS_RSA_KEY_BAD_E";
+
+    case Status::JwksECKeyBadAlg:
+      return "JWKS_EC_KEY_BAD_ALG";
+    case Status::JwksECKeyBadCrv:
+      return "JWKS_EC_KEY_BAD_CRV";
+    case Status::JwksECKeyAlgOrCrvUnsupported:
+      return "JWKS_EC_KEY_ALG_OR_CRV_UNSUPPORTED";
+    case Status::JwksECKeyAlgNotCompatibleWithCrv:
+      return "JWKS_EC_KEY_ALG_NOT_COMPATIBLE_WITH_CRV";
+    case Status::JwksECKeyMissingX:
+      return "JWKS_EC_KEY_MISSING_X";
+    case Status::JwksECKeyBadX:
+      return "JWKS_EC_KEY_BAD_X";
+    case Status::JwksECKeyMissingY:
+      return "JWKS_EC_KEY_MISSING_Y";
+    case Status::JwksECKeyBadY:
+      return "JWKS_EC_KEY_BAD_Y";
+
+    case Status::JwksHMACKeyBadAlg:
+      return "JWKS_HMAC_KEY_BAD_ALG";
+    case Status::JwksHMACKeyMissingK:
+      return "JWKS_HMAC_KEY_MISSING_K";
+    case Status::JwksHMACKeyBadK:
+      return "JWKS_HMAC_KEY_BAD_K";
+
+    case Status::JwksOKPKeyBadAlg:
+      return "JWKS_OKP_KEY_BAD_ALG";
+    case Status::JwksOKPKeyMissingCrv:
+      return "JWKS_OKP_KEY_MISSING_CRV";
+    case Status::JwksOKPKeyBadCrv:
+      return "JWKS_OKP_KEY_BAD_CRV";
+    case Status::JwksOKPKeyCrvUnsupported:
+      return "JWKS_OKP_KEY_CRV_UNSUPPORTED";
+    case Status::JwksOKPKeyMissingX:
+      return "JWKS_OKP_KEY_MISSING_X";
+    case Status::JwksOKPKeyBadX:
+      return "JWKS_OKP_KEY_BAD_X";
+
+    case Status::JwksX509BioWriteError:
+      return "JWKS_X509_BIO_WRITE_ERROR";
+    case Status::JwksX509ParseError:
+      return "JWKS_X509_PARSE_ERROR";
+    case Status::JwksX509GetPubkeyError:
+      return "JWKS_X509_GET_PUBKEY_ERROR";
+
+    case Status::JwksPemNotImplementedKty:
+      return "JWKS_PEM_NOT_IMPLEMENTED_KTY";
+    case Status::JwksPemBadBase64:
+      return "JWKS_PEM_BAD_BASE64";
+    case Status::JwksPemGetRawEd25519Error:
+      return "JWKS_PEM_GET_RAW_ED_25519_ERROR";
+
+    case Status::JwksBioAllocError:
+      return "JWKS_BIO_ALLOC_ERROR";
+  };
+  return "";
+}
+
 }  // namespace jwt_verify
 }  // namespace google
