@@ -240,9 +240,7 @@ class WithStatus {
     }
   }
 
-  void resetStatus(Status status) {
-    status_ = status;
-  }
+  void resetStatus(Status status) { status_ = status; }
 
  private:
   // The internal status.

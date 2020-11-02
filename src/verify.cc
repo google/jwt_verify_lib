@@ -304,12 +304,9 @@ Status verifyJwt(const Jwt& jwt, const Jwks& jwks) {
 }
 
 Status verifyJwt(const Jwt& jwt, const Jwks& jwks, uint64_t now) {
-  // First check that the JWT has not expired (exp) and is active (nbf).
-  if (now < jwt.nbf_) {
-    return Status::JwtNotYetValid;
-  }
-  if (jwt.exp_ && now > jwt.exp_) {
-    return Status::JwtExpired;
+  Status time_status = jwt.verifyTimeConstraint(now);
+  if (time_status != Status::Ok) {
+    return time_status;
   }
 
   return verifyJwtWithoutTimeChecking(jwt, jwks);
