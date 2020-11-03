@@ -120,11 +120,11 @@ cc_test(
 )
 
 cc_test(
-    name = "verify_time_test",
+    name = "jwt_time_test",
     timeout = "short",
     srcs = [
         "src/test_common.h",
-        "src/verify_time_test.cc",
+        "src/jwt_time_test.cc",
     ],
     linkopts = [
         "-lm",
