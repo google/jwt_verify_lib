@@ -303,8 +303,9 @@ Status verifyJwt(const Jwt& jwt, const Jwks& jwks) {
   return verifyJwt(jwt, jwks, absl::ToUnixSeconds(absl::Now()));
 }
 
-Status verifyJwt(const Jwt& jwt, const Jwks& jwks, uint64_t now) {
-  Status time_status = jwt.verifyTimeConstraint(now);
+Status verifyJwt(const Jwt& jwt, const Jwks& jwks, uint64_t now,
+                 uint64_t clock_skew) {
+  Status time_status = jwt.verifyTimeConstraint(now, clock_skew);
   if (time_status != Status::Ok) {
     return time_status;
   }
