@@ -58,6 +58,30 @@ TEST(VerifyExpTest, BothNbfExp) {
             Status::JwtNotYetValid);
 }
 
+TEST(VerifyExpTest, BothNbfExpWithCustomClockSkew) {
+  Jwt jwt;
+  EXPECT_EQ(jwt.parseFromString(JwtText), Status::Ok);
+
+  constexpr uint64_t kCustomClockSkew = 10;
+  // 10s before exp
+  EXPECT_EQ(jwt.verifyTimeConstraint(ExpTime + kCustomClockSkew - 1,
+                                     kCustomClockSkew),
+            Status::Ok);
+  // 10s after exp
+  EXPECT_EQ(jwt.verifyTimeConstraint(ExpTime + kCustomClockSkew + 1,
+                                     kCustomClockSkew),
+            Status::JwtExpired);
+
+  // 10s after nbf
+  EXPECT_EQ(jwt.verifyTimeConstraint(NbfTime - kCustomClockSkew + 1,
+                                     kCustomClockSkew),
+            Status::Ok);
+  // 10s befoe nbf
+  EXPECT_EQ(jwt.verifyTimeConstraint(NbfTime - kCustomClockSkew - 1,
+                                     kCustomClockSkew),
+            Status::JwtNotYetValid);
+}
+
 TEST(VerifyExpTest, OnlyExp) {
   Jwt jwt;
   EXPECT_EQ(jwt.parseFromString(JwtText), Status::Ok);

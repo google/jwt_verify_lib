@@ -50,9 +50,11 @@ Status verifyJwt(const Jwt& jwt, const Jwks& jwks);
  * @param jwt is Jwt object
  * @param jwks is Jwks object
  * @param now is the number of seconds since the unix epoch
+ * @param clock_skew is the clock skew in second
  * @return the verification status
  */
-Status verifyJwt(const Jwt& jwt, const Jwks& jwks, uint64_t now);
+Status verifyJwt(const Jwt& jwt, const Jwks& jwks, uint64_t now,
+                 uint64_t clock_skew = kClockSkewInSecond);
 
 /**
  * This function verifies JWT signature is valid, that it has not expired

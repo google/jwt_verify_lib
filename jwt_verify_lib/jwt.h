@@ -96,15 +96,12 @@ struct Jwt {
   /*
    * Verify Jwt time constraint if specified
    * esp: expiration time, nbf: not before time.
-   * `now`: is a pass in parameter.
-   * @return the status.
+   * @param now: is the current time in seconds since the unix epoch
+   * @param clock_skew: the the clock skew in second.
+   * @return the verification status.
    */
-  Status verifyTimeConstraint(uint64_t now) const;
-
-  /*
-   * Same as above, but `now` is calculated by calling absl::Now.
-   */
-  Status verifyTimeConstraint() const;
+  Status verifyTimeConstraint(uint64_t now,
+                              uint64_t clock_skew = kClockSkewInSecond) const;
 };
 
 }  // namespace jwt_verify
