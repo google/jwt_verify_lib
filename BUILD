@@ -18,11 +18,14 @@ cc_library(
         "jwt_verify_lib/check_audience.h",
         "jwt_verify_lib/jwks.h",
         "jwt_verify_lib/jwt.h",
+        "jwt_verify_lib/simple_lru_cache.h",
+        "jwt_verify_lib/simple_lru_cache_inl.h",
         "jwt_verify_lib/status.h",
         "jwt_verify_lib/struct_utils.h",
         "jwt_verify_lib/verify.h",
     ],
     deps = [
+        "//external:abseil_flat_hash_map",
         "//external:abseil_flat_hash_set",
         "//external:abseil_strings",
         "//external:abseil_time",
@@ -71,6 +74,23 @@ cc_test(
     srcs = [
         "src/jwks_test.cc",
         "src/test_common.h",
+    ],
+    linkopts = [
+        "-lm",
+        "-lpthread",
+    ],
+    linkstatic = 1,
+    deps = [
+        ":jwt_verify_lib",
+        "//external:googletest_main",
+    ],
+)
+
+cc_test(
+    name = "simple_lru_cache_test",
+    timeout = "short",
+    srcs = [
+        "src/simple_lru_cache_test.cc",
     ],
     linkopts = [
         "-lm",
