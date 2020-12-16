@@ -12,7 +12,7 @@
 
 #include "gtest/gtest.h"
 #include "jwt_verify_lib/verify.h"
-#include "src/test_common.h"
+#include "test/test_common.h"
 
 namespace google {
 namespace jwt_verify {
