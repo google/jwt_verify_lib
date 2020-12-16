@@ -16,8 +16,8 @@ limitations under the License.
 //
 // Tests fo SimpleLRUCache
 
-#include "jwt_verify_lib/simple_lru_cache.h"
-#include "jwt_verify_lib/simple_lru_cache_inl.h"
+#include "simple_lru_cache/simple_lru_cache.h"
+#include "simple_lru_cache/simple_lru_cache_inl.h"
 
 #include <math.h>
 #include <unistd.h>

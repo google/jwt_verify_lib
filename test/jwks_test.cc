@@ -15,7 +15,7 @@
 #include "jwt_verify_lib/jwks.h"
 
 #include "gtest/gtest.h"
-#include "src/test_common.h"
+#include "test/test_common.h"
 
 namespace google {
 namespace jwt_verify {

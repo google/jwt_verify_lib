@@ -52,7 +52,7 @@ limitations under the License.
 #include <utility>
 
 #include "absl/container/flat_hash_map.h"
-#include "jwt_verify_lib/simple_lru_cache.h"
+#include "simple_lru_cache/simple_lru_cache.h"
 
 namespace google {
 namespace jwt_verify {
