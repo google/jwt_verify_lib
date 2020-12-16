@@ -35,7 +35,7 @@ using ::testing::HasSubstr;
 using ::testing::NotNull;
 
 namespace google {
-namespace jwt_verify {
+namespace simple_lru_cache {
 
 // Keep track of whether or not specific values are in the cache
 static const int kElems = 100;
@@ -1108,5 +1108,5 @@ TEST_F(SimpleLRUCacheTest, LookupWithoutEvictionOrderUpdateAndRemove) {
   EXPECT_THAT(TestCache::ScopedLookup(cache_.get(), 2).value(), NotNull());
 }
 
-}  // namespace jwt_verify
+}  // namespace simple_lru_cache
 }  // namespace google

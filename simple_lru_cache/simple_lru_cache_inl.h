@@ -55,7 +55,7 @@ limitations under the License.
 #include "simple_lru_cache/simple_lru_cache.h"
 
 namespace google {
-namespace jwt_verify {
+namespace simple_lru_cache {
 
 #undef GOOGLE_DISALLOW_EVIL_CONSTRUCTORS
 #define GOOGLE_DISALLOW_EVIL_CONSTRUCTORS(TypeName) \
@@ -1087,5 +1087,5 @@ class SimpleLRUCacheWithDeleter
   GOOGLE_DISALLOW_EVIL_CONSTRUCTORS(SimpleLRUCacheWithDeleter);
 };
 
-}  // namespace jwt_verify
+}  // namespace simple_lru_cache
 }  // namespace google

@@ -20,7 +20,7 @@ limitations under the License.
 #include "absl/container/flat_hash_map.h"  // for hash<>
 
 namespace google {
-namespace jwt_verify {
+namespace simple_lru_cache {
 
 namespace internal {
 template <typename T>
@@ -41,5 +41,5 @@ template <typename Key, typename Value, typename Deleter,
           typename EQ = std::equal_to<Key>>
 class SimpleLRUCacheWithDeleter;
 
-}  // namespace jwt_verify
+}  // namespace simple_lru_cache
 }  // namespace google
