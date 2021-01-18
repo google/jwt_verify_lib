@@ -15,6 +15,7 @@
 #include "jwt_verify_lib/jwt.h"
 
 #include "google/protobuf/util/message_differencer.h"
+#include "absl/strings/escaping.h"
 #include "gtest/gtest.h"
 #include "jwt_verify_lib/struct_utils.h"
 
@@ -67,6 +68,79 @@ TEST(JwtParseTest, GoodJwt) {
   EXPECT_EQ(payload_getter.GetInt64("custompayload", &int_value),
             StructUtils::OK);
   EXPECT_EQ(int_value, 1234);
+}
+
+
+TEST(JwtParseTest, PayloadStrBase64UrlPadded) {
+  struct PayloadStrBase64UrlTestCases {
+    std::string jwt, payload_str_base64url, payload_str_base64url_padded;
+  };
+
+  // For base64 encoding, there are only three length to test"
+  // - 3n bytes => 4n bytes, no padding needed
+  // - 3n + 1 bytes => 4n + 2 bytes, 2 padding needed
+  // - 3n + 2 bytes => 4n + 3 bytes, 1 padding needed
+  PayloadStrBase64UrlTestCases testCases[3] = {
+      // Payload text(3n bytes):
+      // {
+      //   "sub": "1234567890",
+      //   "name": "John Do",
+      //   "iat": 1516239022
+      // }
+      {"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9."
+       "eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG8iLCJpYXQiOjE1MTYyMzkwMjJ"
+       "9.9twuPVu9Wj3PBneGw1ctrf3knr7RX12v-UwocfLhXIs",
+       "eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG8iLCJpYXQiOjE1MTYyMzkwMjJ"
+       "9",
+       // No padding added.
+       "eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG8iLCJpYXQiOjE1MTYyMzkwMjJ"
+       "9"},
+      // Payload text(3n + 1 bytes):
+      // {
+      //   "sub": "1234567890",
+      //   "name": "John Doe",
+      //   "iat": 1516239022
+      // }
+      {"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9."
+       "eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDI"
+       "y"
+       "fQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c",
+       "eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2"
+       "MjM5MDIyfQ",
+       // 2 padding added.
+       "eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2"
+       "MjM5MDIyfQ=="},
+      // Payload text(3n + 2 bytes):
+      // {
+      //   "sub": "1234567890",
+      //   "name": "John Doee",
+      //   "iat": 1516239022
+      // }
+      {"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9."
+       "eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lZSIsImlhdCI6MTUxNjIzOTA"
+       "y"
+       "Mn0.1UeFWsD4eTCfiDfgrzySimOvCkKln7pwjQIV5fe4A1Y",
+       "eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lZSIsImlhdCI6MTUx"
+       "NjIzOTAyMn0",
+       // 1 padding added.
+       "eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lZSIsImlhdCI6MTUx"
+       "NjIzOTAyMn0="}};
+  for (int i = 0; i < 3; i++) {
+    struct PayloadStrBase64UrlTestCases& tc = testCases[i];
+
+    Jwt jwt;
+    ASSERT_EQ(jwt.parseFromString(tc.jwt), Status::Ok);
+
+    EXPECT_EQ(jwt.payload_str_base64url_, tc.payload_str_base64url);
+    EXPECT_EQ(jwt.payload_str_base64url_padded_,
+              tc.payload_str_base64url_padded);
+
+    std::string decoded_payload_from_padded_str;
+    EXPECT_TRUE(absl::WebSafeBase64Unescape(jwt.payload_str_base64url_padded_,
+                                            &decoded_payload_from_padded_str));
+
+    EXPECT_EQ(decoded_payload_from_padded_str, jwt.payload_str_);
+  }
 }
 
 TEST(JwtParseTest, Copy) {

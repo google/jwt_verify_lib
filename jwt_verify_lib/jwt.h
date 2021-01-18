@@ -43,8 +43,10 @@ struct Jwt {
 
   // payload string
   std::string payload_str_;
-  // payload base64_url encoded
+  // payload base64_url encoded(the raw one parsed from jwt_)
   std::string payload_str_base64url_;
+  // payload base64_url encoded with padding
+  std::string payload_str_base64url_padded_;
   // payload in Struct protobuf
   ::google::protobuf::Struct payload_pb_;
   // signature string

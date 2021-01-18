@@ -93,6 +93,13 @@ Status Jwt::parseFromString(const std::string& jwt) {
     return Status::JwtPayloadParseErrorBadBase64;
   }
 
+  payload_str_base64url_padded_ = payload_str_base64url_;
+  if (payload_str_base64url_padded_.length() % 4 != 0) {
+    std::string trailing_padding(4 - payload_str_base64url_padded_.length() % 4,
+                                 '=');
+    payload_str_base64url_padded_.append(trailing_padding);
+  }
+
   const auto payload_status = ::google::protobuf::util::JsonStringToMessage(
       payload_str_, &payload_pb_, options);
   if (!payload_status.ok()) {
