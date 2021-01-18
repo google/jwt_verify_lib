@@ -43,7 +43,9 @@ struct Jwt {
 
   // payload string
   std::string payload_str_;
-  // payload base64_url encoded(the raw one parsed from jwt_)
+  // payload base64_url encoded
+  // This is the original encoded payload parsed from `jwt_` and should be the one
+  // used in the jwt verification.
   std::string payload_str_base64url_;
   // payload base64_url encoded with padding
   std::string payload_str_base64url_padded_;
