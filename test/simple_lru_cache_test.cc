@@ -77,7 +77,7 @@ class TestCache : public SimpleLRUCache<int, TestValue> {
       : SimpleLRUCache<int, TestValue>(size), check_in_cache_(check_in_cache) {}
 
  protected:
-  virtual void removeElement(const int &key, TestValue *v) {
+  virtual void removeElement(TestValue *v) {
     if (v && check_in_cache_) {
       assert(in_cache[v->label]);
       std::cout << " Evict:" << v->label;

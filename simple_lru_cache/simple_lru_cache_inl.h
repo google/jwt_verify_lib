@@ -496,9 +496,9 @@ class SimpleLRUCacheBase {
   // Not actually implemented here because often value's destructor is
   // protected, and the derived SimpleLRUCache is declared a friend,
   // so we implement it in the derived SimpleLRUCache.
-  virtual void removeElement(const Key& k, Value* value) = 0;
+  virtual void removeElement(Value* value) = 0;
 
-  virtual void debugIterator(const Key& k, const Value* value, int pin_count,
+  virtual void debugIterator(const Value* value, int pin_count,
                              int64_t last_timestamp, bool is_deferred,
                              std::string* output) const {
     std::stringstream ss;
@@ -550,7 +550,7 @@ class SimpleLRUCacheBase {
   void discard(Elem* e) {
     assert(e->pin == 0);
     units_ -= e->units;
-    removeElement(e->key, e->value);
+    removeElement(e->value);
     delete e;
   }
 
@@ -1000,7 +1000,7 @@ void SimpleLRUCacheBase<Key, Value, MapType, EQ>::debugOutput(
   *output += ss.str();
   for (TableConstIterator iter = table_.begin(); iter != table_.end(); ++iter) {
     const Elem* e = iter->second;
-    debugIterator(e->key, e->value, e->pin, e->last_use_, false, output);
+    debugIterator(e->value, e->pin, e->last_use_, false, output);
   }
   *output += "Deferred elements\n";
   for (DeferredTableConstIterator iter = defer_.begin(); iter != defer_.end();
@@ -1008,7 +1008,7 @@ void SimpleLRUCacheBase<Key, Value, MapType, EQ>::debugOutput(
     const Elem* const head = iter->second;
     const Elem* e = head;
     do {
-      debugIterator(e->key, e->value, e->pin, e->last_use_, true, output);
+      debugIterator(e->value, e->pin, e->last_use_, true, output);
       e = e->prev;
     } while (e != head);
   }
@@ -1056,7 +1056,7 @@ class SimpleLRUCache
             EQ>(total_units) {}
 
  protected:
-  virtual void removeElement(const Key& k, Value* value) { delete value; }
+  virtual void removeElement(Value* value) { delete value; }
 
  private:
   GOOGLE_DISALLOW_EVIL_CONSTRUCTORS(SimpleLRUCache);
@@ -1080,7 +1080,7 @@ class SimpleLRUCacheWithDeleter
       : Base(total_units), deleter_(deleter) {}
 
  protected:
-  virtual void removeElement(const Key& k, Value* value) { deleter_(value); }
+  virtual void removeElement(Value* value) { deleter_(value); }
 
  private:
   Deleter deleter_;
