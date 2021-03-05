@@ -42,9 +42,9 @@ limitations under the License.
 #pragma once
 
 #include <stddef.h>
-#include <sys/time.h>
 
 #include <cassert>
+#include <chrono>
 #include <cmath>
 #include <limits>
 #include <sstream>
@@ -76,9 +76,9 @@ class SimpleCycleTimer {
  public:
   // Return the current cycle in microseconds.
   static int64_t now() {
-    struct timeval tv;
-    gettimeofday(&tv, NULL);
-    return static_cast<int64_t>(tv.tv_sec * kSecToUsec + tv.tv_usec);
+    return std::chrono::duration_cast<std::chrono::microseconds>(
+               std::chrono::system_clock::now().time_since_epoch())
+        .count();
   }
   // Return number of cycles in a second.
   static int64_t frequency() { return kSecToUsec; }
