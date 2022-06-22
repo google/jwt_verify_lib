@@ -471,7 +471,7 @@ void Jwks::createFromPemCore(const std::string& pkey_pem) {
   }
   assert(e.getStatus() == Status::Ok);
 
-  switch (EVP_PKEY_type(evp_pkey->type)) {
+  switch (EVP_PKEY_id(evp_pkey.get())) {
     case EVP_PKEY_RSA:
       key_ptr->rsa_.reset(EVP_PKEY_get1_RSA(evp_pkey.get()));
       key_ptr->kty_ = "RSA";
