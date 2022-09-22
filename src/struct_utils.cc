@@ -34,8 +34,8 @@ StructUtils::FindResult StructUtils::GetString(const std::string& name,
   return OK;
 }
 
-StructUtils::FindResult StructUtils::GetInt64(const std::string& name,
-                                              uint64_t* value) {
+StructUtils::FindResult StructUtils::GetUInt64(const std::string& name,
+                                               uint64_t* value) {
   const auto& fields = struct_pb_.fields();
   const auto it = fields.find(name);
   if (it == fields.end()) {
@@ -43,6 +43,9 @@ StructUtils::FindResult StructUtils::GetInt64(const std::string& name,
   }
   if (it->second.kind_case() != google::protobuf::Value::kNumberValue) {
     return WRONG_TYPE;
+  }
+  if (it->second.number_value() < 0) {
+    return NOT_POSITIVE;
   }
   *value = static_cast<uint64_t>(it->second.number_value());
   return OK;

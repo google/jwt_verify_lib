@@ -27,11 +27,12 @@ class StructUtils {
     OK = 0,
     MISSING,
     WRONG_TYPE,
+    NOT_POSITIVE,
   };
 
   FindResult GetString(const std::string& name, std::string* value);
 
-  FindResult GetInt64(const std::string& name, uint64_t* value);
+  FindResult GetUInt64(const std::string& name, uint64_t* value);
 
   // Get string or list of string, designed to get "aud" field
   // "aud" can be either string array or string.
