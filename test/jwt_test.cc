@@ -64,7 +64,7 @@ TEST(JwtParseTest, GoodJwt) {
 
   StructUtils payload_getter(jwt.payload_pb_);
   uint64_t int_value;
-  EXPECT_EQ(payload_getter.GetInt64("custompayload", &int_value),
+  EXPECT_EQ(payload_getter.GetUInt64("custompayload", &int_value),
             StructUtils::OK);
   EXPECT_EQ(int_value, 1234);
 }
@@ -304,6 +304,21 @@ TEST(JwtParseTest, TestParsePayloadIatNotInteger) {
             Status::JwtPayloadParseErrorIatNotInteger);
 }
 
+TEST(JwtParseTest, TestParsePayloadIatNotPositive) {
+  /*
+   * jwt with payload { "iss":"test_issuer", "sub": "test_subject", "iat":
+   * "-12345" }
+   */
+  const std::string jwt_text =
+      "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9."
+      "eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjotMTIzNDV9."
+      "J0q58VUq4Vx71aVlH0gRCtNfmQrQ1Cw2dFVZ6WqDbBw";
+
+  Jwt jwt;
+  ASSERT_EQ(jwt.parseFromString(jwt_text),
+            Status::JwtPayloadParseErrorIatNotPositive);
+}
+
 TEST(JwtParseTest, TestParsePayloadNbfNotInteger) {
   /*
    * jwt with payload { "iss":"test_issuer", "sub": "test_subject", "nbf":
@@ -320,6 +335,21 @@ TEST(JwtParseTest, TestParsePayloadNbfNotInteger) {
             Status::JwtPayloadParseErrorNbfNotInteger);
 }
 
+TEST(JwtParseTest, TestParsePayloadNbfNotPositive) {
+  /*
+   * jwt with payload { "iss":"test_issuer", "sub": "test_subject", "nbf":
+   * "-12345" }
+   */
+  const std::string jwt_text =
+      "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9."
+      "eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwibmJmIjotMTIzNDV9."
+      "rlnrK7unNEaaghPFhNQnDp1GRbCU0rGORO2yDf5YIZk";
+
+  Jwt jwt;
+  ASSERT_EQ(jwt.parseFromString(jwt_text),
+            Status::JwtPayloadParseErrorNbfNotPositive);
+}
+
 TEST(JwtParseTest, TestParsePayloadExpNotInteger) {
   /*
    * jwt with payload { "iss":"test_issuer", "sub": "test_subject", "exp":
@@ -334,6 +364,21 @@ TEST(JwtParseTest, TestParsePayloadExpNotInteger) {
   Jwt jwt;
   ASSERT_EQ(jwt.parseFromString(jwt_text),
             Status::JwtPayloadParseErrorExpNotInteger);
+}
+
+TEST(JwtParseTest, TestParsePayloadExpNotPositive) {
+  /*
+   * jwt with payload { "iss":"test_issuer", "sub": "test_subject", "exp":
+   * "-12345" }
+   */
+  const std::string jwt_text =
+      "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9."
+      "eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiZXhwIjotMTIzNDV9."
+      "BCgzT_CEurIxa0MxbS9seJ62lgfJT54P7AQpUkp65GE";
+
+  Jwt jwt;
+  ASSERT_EQ(jwt.parseFromString(jwt_text),
+            Status::JwtPayloadParseErrorExpNotPositive);
 }
 
 TEST(JwtParseTest, TestParsePayloadJtiNotString) {

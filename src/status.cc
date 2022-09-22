@@ -55,10 +55,16 @@ std::string getStatusString(Status status) {
       return "Jwt payload [sub] field is not a string";
     case Status::JwtPayloadParseErrorIatNotInteger:
       return "Jwt payload [iat] field is not an integer";
+    case Status::JwtPayloadParseErrorIatNotPositive:
+      return "Jwt payload [iat] field is not a positive integer";
     case Status::JwtPayloadParseErrorNbfNotInteger:
       return "Jwt payload [nbf] field is not an integer";
+    case Status::JwtPayloadParseErrorNbfNotPositive:
+      return "Jwt payload [nbf] field is not a positive integer";
     case Status::JwtPayloadParseErrorExpNotInteger:
       return "Jwt payload [exp] field is not an integer";
+    case Status::JwtPayloadParseErrorExpNotPositive:
+      return "Jwt payload [exp] field is not a positive integer";
     case Status::JwtPayloadParseErrorJtiNotString:
       return "Jwt payload [jti] field is not a string";
     case Status::JwtPayloadParseErrorAudNotString:
