@@ -368,7 +368,7 @@ TEST(JwtParseTest, TestParsePayloadExpNotInteger) {
 
 TEST(JwtParseTest, TestParsePayloadExpNotPositive) {
   /*
-   * jwt with payload { "iss":"test_issuer", "sub": "test_subject", "nbf":
+   * jwt with payload { "iss":"test_issuer", "sub": "test_subject", "exp":
    * "-12345" }
    */
   const std::string jwt_text =
