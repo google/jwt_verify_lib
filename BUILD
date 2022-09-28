@@ -1,4 +1,4 @@
-licenses(["notice"])  # Apache 2
+licenses(["notice"])
 
 package(default_visibility = ["//visibility:public"])
 
@@ -151,8 +151,8 @@ cc_test(
     name = "jwt_time_test",
     timeout = "short",
     srcs = [
-        "test/test_common.h",
         "test/jwt_time_test.cc",
+        "test/test_common.h",
     ],
     linkopts = [
         "-lm",
