@@ -129,8 +129,8 @@ def _rules_proto_repositories():
         urls = ["https://github.com/bazelbuild/rules_proto/archive/" + RULES_PROTO_COMMIT + ".tar.gz"],
     )
 
-ZLIB_RELEASE = "1.2.12"
-ZLIB_SHA256 = "91844808532e5ce316b3c010929493c0244f3d37593afd6de04f71821d5136d9"
+ZLIB_RELEASE = "1.2.13"
+ZLIB_SHA256 = "b3a24de97a8fdbc835b9833169501030b8977031bcb54b3b3ac13740f846ab30"
 
 def _zlib_repositories():
     http_archive(
