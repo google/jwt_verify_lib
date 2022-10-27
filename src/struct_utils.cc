@@ -69,7 +69,7 @@ StructUtils::FindResult StructUtils::GetBoolean(const std::string& name,
 }
 
 StructUtils::FindResult StructUtils::GetStruct(
-    const std::string& name, google::protobuf::Struct* value) {
+  const std::string& name, google::protobuf::Struct* value) {
   const auto& fields = struct_pb_.fields();
   const auto it = fields.find(name);
   if (it == fields.end()) {
