@@ -34,6 +34,11 @@ class StructUtils {
 
   FindResult GetUInt64(const std::string& name, uint64_t* value);
 
+  FindResult GetBoolean(const std::string& name, bool* value);
+
+  FindResult GetStruct(const std::string& name,
+                       ::google::protobuf::Struct* value);
+
   // Get string or list of string, designed to get "aud" field
   // "aud" can be either string array or string.
   // Try as string array, read it as empty array if doesn't exist.

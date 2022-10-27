@@ -444,6 +444,53 @@ TEST(JwtParseTest, InvalidSignature) {
             Status::JwtSignatureParseErrorBadBase64);
 }
 
+TEST(JwtParseTest, GoodNestedJwt) {
+  const std::string jwt_text =
+      "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9."
+      "eyJpc3MiOiJodHRwczovL2V4YW1wbGUuY29tIiwic3ViIjoidGVzdEBleGFtcGxlLmNvbSIs"
+      "ImF1ZCI6ImV4YW1wbGVfc2"
+      "V"
+      "ydmljZSIsImV4cCI6MjAwMTAwMTAwMSwibmVzdGVkIjp7ImtleS0xIjoidmFsdWUxIiwibmV"
+      "zdGVkLTIiOnsia2V5LTIiO"
+      "iJ"
+      "2YWx1ZTIiLCJrZXktMyI6dHJ1ZSwia2V5LTQiOjk5OTl9fX0."
+      "IWZiZ0dCqFG13fGKSu8t7nBHTFTXvtBXOp68gIcO-"
+      "1K3k0dhuWwX6umIDm_1W9Y8NdztS-"
+      "4jH4ULqRdR9QQFkxE7727USTHexN2sAqqxmAa1zdu2F-v3__VD8yONngWEWmw_"
+      "n-RbP0H1NEBcQf4uYuLIXWi-buGBzcyxwpEPLFnCRarunCEMSp3loPCm-SOBNf2ISeQ0h_"
+      "dpQ9dnWWxVvVA8T_AxROSto_"
+      "8eF_"
+      "o1zEnAbr8emLHDeeSFJNqhktT0ZTvv0__"
+      "stILRAobYRO5ztRBUs4WJ6cgX7rGSMFo5cgP1RMrQKpfHKP9WFHpHhogQ4UXi7ndCxTM6r0G"
+      "BinZRiA";
+
+  Jwt jwt;
+  ASSERT_EQ(jwt.parseFromString(jwt_text), Status::Ok);
+
+  StructUtils payload_getter_1(jwt.payload_pb_);
+  ::google::protobuf::Struct struct_value;
+  EXPECT_EQ(payload_getter_1.GetStruct("nested", &struct_value),
+            StructUtils::OK);
+  StructUtils payload_getter_2(struct_value);
+  std::string string_value;
+  EXPECT_EQ(payload_getter_2.GetString("key-1", &string_value),
+            StructUtils::OK);
+  EXPECT_EQ(string_value, "value1");
+  ::google::protobuf::Struct nested_struct_value;
+  EXPECT_EQ(payload_getter_2.GetStruct("nested-2", &nested_struct_value),
+            StructUtils::OK);
+  StructUtils payload_getter_3(nested_struct_value);
+  EXPECT_EQ(payload_getter_3.GetString("key-2", &string_value),
+            StructUtils::OK);
+  EXPECT_EQ(string_value, "value2");
+  bool bool_value;
+  EXPECT_EQ(payload_getter_3.GetBoolean("key-3", &bool_value), StructUtils::OK);
+  EXPECT_EQ(bool_value, true);
+  uint64_t int_value;
+  EXPECT_EQ(payload_getter_3.GetUInt64("key-4", &int_value), StructUtils::OK);
+  EXPECT_EQ(int_value, 9999);
+}
+
 }  // namespace
 }  // namespace jwt_verify
 }  // namespace google
