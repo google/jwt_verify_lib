@@ -23,29 +23,19 @@
 #include <cstddef>
 #include <string>
 
+#include "src/libfuzzer/libfuzzer_macro.h"
+#include "test/fuzz/jwt_verify_lib_fuzz_input.pb.h"
+
 namespace google {
 namespace jwt_verify {
 namespace {
 
-extern "C" int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size) {
-  // split the data int "jwt . jwks".
-  std::vector<std::string> v = absl::StrSplit(std::string((const char*)data, size), ".");
-  // jwt has 2 dot, at least we should have 3 dots with 4 sections.
-  if (v.size() < 4) return 0;
-
-  // jwt section has 2 dots with 3 sections.
-  std::vector<std::string> v_jwt = {v.begin(), v.begin() + 3};
-  std::string jwt_str = absl::StrJoin(v_jwt, ".");
-
-  // jwks section: the remaining after the 3rd dot.
-  std::vector<std::string> v_jwks = {v.begin() + 3, v.end()};
-  std::string jwks_str = absl::StrJoin(v_jwks, ".");
-
+DEFINE_PROTO_FUZZER(const FuzzInput& input) {
   Jwt jwt;
-  auto jwt_status = jwt.parseFromString(jwt_str);
+  auto jwt_status = jwt.parseFromString(input.jwt());
 
-  auto jwks1 = Jwks::createFrom(jwks_str, Jwks::JWKS);
-  auto jwks2 = Jwks::createFrom(jwks_str, Jwks::PEM);
+  auto jwks1 = Jwks::createFrom(input.jwks(), Jwks::JWKS);
+  auto jwks2 = Jwks::createFrom(input.jwks(), Jwks::PEM);
 
   if (jwt_status == Status::Ok) {
     if (jwks1->getStatus() == Status::Ok) {
@@ -55,7 +45,6 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size) {
       verifyJwt(jwt, *jwks2);
     }
   }
-  return 0;
 }
 
 }  // namespace

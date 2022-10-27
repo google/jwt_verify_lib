@@ -151,3 +151,21 @@ def protobuf_repositories(bind = True):
             name = "protobuf",
             actual = "@com_google_protobuf//:protobuf",
         )
+
+LIBPROTOBUF_MUTATOR_VERSION = "1.0"
+LIBPROTOBUF_MUTATOR_SHA256 = "792f250fb546bde8590e72d64311ea00a70c175fd77df6bb5e02328fa15fe28e"
+
+def libprotobuf_mutator_repositories(bind = True):
+    http_archive(
+        name = "com_google_libprotobuf_mutator",
+        build_file = "//:libprotobuf_mutator.BUILD",
+        strip_prefix = "libprotobuf-mutator-" + LIBPROTOBUF_MUTATOR_VERSION,
+        url = "https://github.com/google/libprotobuf-mutator/archive/v" + LIBPROTOBUF_MUTATOR_VERSION + ".tar.gz",
+        sha256 = LIBPROTOBUF_MUTATOR_SHA256,
+    )
+
+    if bind:
+        native.bind(
+            name = "libprotobuf_mutator",
+            actual = "@com_google_libprotobuf_mutator//:libprotobuf_mutator",
+        )

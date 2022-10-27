@@ -1,4 +1,5 @@
-base64ed+header.base64+claims.base64+signature.{
+jwt: base64ed+header.base64+claims.base64+signature
+jwks: {
   "keys": [
     {
       "kty": "EC",
