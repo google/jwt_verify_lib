@@ -32,3 +32,18 @@ cc_fuzz_test(
         "//external:libprotobuf_mutator",
     ],
 )
+
+cc_test(
+    name = "corpus_format_test",
+    srcs = [
+        "corpus_format_test.cc",
+    ],
+    testonly = 1,
+    data = glob(["corpus/jwt_verify_lib_fuzz_test/*"]),
+    deps = [
+        ":jwt_verify_lib_fuzz_input_cc_proto",
+        "//:jwt_verify_lib",
+        "//external:abseil_strings",
+        "//external:googletest_main",
+    ],
+)
