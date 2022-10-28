@@ -85,16 +85,6 @@ def _cctz_repositories(bind = True):
         sha256 = CCTZ_SHA256,
     )
 
-BAZEL_SKYLIB_RELEASE = "0.5.0"
-BAZEL_SKYLIB_SHA256 = "b5f6abe419da897b7901f90cbab08af958b97a8f3575b0d3dd062ac7ce78541f"
-
-def _bazel_skylib_repositories():
-    http_archive(
-        name = "bazel_skylib",
-        sha256 = BAZEL_SKYLIB_SHA256,
-        strip_prefix = "bazel-skylib-" + BAZEL_SKYLIB_RELEASE,
-        url = "https://github.com/bazelbuild/bazel-skylib/archive/" + BAZEL_SKYLIB_RELEASE + ".tar.gz",
-    )
 
 RULES_CC_COMMIT = "b7fe9697c0c76ab2fd431a891dbb9a6a32ed7c3e"
 RULES_CC_SHA256 = "29daf0159f0cf552fcff60b49d8bcd4f08f08506d2da6e41b07058ec50cfeaec"
@@ -118,8 +108,8 @@ def _rules_java_repositories():
         urls = ["https://github.com/bazelbuild/rules_java/archive/" + RULES_JAVA_COMMIT + ".tar.gz"],
     )
 
-RULES_PROTO_COMMIT = "b0cc14be5da05168b01db282fe93bdf17aa2b9f4"
-RULES_PROTO_SHA256 = "88b0a90433866b44bb4450d4c30bc5738b8c4f9c9ba14e9661deb123f56a833d"
+RULES_PROTO_COMMIT = "97d8af4dc474595af3900dd85cb3a29ad28cc313" # Oct 31, 2019
+RULES_PROTO_SHA256 = "602e7161d9195e50246177e7c55b2f39950a9cf7366f74ed5f22fd45750cd208"
 
 def _rules_proto_repositories():
     http_archive(
@@ -141,11 +131,10 @@ def _zlib_repositories():
         urls = ["https://zlib.net/zlib-" + ZLIB_RELEASE + ".tar.gz"],
     )
 
-PROTOBUF_RELEASE = "3.9.1"
-PROTOBUF_SHA256 = "98e615d592d237f94db8bf033fba78cd404d979b0b70351a9e5aaff725398357"
+PROTOBUF_RELEASE = "3.16.0"  # Mar 04, 2021
+PROTOBUF_SHA256 = "7892a35d979304a404400a101c46ce90e85ec9e2a766a86041bb361f626247f5"
 
 def protobuf_repositories(bind = True):
-    _bazel_skylib_repositories()
     _rules_cc_repositories()
     _rules_java_repositories()
     _rules_proto_repositories()
@@ -161,4 +150,22 @@ def protobuf_repositories(bind = True):
         native.bind(
             name = "protobuf",
             actual = "@com_google_protobuf//:protobuf",
+        )
+
+LIBPROTOBUF_MUTATOR_VERSION = "1.0"
+LIBPROTOBUF_MUTATOR_SHA256 = "792f250fb546bde8590e72d64311ea00a70c175fd77df6bb5e02328fa15fe28e"
+
+def libprotobuf_mutator_repositories(bind = True):
+    http_archive(
+        name = "com_google_libprotobuf_mutator",
+        build_file = "//:libprotobuf_mutator.BUILD",
+        strip_prefix = "libprotobuf-mutator-" + LIBPROTOBUF_MUTATOR_VERSION,
+        url = "https://github.com/google/libprotobuf-mutator/archive/v" + LIBPROTOBUF_MUTATOR_VERSION + ".tar.gz",
+        sha256 = LIBPROTOBUF_MUTATOR_SHA256,
+    )
+
+    if bind:
+        native.bind(
+            name = "libprotobuf_mutator",
+            actual = "@com_google_libprotobuf_mutator//:libprotobuf_mutator",
         )
