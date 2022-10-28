@@ -445,6 +445,22 @@ TEST(JwtParseTest, InvalidSignature) {
 }
 
 TEST(JwtParseTest, GoodNestedJwt) {
+  /*
+   * jwt with payload
+   * {
+   *  "sub": "test@example.com",
+   *  "aud": "example_service",
+   *  "exp": 2001001001,
+   *  "nested": {
+   *    "key-1": "value1",
+   *    "nested-2": {
+   *      "key-2": "value2",
+   *      "key-3": true,
+   *      "key-4": 9999
+   *    }
+   *  }
+   * }
+   */
   const std::string jwt_text =
       "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9."
       "eyJpc3MiOiJodHRwczovL2V4YW1wbGUuY29tIiwic3ViIjoidGVzdEBleGFtcGxlLmNvbSIs"
@@ -475,19 +491,24 @@ TEST(JwtParseTest, GoodNestedJwt) {
   std::string string_value;
   EXPECT_EQ(payload_getter_2.GetString("key-1", &string_value),
             StructUtils::OK);
+  // fetching: nested.key-1 = value1
   EXPECT_EQ(string_value, "value1");
+
   ::google::protobuf::Struct nested_struct_value;
   EXPECT_EQ(payload_getter_2.GetStruct("nested-2", &nested_struct_value),
             StructUtils::OK);
   StructUtils payload_getter_3(nested_struct_value);
   EXPECT_EQ(payload_getter_3.GetString("key-2", &string_value),
             StructUtils::OK);
+  // fetching: nested.nested-2.key-2 = value2
   EXPECT_EQ(string_value, "value2");
   bool bool_value;
   EXPECT_EQ(payload_getter_3.GetBoolean("key-3", &bool_value), StructUtils::OK);
+  // fetching: nested.nested-2.key-3 = true
   EXPECT_EQ(bool_value, true);
   uint64_t int_value;
   EXPECT_EQ(payload_getter_3.GetUInt64("key-4", &int_value), StructUtils::OK);
+  // fetching: nested.nested-2.key-4 = 9999
   EXPECT_EQ(int_value, 9999);
 }
 
