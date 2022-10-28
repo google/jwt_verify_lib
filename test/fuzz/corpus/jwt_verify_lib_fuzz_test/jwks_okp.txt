@@ -1,18 +1,3 @@
-base64ed+header.base64+claims.base64+signature.{
-   "keys": [
-      {
-         "kty": "OKP",
-         "crv": "Ed25519",
-         "alg": "EdDSA",
-         "kid": "abc",
-         "x": "6hH43mEbo-h7iigPm9zLKHH5oEc-bjIXD_t4PLPqHLQ"
-      },
-      {
-         "kty": "OKP",
-         "crv": "Ed25519",
-         "alg": "EdDSA",
-         "kid": "xyz",
-         "x": "6hH43mEbo-h7iigPm9zLKHH5oEc-bjIXD_t4PLPqHLQ"
-      }
-  ]
-}
+jwt: "base64ed+header.base64+claims.base64+signature"
+jwks: '{"keys":[{"kty":"OKP","crv":"Ed25519","alg":"EdDSA","kid":"abc","x":"6hH43mEbo-h7iigPm9zLKHH5oEc-bjIXD_t4PLPqHLQ"},{"kty":"OKP","crv":"Ed25519","alg":"EdDSA","kid":"xyz","x":"6hH43mEbo-h7iigPm9zLKHH5oEc-bjIXD_t4PLPqHLQ"}]}'
+
