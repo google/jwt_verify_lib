@@ -16,9 +16,6 @@
 #include "jwt_verify_lib/jwks.h"
 #include "jwt_verify_lib/verify.h"
 
-#include "absl/strings/str_join.h"
-#include "absl/strings/str_split.h"
-
 #include <cstdint>
 #include <cstddef>
 #include <string>

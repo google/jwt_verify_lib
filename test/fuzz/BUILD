@@ -29,7 +29,6 @@ cc_fuzz_test(
     deps = [
         ":jwt_verify_lib_fuzz_input_cc_proto",
         "//:jwt_verify_lib",
-        "//external:abseil_strings",
         "//external:libprotobuf_mutator",
     ],
 )
