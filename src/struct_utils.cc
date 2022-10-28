@@ -61,15 +61,12 @@ StructUtils::FindResult StructUtils::GetBoolean(const std::string& name,
   if (it->second.kind_case() != google::protobuf::Value::kBoolValue) {
     return WRONG_TYPE;
   }
-  if (it->second.number_value() < 0) {
-    return NOT_POSITIVE;
-  }
-  *value = static_cast<bool>(it->second.bool_value());
+  *value = it->second.bool_value();
   return OK;
 }
 
 StructUtils::FindResult StructUtils::GetStruct(
-  const std::string& name, google::protobuf::Struct* value) {
+    const std::string& name, google::protobuf::Struct* value) {
   const auto& fields = struct_pb_.fields();
   const auto it = fields.find(name);
   if (it == fields.end()) {
@@ -78,10 +75,7 @@ StructUtils::FindResult StructUtils::GetStruct(
   if (it->second.kind_case() != google::protobuf::Value::kStructValue) {
     return WRONG_TYPE;
   }
-  if (it->second.number_value() < 0) {
-    return NOT_POSITIVE;
-  }
-  *value = static_cast<google::protobuf::Struct>(it->second.struct_value());
+  *value = it->second.struct_value();
   return OK;
 }
 
