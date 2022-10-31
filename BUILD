@@ -23,7 +23,6 @@ cc_library(
         "jwt_verify_lib/verify.h",
     ],
     deps = [
-        "//external:abseil_flat_hash_map",
         "//external:abseil_flat_hash_set",
         "//external:abseil_strings",
         "//external:abseil_time",
