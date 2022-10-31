@@ -84,6 +84,12 @@ TEST(CheckAudienceTest, TestAnyAudienceMatch) {
   EXPECT_TRUE(checker.areAudiencesAllowed({"baz", "quux"}));
 }
 
+TEST(CheckAudienceTest, TestEmptyAudienceMatch) {
+  CheckAudience checker({"bar", ""});
+  EXPECT_TRUE(checker.areAudiencesAllowed({"bar"}));
+  EXPECT_TRUE(checker.areAudiencesAllowed({""}));
+}
+
 }  // namespace
 }  // namespace jwt_verify
 }  // namespace google

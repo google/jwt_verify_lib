@@ -342,6 +342,55 @@ TEST(JwksParseTest, JwksRSANoNE) {
   EXPECT_EQ(jwks->getStatus(), Status::JwksRSAKeyMissingN);
 }
 
+TEST(JwksParseTest, JwksRSAKeyBadN) {
+  const std::string jwks_text = R"(
+     {
+        "keys": [
+           {
+               "kty": "RSA",
+               "alg": "RS256",
+               "n":   1234
+           }
+        ]
+     }
+)";
+  auto jwks = Jwks::createFrom(jwks_text, Jwks::JWKS);
+  EXPECT_EQ(jwks->getStatus(), Status::JwksRSAKeyBadN);
+}
+
+TEST(JwksParseTest, JwksRSAKeyMissingE) {
+  const std::string jwks_text = R"(
+     {
+        "keys": [
+           {
+               "kty": "RSA",
+               "alg": "RS256",
+               "n":   "NNNNN"
+           }
+        ]
+     }
+)";
+  auto jwks = Jwks::createFrom(jwks_text, Jwks::JWKS);
+  EXPECT_EQ(jwks->getStatus(), Status::JwksRSAKeyMissingE);
+}
+
+TEST(JwksParseTest, JwksRSAKeyBadE) {
+  const std::string jwks_text = R"(
+     {
+        "keys": [
+           {
+               "kty": "RSA",
+               "alg": "RS256",
+               "n":   "NNNNN",
+               "e":   1234
+           }
+        ]
+     }
+)";
+  auto jwks = Jwks::createFrom(jwks_text, Jwks::JWKS);
+  EXPECT_EQ(jwks->getStatus(), Status::JwksRSAKeyBadE);
+}
+
 TEST(JwksParseTest, JwksECXYBadBase64) {
   const std::string jwks_text = R"(
      {
@@ -474,6 +523,185 @@ TEST(JwksParseTest, JwksOKPXWrongLength) {
 )";
   auto jwks = Jwks::createFrom(jwks_text, Jwks::JWKS);
   EXPECT_EQ(jwks->getStatus(), Status::JwksOKPXWrongLength);
+}
+
+TEST(JwksParseTest, JwksECMatchAlgES256WrongCrvType) {
+  // Wrong "crv" data type
+  const std::string jwks_text = R"(
+     {
+        "keys": [
+           {
+               "kty": "EC",
+               "alg": "ES256",
+               "crv": 1234
+           }
+        ]
+     }
+)";
+  auto jwks = Jwks::createFrom(jwks_text, Jwks::JWKS);
+  EXPECT_EQ(jwks->getStatus(), Status::JwksECKeyBadCrv);
+}
+
+TEST(JwksParseTest, JwksECMatchAlgES256WrongXType) {
+  // alg matches crv
+  const std::string jwks_text = R"(
+     {
+        "keys": [
+           {
+               "kty": "EC",
+               "alg": "ES256",
+               "crv": "P-256",
+               "x":   1234
+           }
+        ]
+     }
+)";
+  auto jwks = Jwks::createFrom(jwks_text, Jwks::JWKS);
+  EXPECT_EQ(jwks->getStatus(), Status::JwksECKeyBadX);
+}
+
+TEST(JwksParseTest, JwksECMatchAlgES256WrongMissingY) {
+  // alg matches crv
+  const std::string jwks_text = R"(
+     {
+        "keys": [
+           {
+               "kty": "EC",
+               "alg": "ES256",
+               "crv": "P-256",
+               "x":   "EB54wykhS7YJFD6RYJNnwbWEz3cI7CF5bCDTXlrwI5k"
+           }
+        ]
+     }
+)";
+  auto jwks = Jwks::createFrom(jwks_text, Jwks::JWKS);
+  EXPECT_EQ(jwks->getStatus(), Status::JwksECKeyMissingY);
+}
+
+TEST(JwksParseTest, JwksECMatchAlgES256WrongBadY) {
+  // alg matches crv
+  const std::string jwks_text = R"(
+     {
+        "keys": [
+           {
+               "kty": "EC",
+               "alg": "ES256",
+               "crv": "P-256",
+               "x":   "EB54wykhS7YJFD6RYJNnwbWEz3cI7CF5bCDTXlrwI5k",
+               "y":   1234
+           }
+        ]
+     }
+)";
+  auto jwks = Jwks::createFrom(jwks_text, Jwks::JWKS);
+  EXPECT_EQ(jwks->getStatus(), Status::JwksECKeyBadY);
+}
+
+TEST(JwksParseTest, JwksJwkMissingKty) {
+  // alg matches crv
+  const std::string jwks_text = R"(
+     {
+        "keys": [
+           {
+              "alg": "ES256",
+              "crv": "P-256",
+              "x":   "EB54wykhS7YJFD6RYJNnwbWEz3cI7CF5bCDTXlrwI5k"
+           }
+        ]
+     }
+)";
+  auto jwks = Jwks::createFrom(jwks_text, Jwks::JWKS);
+  EXPECT_EQ(jwks->getStatus(), Status::JwksMissingKty);
+}
+
+TEST(JwksParseTest, JwksJwkBadKty) {
+  // alg matches crv
+  const std::string jwks_text = R"(
+     {
+        "keys": [
+           {
+              "kty": 1234,
+              "alg": "ES256",
+              "crv": "P-256",
+              "x":   "EB54wykhS7YJFD6RYJNnwbWEz3cI7CF5bCDTXlrwI5k"
+           }
+        ]
+     }
+)";
+  auto jwks = Jwks::createFrom(jwks_text, Jwks::JWKS);
+  EXPECT_EQ(jwks->getStatus(), Status::JwksBadKty);
+}
+
+TEST(JwksParseTest, JwksJwkOctBadAlg) {
+  // alg matches crv
+  const std::string jwks_text = R"(
+     {
+        "keys": [
+           {
+              "kty": "oct",
+              "alg": "HS333"
+            }
+        ]
+     }
+)";
+  auto jwks = Jwks::createFrom(jwks_text, Jwks::JWKS);
+  EXPECT_EQ(jwks->getStatus(), Status::JwksHMACKeyBadAlg);
+}
+
+TEST(JwksParseTest, JwksJwkOctBadMissingK) {
+  // alg matches crv
+  const std::string jwks_text = R"(
+     {
+        "keys": [
+           {
+              "kty": "oct",
+              "alg": "HS256",
+              "use": "sig",
+              "kid": "62a93512c9ee4c7f8067b5a216dade2763d32a47"
+            }
+        ]
+     }
+)";
+  auto jwks = Jwks::createFrom(jwks_text, Jwks::JWKS);
+  EXPECT_EQ(jwks->getStatus(), Status::JwksHMACKeyMissingK);
+}
+
+TEST(JwksParseTest, JwksJwkOctBadK) {
+  // alg matches crv
+  const std::string jwks_text = R"(
+     {
+        "keys": [
+           {
+              "kty": "oct",
+              "alg": "HS256",
+              "use": "sig",
+              "kid": "62a93512c9ee4c7f8067b5a216dade2763d32a47",
+              "k":   12345
+            }
+        ]
+     }
+)";
+  auto jwks = Jwks::createFrom(jwks_text, Jwks::JWKS);
+  EXPECT_EQ(jwks->getStatus(), Status::JwksHMACKeyBadK);
+}
+
+TEST(JwksParseTest, JwksJwkOctBadBase64) {
+  // alg matches crv
+  const std::string jwks_text = R"(
+     {
+        "keys": [
+           {
+              "kty": "oct",
+              "alg": "HS256",
+              "use": "sig",
+              "kid": "62a93512c9ee4c7f8067b5a216dade2763d32a47",
+              "k":   "12345"
+            }
+        ]
+     }
+)";
+  auto jwks = Jwks::createFrom(jwks_text, Jwks::JWKS);
+  EXPECT_EQ(jwks->getStatus(), Status::JwksOctBadBase64);
 }
 
 TEST(JwksParseTest, JwksECMatchAlgES256CrvP256) {
