@@ -156,8 +156,8 @@ TEST(JwtParseTest, TestParseHeaderBadBase64) {
       "ImV4cCI6MTUwMTI4MTA1OH0.VGVzdFNpZ25hdHVyZQ";
 
   Jwt jwt;
-  ASSERT_EQ(jwt.parseFromString(jwt_text),
-            Status::JwtHeaderParseErrorBadBase64);
+  ASSERT_EQ(getStatusString(jwt.parseFromString(jwt_text)),
+            getStatusString(Status::JwtHeaderParseErrorBadBase64));
 }
 
 TEST(JwtParseTest, TestParseHeaderBadJson) {
