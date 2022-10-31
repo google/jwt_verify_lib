@@ -423,8 +423,6 @@ JwksPtr Jwks::createFrom(const std::string& pkey, Type type) {
     case Type::PEM:
       keys->createFromPemCore(pkey);
       break;
-    default:
-      break;
   }
   return keys;
 }

@@ -15,7 +15,8 @@ namespace {
 
 const absl::string_view kRunfilesDir = std::getenv("TEST_SRCDIR");
 const absl::string_view kWorkingDir = std::getenv("TEST_WORKSPACE");
-constexpr absl::string_view kDataDir = "test/fuzz/corpus/jwt_verify_lib_fuzz_test";
+constexpr absl::string_view kDataDir =
+    "test/fuzz/corpus/jwt_verify_lib_fuzz_test";
 
 std::string ReadTestBaseline(const std::string& input_file_name) {
   // Must reference testdata with an absolute path.
@@ -38,7 +39,9 @@ std::string ReadTestBaseline(const std::string& input_file_name) {
 // This test verifies the "jwks" field in corpus files are correct.
 // They can be parsed correctly.
 TEST(JwksParseTest, FuzzTestJwksCorpusFile) {
-  std::vector<std::string> files = {"jwks_ec.txt", "jwks_rsa.txt", "jwks_hmac.txt", "jwks_okp.txt", "jwks_x509.txt"};
+  std::vector<std::string> files = {"jwks_ec.txt", "jwks_rsa.txt",
+                                    "jwks_hmac.txt", "jwks_okp.txt",
+                                    "jwks_x509.txt"};
   for (const auto& file : files) {
     const std::string txt = ReadTestBaseline(file);
     FuzzInput input;
