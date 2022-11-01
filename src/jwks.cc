@@ -144,7 +144,7 @@ Status extractJwkFromJwkRSA(const ::google::protobuf::Struct& jwk_pb,
     return Status::JwksRSAKeyBadAlg;
   }
 
-  ::google::protobuf::Struct nonconst_jwt_pb;
+  ::google::protobuf::Struct nonconst_jwt_pb = jwk_pb;
   StructUtils jwk_getter(nonconst_jwt_pb);
   std::string n_str;
   auto code = jwk_getter.GetString("n", &n_str);
@@ -176,7 +176,7 @@ Status extractJwkFromJwkEC(const ::google::protobuf::Struct& jwk_pb,
     return Status::JwksECKeyBadAlg;
   }
 
-  ::google::protobuf::Struct nonconst_jwt_pb;
+  ::google::protobuf::Struct nonconst_jwt_pb = jwk_pb;
   StructUtils jwk_getter(nonconst_jwt_pb);
   std::string crv_str;
   auto code = jwk_getter.GetString("crv", &crv_str);
@@ -246,7 +246,7 @@ Status extractJwkFromJwkOct(const ::google::protobuf::Struct& jwk_pb,
     return Status::JwksHMACKeyBadAlg;
   }
 
-  ::google::protobuf::Struct nonconst_jwt_pb;
+  ::google::protobuf::Struct nonconst_jwt_pb = jwk_pb;
   StructUtils jwk_getter(nonconst_jwt_pb);
   std::string k_str;
   auto code = jwk_getter.GetString("k", &k_str);
@@ -275,7 +275,7 @@ Status extractJwkFromJwkOKP(const ::google::protobuf::Struct& jwk_pb,
   }
 
   // crv is required per https://tools.ietf.org/html/rfc8037#section-2
-  ::google::protobuf::Struct nonconst_jwt_pb;
+  ::google::protobuf::Struct nonconst_jwt_pb = jwk_pb;
   StructUtils jwk_getter(nonconst_jwt_pb);
   std::string crv_str;
   auto code = jwk_getter.GetString("crv", &crv_str);
@@ -319,7 +319,7 @@ Status extractJwkFromJwkOKP(const ::google::protobuf::Struct& jwk_pb,
 }
 
 Status extractJwk(const ::google::protobuf::Struct& jwk_pb, Jwks::Pubkey* jwk) {
-  ::google::protobuf::Struct nonconst_jwt_pb;
+  ::google::protobuf::Struct nonconst_jwt_pb = jwk_pb;
   StructUtils jwk_getter(nonconst_jwt_pb);
   // Check "kty" parameter, it should exist.
   // https://tools.ietf.org/html/rfc7517#section-4.1
