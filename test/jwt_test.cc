@@ -487,15 +487,13 @@ TEST(JwtParseTest, GoodNestedJwt) {
   EXPECT_EQ(payload_getter.GetStruct("nested", &payload_struct),
             StructUtils::OK);
   std::string string_value;
-  EXPECT_EQ(payload_getter.GetString("key-1", &string_value),
-            StructUtils::OK);
+  EXPECT_EQ(payload_getter.GetString("key-1", &string_value), StructUtils::OK);
   // fetching: nested.key-1 = value1
   EXPECT_EQ(string_value, "value1");
 
   EXPECT_EQ(payload_getter.GetStruct("nested-2", &payload_struct),
             StructUtils::OK);
-  EXPECT_EQ(payload_getter.GetString("key-2", &string_value),
-            StructUtils::OK);
+  EXPECT_EQ(payload_getter.GetString("key-2", &string_value), StructUtils::OK);
   // fetching: nested.nested-2.key-2 = value2
   EXPECT_EQ(string_value, "value2");
   bool bool_value;

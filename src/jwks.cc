@@ -319,7 +319,8 @@ Status extractJwkFromJwkOKP(const ::google::protobuf::Struct& jwk_pb,
 }
 
 Status extractJwk(const ::google::protobuf::Struct& jwk_pb, Jwks::Pubkey* jwk) {
-  StructUtils jwk_getter(jwk_pb);
+  ::google::protobuf::Struct nonconst_jwt_pb;
+  StructUtils jwk_getter(nonconst_jwt_pb);
   // Check "kty" parameter, it should exist.
   // https://tools.ietf.org/html/rfc7517#section-4.1
   auto code = jwk_getter.GetString("kty", &jwk->kty_);

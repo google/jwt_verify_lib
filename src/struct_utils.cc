@@ -75,8 +75,8 @@ StructUtils::FindResult StructUtils::GetStruct(
   if (it->second.kind_case() != google::protobuf::Value::kStructValue) {
     return WRONG_TYPE;
   }
-  google::protobuf::Struct struct_val = it->second.struct_value();
-  *value = struct_val;
+  google::protobuf::Struct nonconst_struct_value = it->second.struct_value();
+  *value = nonconst_struct_value;
   return OK;
 }
 
