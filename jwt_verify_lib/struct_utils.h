@@ -21,7 +21,7 @@ namespace jwt_verify {
 
 class StructUtils {
  public:
-  StructUtils(const ::google::protobuf::Struct& struct_pb);
+  StructUtils(::google::protobuf::Struct& struct_pb);
 
   enum FindResult {
     OK = 0,
@@ -46,7 +46,7 @@ class StructUtils {
                            std::vector<std::string>* list);
 
  private:
-  const ::google::protobuf::Struct& struct_pb_;
+  ::google::protobuf::Struct& struct_pb_;
 };
 
 }  // namespace jwt_verify

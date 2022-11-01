@@ -17,7 +17,7 @@
 namespace google {
 namespace jwt_verify {
 
-StructUtils::StructUtils(const ::google::protobuf::Struct& struct_pb)
+StructUtils::StructUtils(::google::protobuf::Struct& struct_pb)
     : struct_pb_(struct_pb) {}
 
 StructUtils::FindResult StructUtils::GetString(const std::string& name,
@@ -75,7 +75,8 @@ StructUtils::FindResult StructUtils::GetStruct(
   if (it->second.kind_case() != google::protobuf::Value::kStructValue) {
     return WRONG_TYPE;
   }
-  *value = it->second.struct_value();
+  google::protobuf::Struct struct_val = it->second.struct_value();
+  *value = struct_val;
   return OK;
 }
 

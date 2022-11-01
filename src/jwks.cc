@@ -136,7 +136,7 @@ class KeyGetter : public WithStatus {
   };
 };
 
-Status extractJwkFromJwkRSA(const ::google::protobuf::Struct& jwk_pb,
+Status extractJwkFromJwkRSA(::google::protobuf::Struct& jwk_pb,
                             Jwks::Pubkey* jwk) {
   if (!jwk->alg_.empty() &&
       (jwk->alg_.size() < 2 || (jwk->alg_.compare(0, 2, "RS") != 0 &&
@@ -168,7 +168,7 @@ Status extractJwkFromJwkRSA(const ::google::protobuf::Struct& jwk_pb,
   return e.getStatus();
 }
 
-Status extractJwkFromJwkEC(const ::google::protobuf::Struct& jwk_pb,
+Status extractJwkFromJwkEC(::google::protobuf::Struct& jwk_pb,
                            Jwks::Pubkey* jwk) {
   if (!jwk->alg_.empty() &&
       (jwk->alg_.size() < 2 || jwk->alg_.compare(0, 2, "ES") != 0)) {
@@ -237,7 +237,7 @@ Status extractJwkFromJwkEC(const ::google::protobuf::Struct& jwk_pb,
   return e.getStatus();
 }
 
-Status extractJwkFromJwkOct(const ::google::protobuf::Struct& jwk_pb,
+Status extractJwkFromJwkOct(::google::protobuf::Struct& jwk_pb,
                             Jwks::Pubkey* jwk) {
   if (!jwk->alg_.empty() && jwk->alg_ != "HS256" && jwk->alg_ != "HS384" &&
       jwk->alg_ != "HS512") {
@@ -264,7 +264,7 @@ Status extractJwkFromJwkOct(const ::google::protobuf::Struct& jwk_pb,
 }
 
 // The "OKP" key type is defined in https://tools.ietf.org/html/rfc8037
-Status extractJwkFromJwkOKP(const ::google::protobuf::Struct& jwk_pb,
+Status extractJwkFromJwkOKP(::google::protobuf::Struct& jwk_pb,
                             Jwks::Pubkey* jwk) {
   // alg is not required, but if present it must be EdDSA
   if (!jwk->alg_.empty() && jwk->alg_ != "EdDSA") {
@@ -314,7 +314,7 @@ Status extractJwkFromJwkOKP(const ::google::protobuf::Struct& jwk_pb,
   return e.getStatus();
 }
 
-Status extractJwk(const ::google::protobuf::Struct& jwk_pb, Jwks::Pubkey* jwk) {
+Status extractJwk(::google::protobuf::Struct& jwk_pb, Jwks::Pubkey* jwk) {
   StructUtils jwk_getter(jwk_pb);
   // Check "kty" parameter, it should exist.
   // https://tools.ietf.org/html/rfc7517#section-4.1
@@ -535,7 +535,8 @@ void Jwks::createFromJwksCore(const std::string& jwks_json) {
       continue;
     }
     PubkeyPtr key_ptr(new Pubkey());
-    Status status = extractJwk(key_value.struct_value(), key_ptr.get());
+    ::google::protobuf::Struct key_value_struct = key_value.struct_value();
+    Status status = extractJwk(key_value_struct, key_ptr.get());
     if (status == Status::Ok) {
       keys_.push_back(std::move(key_ptr));
       resetStatus(status);
