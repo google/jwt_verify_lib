@@ -35,19 +35,6 @@ StructUtils::FindResult StructUtils::GetString(const std::string& name,
 
 StructUtils::FindResult StructUtils::GetUInt64(const std::string& name,
                                                uint64_t* int_value) {
-  // const auto& fields = struct_pb_.fields();
-  // const auto it = fields.find(name);
-  // if (it == fields.end()) {
-  //   return MISSING;
-  // }
-  // if (it->second.kind_case() != google::protobuf::Value::kNumberValue) {
-  //   return WRONG_TYPE;
-  // }
-  // if (it->second.number_value() < 0) {
-  //   return NOT_POSITIVE;
-  // }
-  // *int_value = static_cast<uint64_t>(it->second.number_value());
-  // return OK;
   const ::google::protobuf::Value* value;
   FindResult err = findNestedField(name, value);
   if (err == OK) {
@@ -64,16 +51,6 @@ StructUtils::FindResult StructUtils::GetUInt64(const std::string& name,
 
 StructUtils::FindResult StructUtils::GetBoolean(const std::string& name,
                                                 bool* bool_value) {
-  // const auto& fields = struct_pb_.fields();
-  // const auto it = fields.find(name);
-  // if (it == fields.end()) {
-  //   return MISSING;
-  // }
-  // if (it->second.kind_case() != google::protobuf::Value::kBoolValue) {
-  //   return WRONG_TYPE;
-  // }
-  // *bool_value = it->second.bool_value();
-  // return OK;
   const ::google::protobuf::Value* value;
   FindResult err = findNestedField(name, value);
   if (err == OK) {
