@@ -15,29 +15,30 @@
 #pragma once
 
 #include "google/protobuf/struct.pb.h"
+#include "absl/strings/str_split.h"
 
 namespace google {
 namespace jwt_verify {
 
 class StructUtils {
  public:
-  StructUtils(const ::google::protobuf::Struct* struct_pb);
+  StructUtils(const ::google::protobuf::Struct& struct_pb);
 
   enum FindResult {
     OK = 0,
     MISSING,
     WRONG_TYPE,
     NOT_POSITIVE,
+    NOT_REACHABLE,
   };
 
-  FindResult GetString(const std::string& name, std::string* value);
+  FindResult GetString(const std::string& name, std::string* str_value);
 
-  FindResult GetUInt64(const std::string& name, uint64_t* value);
+  FindResult GetUInt64(const std::string& name, uint64_t* int_value);
 
-  FindResult GetBoolean(const std::string& name, bool* value);
+  FindResult GetBoolean(const std::string& name, bool* bool_value);
 
-  FindResult GetStruct(const std::string& name,
-                       const ::google::protobuf::Struct*& value);
+  FindResult findNestedField(const std::string& name, const google::protobuf::Value*& value);
 
   // Get string or list of string, designed to get "aud" field
   // "aud" can be either string array or string.
@@ -48,7 +49,7 @@ class StructUtils {
   void SetStructPb(const ::google::protobuf::Struct* strut_pb_);
 
  private:
-  const ::google::protobuf::Struct* struct_pb_;
+  const ::google::protobuf::Struct& struct_pb_;
 };
 
 }  // namespace jwt_verify

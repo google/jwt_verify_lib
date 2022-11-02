@@ -17,26 +17,35 @@
 namespace google {
 namespace jwt_verify {
 
-StructUtils::StructUtils(const ::google::protobuf::Struct* struct_pb)
+StructUtils::StructUtils(const ::google::protobuf::Struct& struct_pb)
     : struct_pb_(struct_pb) {}
 
 StructUtils::FindResult StructUtils::GetString(const std::string& name,
-                                               std::string* value) {
-  const auto& fields = struct_pb_->fields();
-  const auto it = fields.find(name);
-  if (it == fields.end()) {
-    return MISSING;
+                                               std::string* str_value) {
+  FindResult err;
+  const ::google::protobuf::Value* value;
+  if ((err = findNestedField(name, value)) == OK) {
+    if (value->kind_case() != google::protobuf::Value::kStringValue) {
+      return WRONG_TYPE;
+    }
+    *str_value = value->string_value();
   }
-  if (it->second.kind_case() != google::protobuf::Value::kStringValue) {
-    return WRONG_TYPE;
-  }
-  *value = it->second.string_value();
-  return OK;
+  return err;
+  // const auto& fields = struct_pb_->fields();
+  // const auto it = fields.find(name);
+  // if (it == fields.end()) {
+  //   return MISSING;
+  // }
+  // if (it->second.kind_case() != google::protobuf::Value::kStringValue) {
+  //   return WRONG_TYPE;
+  // }
+  // *value = it->second.string_value();
+  // return OK;
 }
 
 StructUtils::FindResult StructUtils::GetUInt64(const std::string& name,
                                                uint64_t* value) {
-  const auto& fields = struct_pb_->fields();
+  const auto& fields = struct_pb_.fields();
   const auto it = fields.find(name);
   if (it == fields.end()) {
     return MISSING;
@@ -53,7 +62,7 @@ StructUtils::FindResult StructUtils::GetUInt64(const std::string& name,
 
 StructUtils::FindResult StructUtils::GetBoolean(const std::string& name,
                                                 bool* value) {
-  const auto& fields = struct_pb_->fields();
+  const auto& fields = struct_pb_.fields();
   const auto it = fields.find(name);
   if (it == fields.end()) {
     return MISSING;
@@ -65,23 +74,30 @@ StructUtils::FindResult StructUtils::GetBoolean(const std::string& name,
   return OK;
 }
 
-StructUtils::FindResult StructUtils::GetStruct(
-    const std::string& name, const google::protobuf::Struct*& value) {
-  const auto& fields = struct_pb_->fields();
-  const auto it = fields.find(name);
-  if (it == fields.end()) {
-    return MISSING;
+StructUtils::FindResult StructUtils::findNestedField(const std::string& name, const google::protobuf::Value*& value) {
+  const std::vector<absl::string_view> name_vector = absl::StrSplit(name, '.');
+
+  auto fields = struct_pb_.fields();
+  for (int i=0; i<name_vector.size(); ++i) {
+    const auto it = fields.find(std::string(name_vector[i]));
+    if (it == fields.end()) {
+      return MISSING;
+    }
+    if (i == name_vector.size()-1) {
+      value = &it->second;
+      return OK;
+    }
+    if (it->second.kind_case() != google::protobuf::Value::kStructValue) {
+      return WRONG_TYPE;
+    }
+    fields = it->second.struct_value().fields();
   }
-  if (it->second.kind_case() != google::protobuf::Value::kStructValue) {
-    return WRONG_TYPE;
-  }
-  value = &it->second.struct_value();
-  return OK;
+  return NOT_REACHABLE;
 }
 
 StructUtils::FindResult StructUtils::GetStringList(
     const std::string& name, std::vector<std::string>* list) {
-  const auto& fields = struct_pb_->fields();
+  const auto& fields = struct_pb_.fields();
   const auto it = fields.find(name);
   if (it == fields.end()) {
     return MISSING;
@@ -102,9 +118,6 @@ StructUtils::FindResult StructUtils::GetStringList(
   return WRONG_TYPE;
 }
 
-void StructUtils::SetStructPb(const ::google::protobuf::Struct* struct_pb_) {
-  this->struct_pb_ = struct_pb_;
-}
 
 }  // namespace jwt_verify
 }  // namespace google
