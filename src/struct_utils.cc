@@ -98,14 +98,14 @@ StructUtils::FindResult StructUtils::findNestedField(
     }
     if (i == name_vector.size() - 1) {
       value = &it->second;
-      return OK;
+      continue;
     }
     if (it->second.kind_case() != google::protobuf::Value::kStructValue) {
       return WRONG_TYPE;
     }
     current_struct = &it->second.struct_value();
   }
-  return NOT_REACHABLE;
+  return OK;
 }
 
 }  // namespace jwt_verify

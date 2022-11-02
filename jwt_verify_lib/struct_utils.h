@@ -29,7 +29,6 @@ class StructUtils {
     MISSING,
     WRONG_TYPE,
     NOT_POSITIVE,
-    NOT_REACHABLE,
   };
 
   FindResult GetString(const std::string& name, std::string* str_value);
