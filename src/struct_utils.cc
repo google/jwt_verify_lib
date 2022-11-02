@@ -22,102 +22,114 @@ StructUtils::StructUtils(const ::google::protobuf::Struct& struct_pb)
 
 StructUtils::FindResult StructUtils::GetString(const std::string& name,
                                                std::string* str_value) {
-  FindResult err;
   const ::google::protobuf::Value* value;
-  if ((err = findNestedField(name, value)) == OK) {
+  FindResult err = findNestedField(name, value);
+  if (err == OK) {
     if (value->kind_case() != google::protobuf::Value::kStringValue) {
       return WRONG_TYPE;
     }
     *str_value = value->string_value();
   }
   return err;
-  // const auto& fields = struct_pb_->fields();
+}
+
+StructUtils::FindResult StructUtils::GetUInt64(const std::string& name,
+                                               uint64_t* int_value) {
+  // const auto& fields = struct_pb_.fields();
   // const auto it = fields.find(name);
   // if (it == fields.end()) {
   //   return MISSING;
   // }
-  // if (it->second.kind_case() != google::protobuf::Value::kStringValue) {
+  // if (it->second.kind_case() != google::protobuf::Value::kNumberValue) {
   //   return WRONG_TYPE;
   // }
-  // *value = it->second.string_value();
+  // if (it->second.number_value() < 0) {
+  //   return NOT_POSITIVE;
+  // }
+  // *int_value = static_cast<uint64_t>(it->second.number_value());
   // return OK;
-}
-
-StructUtils::FindResult StructUtils::GetUInt64(const std::string& name,
-                                               uint64_t* value) {
-  const auto& fields = struct_pb_.fields();
-  const auto it = fields.find(name);
-  if (it == fields.end()) {
-    return MISSING;
+  const ::google::protobuf::Value* value;
+  FindResult err = findNestedField(name, value);
+  if (err == OK) {
+    if (value->kind_case() != google::protobuf::Value::kNumberValue) {
+      return WRONG_TYPE;
+    }
+    if (value->number_value() < 0) {
+      return NOT_POSITIVE;
+    }
+    *int_value = static_cast<uint64_t>(value->number_value());
   }
-  if (it->second.kind_case() != google::protobuf::Value::kNumberValue) {
-    return WRONG_TYPE;
-  }
-  if (it->second.number_value() < 0) {
-    return NOT_POSITIVE;
-  }
-  *value = static_cast<uint64_t>(it->second.number_value());
-  return OK;
+  return err;
 }
 
 StructUtils::FindResult StructUtils::GetBoolean(const std::string& name,
-                                                bool* value) {
-  const auto& fields = struct_pb_.fields();
-  const auto it = fields.find(name);
-  if (it == fields.end()) {
-    return MISSING;
+                                                bool* bool_value) {
+  // const auto& fields = struct_pb_.fields();
+  // const auto it = fields.find(name);
+  // if (it == fields.end()) {
+  //   return MISSING;
+  // }
+  // if (it->second.kind_case() != google::protobuf::Value::kBoolValue) {
+  //   return WRONG_TYPE;
+  // }
+  // *bool_value = it->second.bool_value();
+  // return OK;
+  const ::google::protobuf::Value* value;
+  FindResult err = findNestedField(name, value);
+  if (err == OK) {
+    if (value->kind_case() != google::protobuf::Value::kBoolValue) {
+      return WRONG_TYPE;
+    }
+    *bool_value = value->bool_value();
   }
-  if (it->second.kind_case() != google::protobuf::Value::kBoolValue) {
-    return WRONG_TYPE;
-  }
-  *value = it->second.bool_value();
-  return OK;
+  return err;
 }
 
-StructUtils::FindResult StructUtils::findNestedField(const std::string& name, const google::protobuf::Value*& value) {
+StructUtils::FindResult StructUtils::GetStringList(
+    const std::string& name, std::vector<std::string>* list) {
+  const ::google::protobuf::Value* value;
+  FindResult err = findNestedField(name, value);
+  if (err == OK) {
+    if (value->kind_case() == google::protobuf::Value::kStringValue) {
+      list->push_back(value->string_value());
+      return OK;
+    }
+    if (value->kind_case() == google::protobuf::Value::kListValue) {
+      for (const auto& v : value->list_value().values()) {
+        if (v.kind_case() != google::protobuf::Value::kStringValue) {
+          return WRONG_TYPE;
+        }
+        list->push_back(v.string_value());
+      }
+      return OK;
+    }
+    return WRONG_TYPE;
+  }
+  return err;
+}
+
+StructUtils::FindResult StructUtils::findNestedField(
+    const std::string& name, const google::protobuf::Value*& value) {
   const std::vector<absl::string_view> name_vector = absl::StrSplit(name, '.');
 
-  auto fields = struct_pb_.fields();
-  for (int i=0; i<name_vector.size(); ++i) {
+  const google::protobuf::Struct* current_struct = &struct_pb_;
+  for (int i = 0; i < name_vector.size(); ++i) {
+    const auto& fields = current_struct->fields();
     const auto it = fields.find(std::string(name_vector[i]));
     if (it == fields.end()) {
       return MISSING;
     }
-    if (i == name_vector.size()-1) {
+    if (i == name_vector.size() - 1) {
       value = &it->second;
       return OK;
     }
     if (it->second.kind_case() != google::protobuf::Value::kStructValue) {
       return WRONG_TYPE;
     }
-    fields = it->second.struct_value().fields();
+    current_struct = &it->second.struct_value();
   }
   return NOT_REACHABLE;
 }
-
-StructUtils::FindResult StructUtils::GetStringList(
-    const std::string& name, std::vector<std::string>* list) {
-  const auto& fields = struct_pb_.fields();
-  const auto it = fields.find(name);
-  if (it == fields.end()) {
-    return MISSING;
-  }
-  if (it->second.kind_case() == google::protobuf::Value::kStringValue) {
-    list->push_back(it->second.string_value());
-    return OK;
-  }
-  if (it->second.kind_case() == google::protobuf::Value::kListValue) {
-    for (const auto& v : it->second.list_value().values()) {
-      if (v.kind_case() != google::protobuf::Value::kStringValue) {
-        return WRONG_TYPE;
-      }
-      list->push_back(v.string_value());
-    }
-    return OK;
-  }
-  return WRONG_TYPE;
-}
-
 
 }  // namespace jwt_verify
 }  // namespace google

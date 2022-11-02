@@ -14,8 +14,8 @@
 
 #pragma once
 
-#include "google/protobuf/struct.pb.h"
 #include "absl/strings/str_split.h"
+#include "google/protobuf/struct.pb.h"
 
 namespace google {
 namespace jwt_verify {
@@ -38,15 +38,14 @@ class StructUtils {
 
   FindResult GetBoolean(const std::string& name, bool* bool_value);
 
-  FindResult findNestedField(const std::string& name, const google::protobuf::Value*& value);
-
   // Get string or list of string, designed to get "aud" field
   // "aud" can be either string array or string.
   // Try as string array, read it as empty array if doesn't exist.
   FindResult GetStringList(const std::string& name,
                            std::vector<std::string>* list);
 
-  void SetStructPb(const ::google::protobuf::Struct* strut_pb_);
+  FindResult findNestedField(const std::string& name,
+                             const google::protobuf::Value*& value);
 
  private:
   const ::google::protobuf::Struct& struct_pb_;
