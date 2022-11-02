@@ -56,13 +56,13 @@ TEST(JwtParseTest, GoodJwt) {
   EXPECT_EQ(jwt.jti_, std::string("identity"));
   EXPECT_EQ(jwt.signature_, "Signature");
 
-  StructUtils header_getter(jwt.header_pb_);
+  StructUtils header_getter(&jwt.header_pb_);
   std::string str_value;
   EXPECT_EQ(header_getter.GetString("customheader", &str_value),
             StructUtils::OK);
   EXPECT_EQ(str_value, std::string("abc"));
 
-  StructUtils payload_getter(jwt.payload_pb_);
+  StructUtils payload_getter(&jwt.payload_pb_);
   uint64_t int_value;
   EXPECT_EQ(payload_getter.GetUInt64("custompayload", &int_value),
             StructUtils::OK);
@@ -81,7 +81,7 @@ TEST(JwtParseTest, Copy) {
   std::vector<std::reference_wrapper<Jwt>> jwts{constructed, copied};
 
   for (auto jwt = jwts.begin(); jwt != jwts.end(); ++jwt) {
-    Jwt &ref = (*jwt);
+    Jwt& ref = (*jwt);
     EXPECT_EQ(ref.alg_, original.alg_);
     EXPECT_EQ(ref.kid_, original.kid_);
     EXPECT_EQ(ref.iss_, original.iss_);
@@ -482,17 +482,19 @@ TEST(JwtParseTest, GoodNestedJwt) {
 
   Jwt jwt;
   ASSERT_EQ(jwt.parseFromString(jwt_text), Status::Ok);
-  ::google::protobuf::Struct payload_struct = jwt.payload_pb_;
+  const ::google::protobuf::Struct* payload_struct = &jwt.payload_pb_;
   StructUtils payload_getter(payload_struct);
-  EXPECT_EQ(payload_getter.GetStruct("nested", &payload_struct),
+  EXPECT_EQ(payload_getter.GetStruct("nested", payload_struct),
             StructUtils::OK);
+  payload_getter.SetStructPb(payload_struct);
   std::string string_value;
   EXPECT_EQ(payload_getter.GetString("key-1", &string_value), StructUtils::OK);
   // fetching: nested.key-1 = value1
   EXPECT_EQ(string_value, "value1");
 
-  EXPECT_EQ(payload_getter.GetStruct("nested-2", &payload_struct),
+  EXPECT_EQ(payload_getter.GetStruct("nested-2", payload_struct),
             StructUtils::OK);
+  payload_getter.SetStructPb(payload_struct);
   EXPECT_EQ(payload_getter.GetString("key-2", &string_value), StructUtils::OK);
   // fetching: nested.nested-2.key-2 = value2
   EXPECT_EQ(string_value, "value2");

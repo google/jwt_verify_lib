@@ -17,12 +17,12 @@
 namespace google {
 namespace jwt_verify {
 
-StructUtils::StructUtils(::google::protobuf::Struct& struct_pb)
+StructUtils::StructUtils(const ::google::protobuf::Struct* struct_pb)
     : struct_pb_(struct_pb) {}
 
 StructUtils::FindResult StructUtils::GetString(const std::string& name,
                                                std::string* value) {
-  const auto& fields = struct_pb_.fields();
+  const auto& fields = struct_pb_->fields();
   const auto it = fields.find(name);
   if (it == fields.end()) {
     return MISSING;
@@ -36,7 +36,7 @@ StructUtils::FindResult StructUtils::GetString(const std::string& name,
 
 StructUtils::FindResult StructUtils::GetUInt64(const std::string& name,
                                                uint64_t* value) {
-  const auto& fields = struct_pb_.fields();
+  const auto& fields = struct_pb_->fields();
   const auto it = fields.find(name);
   if (it == fields.end()) {
     return MISSING;
@@ -53,7 +53,7 @@ StructUtils::FindResult StructUtils::GetUInt64(const std::string& name,
 
 StructUtils::FindResult StructUtils::GetBoolean(const std::string& name,
                                                 bool* value) {
-  const auto& fields = struct_pb_.fields();
+  const auto& fields = struct_pb_->fields();
   const auto it = fields.find(name);
   if (it == fields.end()) {
     return MISSING;
@@ -66,8 +66,8 @@ StructUtils::FindResult StructUtils::GetBoolean(const std::string& name,
 }
 
 StructUtils::FindResult StructUtils::GetStruct(
-    const std::string& name, google::protobuf::Struct* value) {
-  const auto& fields = struct_pb_.fields();
+    const std::string& name, const google::protobuf::Struct*& value) {
+  const auto& fields = struct_pb_->fields();
   const auto it = fields.find(name);
   if (it == fields.end()) {
     return MISSING;
@@ -75,14 +75,13 @@ StructUtils::FindResult StructUtils::GetStruct(
   if (it->second.kind_case() != google::protobuf::Value::kStructValue) {
     return WRONG_TYPE;
   }
-  google::protobuf::Struct nonconst_struct_value = it->second.struct_value();
-  *value = nonconst_struct_value;
+  value = &it->second.struct_value();
   return OK;
 }
 
 StructUtils::FindResult StructUtils::GetStringList(
     const std::string& name, std::vector<std::string>* list) {
-  const auto& fields = struct_pb_.fields();
+  const auto& fields = struct_pb_->fields();
   const auto it = fields.find(name);
   if (it == fields.end()) {
     return MISSING;
@@ -101,6 +100,10 @@ StructUtils::FindResult StructUtils::GetStringList(
     return OK;
   }
   return WRONG_TYPE;
+}
+
+void StructUtils::SetStructPb(const ::google::protobuf::Struct* struct_pb_) {
+  this->struct_pb_ = struct_pb_;
 }
 
 }  // namespace jwt_verify

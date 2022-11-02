@@ -69,7 +69,7 @@ Status Jwt::parseFromString(const std::string& jwt) {
     return Status::JwtHeaderParseErrorBadJson;
   }
 
-  StructUtils header_getter(header_pb_);
+  StructUtils header_getter(&header_pb_);
   // Header should contain "alg" and should be a string.
   if (header_getter.GetString("alg", &alg_) != StructUtils::OK) {
     return Status::JwtHeaderBadAlg;
@@ -96,7 +96,7 @@ Status Jwt::parseFromString(const std::string& jwt) {
     return Status::JwtPayloadParseErrorBadJson;
   }
 
-  StructUtils payload_getter(payload_pb_);
+  StructUtils payload_getter(&payload_pb_);
   if (payload_getter.GetString("iss", &iss_) == StructUtils::WRONG_TYPE) {
     return Status::JwtPayloadParseErrorIssNotString;
   }

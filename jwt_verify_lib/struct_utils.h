@@ -21,7 +21,7 @@ namespace jwt_verify {
 
 class StructUtils {
  public:
-  StructUtils(::google::protobuf::Struct& struct_pb);
+  StructUtils(const ::google::protobuf::Struct* struct_pb);
 
   enum FindResult {
     OK = 0,
@@ -37,7 +37,7 @@ class StructUtils {
   FindResult GetBoolean(const std::string& name, bool* value);
 
   FindResult GetStruct(const std::string& name,
-                       ::google::protobuf::Struct* value);
+                       const ::google::protobuf::Struct*& value);
 
   // Get string or list of string, designed to get "aud" field
   // "aud" can be either string array or string.
@@ -45,8 +45,10 @@ class StructUtils {
   FindResult GetStringList(const std::string& name,
                            std::vector<std::string>* list);
 
+  void SetStructPb(const ::google::protobuf::Struct* strut_pb_);
+
  private:
-  ::google::protobuf::Struct& struct_pb_;
+  const ::google::protobuf::Struct* struct_pb_;
 };
 
 }  // namespace jwt_verify
