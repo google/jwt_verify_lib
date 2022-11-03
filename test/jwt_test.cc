@@ -334,6 +334,23 @@ TEST(JwtParseTest, TestParsePayloadIatTooBig) {
             Status::JwtPayloadParseErrorIatOutOfRange);
 }
 
+TEST(JwtParseTest, TestParsePayloadIatDecimalsDrop) {
+  /*
+   * jwt with payload { "iss":"test_issuer", "sub": "test_subject", "iat":
+   * "1234.5678" }
+   */
+  const std::string jwt_text =
+      "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9."
+      "eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxMjM0LjU2Nzh9"
+      ".tpmF_m236jEAYN1-Bk4T1ooSUTfiZ-RigFhEdi9Nwz4";
+
+  Jwt jwt;
+  ASSERT_EQ(jwt.parseFromString(jwt_text), Status::Ok);
+
+  // "iat" at payload is 1234.5678, decimals are dropped.
+  EXPECT_EQ(jwt.iat_, 1234);
+}
+
 TEST(JwtParseTest, TestParsePayloadNbfNotInteger) {
   /*
    * jwt with payload { "iss":"test_issuer", "sub": "test_subject", "nbf":
