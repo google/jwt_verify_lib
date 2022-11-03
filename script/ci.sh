@@ -16,5 +16,9 @@
 #
 ################################################################################
 
+# Check code format before running build and test
+./script/check-style
+
+# Build and test the entire repo
 bazel build //...
 bazel test //...
