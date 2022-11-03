@@ -45,7 +45,7 @@ class StructUtils {
  private:
   const ::google::protobuf::Struct& struct_pb_;
 
-  FindResult findNestedField(const std::string& name,
+  FindResult FindNestedField(const std::string& name,
                              const google::protobuf::Value*& value);
 };
 

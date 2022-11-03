@@ -24,7 +24,7 @@ StructUtils::StructUtils(const ::google::protobuf::Struct& struct_pb)
 StructUtils::FindResult StructUtils::GetString(const std::string& name,
                                                std::string* str_value) {
   const ::google::protobuf::Value* found;
-  FindResult result = findNestedField(name, found);
+  FindResult result = FindNestedField(name, found);
   if (result != OK) {
     return result;
   }
@@ -38,7 +38,7 @@ StructUtils::FindResult StructUtils::GetString(const std::string& name,
 StructUtils::FindResult StructUtils::GetUInt64(const std::string& name,
                                                uint64_t* int_value) {
   const ::google::protobuf::Value* found;
-  FindResult result = findNestedField(name, found);
+  FindResult result = FindNestedField(name, found);
   if (result != OK) {
     return result;
   }
@@ -55,7 +55,7 @@ StructUtils::FindResult StructUtils::GetUInt64(const std::string& name,
 StructUtils::FindResult StructUtils::GetBoolean(const std::string& name,
                                                 bool* bool_value) {
   const ::google::protobuf::Value* found;
-  FindResult result = findNestedField(name, found);
+  FindResult result = FindNestedField(name, found);
   if (result != OK) {
     return result;
   }
@@ -69,7 +69,7 @@ StructUtils::FindResult StructUtils::GetBoolean(const std::string& name,
 StructUtils::FindResult StructUtils::GetStringList(
     const std::string& name, std::vector<std::string>* list) {
   const ::google::protobuf::Value* found;
-  FindResult result = findNestedField(name, found);
+  FindResult result = FindNestedField(name, found);
   if (result != OK) {
     return result;
   }
@@ -89,7 +89,7 @@ StructUtils::FindResult StructUtils::GetStringList(
   return WRONG_TYPE;
 }
 
-StructUtils::FindResult StructUtils::findNestedField(
+StructUtils::FindResult StructUtils::FindNestedField(
     const std::string& name, const google::protobuf::Value*& found) {
   const std::vector<absl::string_view> name_vector = absl::StrSplit(name, '.');
 
