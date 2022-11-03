@@ -14,7 +14,6 @@
 
 #pragma once
 
-#include "absl/strings/str_split.h"
 #include "google/protobuf/struct.pb.h"
 
 namespace google {
@@ -43,11 +42,11 @@ class StructUtils {
   FindResult GetStringList(const std::string& name,
                            std::vector<std::string>* list);
 
-  FindResult findNestedField(const std::string& name,
-                             const google::protobuf::Value*& value);
-
  private:
   const ::google::protobuf::Struct& struct_pb_;
+
+  FindResult findNestedField(const std::string& name,
+                             const google::protobuf::Value*& value);
 };
 
 }  // namespace jwt_verify

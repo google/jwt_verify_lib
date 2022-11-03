@@ -13,6 +13,7 @@
 // limitations under the License.
 
 #include "jwt_verify_lib/struct_utils.h"
+#include "absl/strings/str_split.h"
 
 namespace google {
 namespace jwt_verify {
