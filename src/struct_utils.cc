@@ -23,21 +23,21 @@ StructUtils::StructUtils(const ::google::protobuf::Struct& struct_pb)
 StructUtils::FindResult StructUtils::GetString(const std::string& name,
                                                std::string* str_value) {
   const ::google::protobuf::Value* value;
-  FindResult err = findNestedField(name, value);
-  if (err == OK) {
+  FindResult find_result = findNestedField(name, value);
+  if (find_result == OK) {
     if (value->kind_case() != google::protobuf::Value::kStringValue) {
       return WRONG_TYPE;
     }
     *str_value = value->string_value();
   }
-  return err;
+  return find_result;
 }
 
 StructUtils::FindResult StructUtils::GetUInt64(const std::string& name,
                                                uint64_t* int_value) {
   const ::google::protobuf::Value* value;
-  FindResult err = findNestedField(name, value);
-  if (err == OK) {
+  FindResult find_result = findNestedField(name, value);
+  if (find_result == OK) {
     if (value->kind_case() != google::protobuf::Value::kNumberValue) {
       return WRONG_TYPE;
     }
@@ -46,27 +46,27 @@ StructUtils::FindResult StructUtils::GetUInt64(const std::string& name,
     }
     *int_value = static_cast<uint64_t>(value->number_value());
   }
-  return err;
+  return find_result;
 }
 
 StructUtils::FindResult StructUtils::GetBoolean(const std::string& name,
                                                 bool* bool_value) {
   const ::google::protobuf::Value* value;
-  FindResult err = findNestedField(name, value);
-  if (err == OK) {
+  FindResult find_result = findNestedField(name, value);
+  if (find_result == OK) {
     if (value->kind_case() != google::protobuf::Value::kBoolValue) {
       return WRONG_TYPE;
     }
     *bool_value = value->bool_value();
   }
-  return err;
+  return find_result;
 }
 
 StructUtils::FindResult StructUtils::GetStringList(
     const std::string& name, std::vector<std::string>* list) {
   const ::google::protobuf::Value* value;
-  FindResult err = findNestedField(name, value);
-  if (err == OK) {
+  FindResult find_result = findNestedField(name, value);
+  if (find_result == OK) {
     if (value->kind_case() == google::protobuf::Value::kStringValue) {
       list->push_back(value->string_value());
       return OK;
@@ -82,7 +82,7 @@ StructUtils::FindResult StructUtils::GetStringList(
     }
     return WRONG_TYPE;
   }
-  return err;
+  return find_result;
 }
 
 StructUtils::FindResult StructUtils::findNestedField(
