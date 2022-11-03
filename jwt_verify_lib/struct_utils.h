@@ -36,7 +36,7 @@ class StructUtils {
   // range. The decimals in the JSON value are dropped.
   FindResult GetUInt64(const std::string& name, uint64_t* int_value);
 
-  FindResult GetDouble(const std::string& name, double* int_value);
+  FindResult GetDouble(const std::string& name, double* double_value);
 
   FindResult GetBoolean(const std::string& name, bool* bool_value);
 
@@ -47,10 +47,11 @@ class StructUtils {
                            std::vector<std::string>* list);
 
  private:
-  const ::google::protobuf::Struct& struct_pb_;
+  // Find the value field with nested names.
+  FindResult FindNestedField(const std::string& nested_names,
+                             const google::protobuf::Value*& found);
 
-  FindResult FindNestedField(const std::string& name,
-                             const google::protobuf::Value*& value);
+  const ::google::protobuf::Struct& struct_pb_;
 };
 
 }  // namespace jwt_verify

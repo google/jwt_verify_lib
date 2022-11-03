@@ -103,8 +103,9 @@ StructUtils::FindResult StructUtils::GetStringList(
 }
 
 StructUtils::FindResult StructUtils::FindNestedField(
-    const std::string& name, const google::protobuf::Value*& found) {
-  const std::vector<absl::string_view> name_vector = absl::StrSplit(name, '.');
+    const std::string& nested_names, const google::protobuf::Value*& found) {
+  const std::vector<absl::string_view> name_vector =
+      absl::StrSplit(nested_names, '.');
 
   const google::protobuf::Struct* current_struct = &struct_pb_;
   for (int i = 0; i < name_vector.size(); ++i) {
