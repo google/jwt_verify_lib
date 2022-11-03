@@ -316,7 +316,39 @@ TEST(JwtParseTest, TestParsePayloadIatNotPositive) {
 
   Jwt jwt;
   ASSERT_EQ(jwt.parseFromString(jwt_text),
-            Status::JwtPayloadParseErrorIatNotPositive);
+            Status::JwtPayloadParseErrorIatOutOfRange);
+}
+
+TEST(JwtParseTest, TestParsePayloadIatTooBig) {
+  /*
+   * jwt with payload { "iss":"test_issuer", "sub": "test_subject", "iat":
+   * "2.001e+206" }
+   */
+  const std::string jwt_text =
+      "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9."
+      "eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoyLjAwMWUrMjA2"
+      "fQ.Sdnjb4zh6VnxtTJGlBRTBIQsQYDDxdd8qDI7B5FNdEQ";
+
+  Jwt jwt;
+  ASSERT_EQ(jwt.parseFromString(jwt_text),
+            Status::JwtPayloadParseErrorIatOutOfRange);
+}
+
+TEST(JwtParseTest, TestParsePayloadIatDecimalsDrop) {
+  /*
+   * jwt with payload { "iss":"test_issuer", "sub": "test_subject", "iat":
+   * "1234.5678" }
+   */
+  const std::string jwt_text =
+      "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9."
+      "eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxMjM0LjU2Nzh9"
+      ".tpmF_m236jEAYN1-Bk4T1ooSUTfiZ-RigFhEdi9Nwz4";
+
+  Jwt jwt;
+  ASSERT_EQ(jwt.parseFromString(jwt_text), Status::Ok);
+
+  // "iat" at payload is 1234.5678, decimals are dropped.
+  EXPECT_EQ(jwt.iat_, 1234);
 }
 
 TEST(JwtParseTest, TestParsePayloadNbfNotInteger) {
@@ -347,7 +379,22 @@ TEST(JwtParseTest, TestParsePayloadNbfNotPositive) {
 
   Jwt jwt;
   ASSERT_EQ(jwt.parseFromString(jwt_text),
-            Status::JwtPayloadParseErrorNbfNotPositive);
+            Status::JwtPayloadParseErrorNbfOutOfRange);
+}
+
+TEST(JwtParseTest, TestParsePayloadNbfTooBig) {
+  /*
+   * jwt with payload { "iss":"test_issuer", "sub": "test_subject", "nbf":
+   * "2.001e+206" }
+   */
+  const std::string jwt_text =
+      "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9."
+      "eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwibmJmIjoyLjAwMWUrMjA2"
+      "fQ.K9TSv9vMhzE1Je3DPJDcaztYp6kjULZt7RScHDMxTZw";
+
+  Jwt jwt;
+  ASSERT_EQ(jwt.parseFromString(jwt_text),
+            Status::JwtPayloadParseErrorNbfOutOfRange);
 }
 
 TEST(JwtParseTest, TestParsePayloadExpNotInteger) {
@@ -378,7 +425,22 @@ TEST(JwtParseTest, TestParsePayloadExpNotPositive) {
 
   Jwt jwt;
   ASSERT_EQ(jwt.parseFromString(jwt_text),
-            Status::JwtPayloadParseErrorExpNotPositive);
+            Status::JwtPayloadParseErrorExpOutOfRange);
+}
+
+TEST(JwtParseTest, TestParsePayloadExpTooBig) {
+  /*
+   * jwt with payload { "iss":"test_issuer", "sub": "test_subject", "exp":
+   * "2.001e+206" }
+   */
+  const std::string jwt_text =
+      "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9."
+      "eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiZXhwIjoyLjAwMWUrMjA2"
+      "fQ._mvA4ErN4W07mRzop3jBlZmmrywafvZpbfHZ1QKoplU";
+
+  Jwt jwt;
+  ASSERT_EQ(jwt.parseFromString(jwt_text),
+            Status::JwtPayloadParseErrorExpOutOfRange);
 }
 
 TEST(JwtParseTest, TestParsePayloadJtiNotString) {

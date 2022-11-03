@@ -35,8 +35,8 @@ StructUtils::FindResult StructUtils::GetString(const std::string& name,
   return OK;
 }
 
-StructUtils::FindResult StructUtils::GetUInt64(const std::string& name,
-                                               uint64_t* int_value) {
+StructUtils::FindResult StructUtils::GetDouble(const std::string& name,
+                                               double* double_value) {
   const ::google::protobuf::Value* found;
   FindResult result = FindNestedField(name, found);
   if (result != OK) {
@@ -45,10 +45,23 @@ StructUtils::FindResult StructUtils::GetUInt64(const std::string& name,
   if (found->kind_case() != google::protobuf::Value::kNumberValue) {
     return WRONG_TYPE;
   }
-  if (found->number_value() < 0) {
-    return NOT_POSITIVE;
+  *double_value = found->number_value();
+  return OK;
+}
+
+StructUtils::FindResult StructUtils::GetUInt64(const std::string& name,
+                                               uint64_t* int_value) {
+  double double_value;
+  FindResult result = GetDouble(name, &double_value);
+  if (result != OK) {
+    return result;
   }
-  *int_value = static_cast<uint64_t>(found->number_value());
+  if (double_value < 0 ||
+      double_value >=
+          static_cast<double>(std::numeric_limits<uint64_t>::max())) {
+    return OUT_OF_RANGE;
+  }
+  *int_value = static_cast<uint64_t>(double_value);
   return OK;
 }
 

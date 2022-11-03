@@ -27,12 +27,16 @@ class StructUtils {
     OK = 0,
     MISSING,
     WRONG_TYPE,
-    NOT_POSITIVE,
+    OUT_OF_RANGE,
   };
 
   FindResult GetString(const std::string& name, std::string* str_value);
 
+  // Return error if the JSON value is not within a positive 64 bit integer
+  // range. The decimals in the JSON value are dropped.
   FindResult GetUInt64(const std::string& name, uint64_t* int_value);
+
+  FindResult GetDouble(const std::string& name, double* int_value);
 
   FindResult GetBoolean(const std::string& name, bool* bool_value);
 

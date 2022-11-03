@@ -107,22 +107,22 @@ Status Jwt::parseFromString(const std::string& jwt) {
   auto result = payload_getter.GetUInt64("iat", &iat_);
   if (result == StructUtils::WRONG_TYPE) {
     return Status::JwtPayloadParseErrorIatNotInteger;
-  } else if (result == StructUtils::NOT_POSITIVE) {
-    return Status::JwtPayloadParseErrorIatNotPositive;
+  } else if (result == StructUtils::OUT_OF_RANGE) {
+    return Status::JwtPayloadParseErrorIatOutOfRange;
   }
 
   result = payload_getter.GetUInt64("nbf", &nbf_);
   if (result == StructUtils::WRONG_TYPE) {
     return Status::JwtPayloadParseErrorNbfNotInteger;
-  } else if (result == StructUtils::NOT_POSITIVE) {
-    return Status::JwtPayloadParseErrorNbfNotPositive;
+  } else if (result == StructUtils::OUT_OF_RANGE) {
+    return Status::JwtPayloadParseErrorNbfOutOfRange;
   }
 
   result = payload_getter.GetUInt64("exp", &exp_);
   if (result == StructUtils::WRONG_TYPE) {
     return Status::JwtPayloadParseErrorExpNotInteger;
-  } else if (result == StructUtils::NOT_POSITIVE) {
-    return Status::JwtPayloadParseErrorExpNotPositive;
+  } else if (result == StructUtils::OUT_OF_RANGE) {
+    return Status::JwtPayloadParseErrorExpOutOfRange;
   }
 
   if (payload_getter.GetString("jti", &jti_) == StructUtils::WRONG_TYPE) {
