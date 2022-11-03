@@ -81,7 +81,7 @@ TEST(JwtParseTest, Copy) {
   std::vector<std::reference_wrapper<Jwt>> jwts{constructed, copied};
 
   for (auto jwt = jwts.begin(); jwt != jwts.end(); ++jwt) {
-    Jwt &ref = (*jwt);
+    Jwt& ref = (*jwt);
     EXPECT_EQ(ref.alg_, original.alg_);
     EXPECT_EQ(ref.kid_, original.kid_);
     EXPECT_EQ(ref.iss_, original.iss_);
@@ -483,32 +483,29 @@ TEST(JwtParseTest, GoodNestedJwt) {
   Jwt jwt;
   ASSERT_EQ(jwt.parseFromString(jwt_text), Status::Ok);
 
-  StructUtils payload_getter_1(jwt.payload_pb_);
-  ::google::protobuf::Struct struct_value;
-  EXPECT_EQ(payload_getter_1.GetStruct("nested", &struct_value),
-            StructUtils::OK);
-  StructUtils payload_getter_2(struct_value);
-  std::string string_value;
-  EXPECT_EQ(payload_getter_2.GetString("key-1", &string_value),
-            StructUtils::OK);
+  StructUtils payload_getter(jwt.payload_pb_);
+
   // fetching: nested.key-1 = value1
+  std::string string_value;
+  EXPECT_EQ(payload_getter.GetString("nested.key-1", &string_value),
+            StructUtils::OK);
   EXPECT_EQ(string_value, "value1");
 
-  ::google::protobuf::Struct nested_struct_value;
-  EXPECT_EQ(payload_getter_2.GetStruct("nested-2", &nested_struct_value),
-            StructUtils::OK);
-  StructUtils payload_getter_3(nested_struct_value);
-  EXPECT_EQ(payload_getter_3.GetString("key-2", &string_value),
-            StructUtils::OK);
   // fetching: nested.nested-2.key-2 = value2
+  EXPECT_EQ(payload_getter.GetString("nested.nested-2.key-2", &string_value),
+            StructUtils::OK);
   EXPECT_EQ(string_value, "value2");
-  bool bool_value;
-  EXPECT_EQ(payload_getter_3.GetBoolean("key-3", &bool_value), StructUtils::OK);
+
   // fetching: nested.nested-2.key-3 = true
+  bool bool_value;
+  EXPECT_EQ(payload_getter.GetBoolean("nested.nested-2.key-3", &bool_value),
+            StructUtils::OK);
   EXPECT_EQ(bool_value, true);
-  uint64_t int_value;
-  EXPECT_EQ(payload_getter_3.GetUInt64("key-4", &int_value), StructUtils::OK);
+
   // fetching: nested.nested-2.key-4 = 9999
+  uint64_t int_value;
+  EXPECT_EQ(payload_getter.GetUInt64("nested.nested-2.key-4", &int_value),
+            StructUtils::OK);
   EXPECT_EQ(int_value, 9999);
 }
 

@@ -30,14 +30,11 @@ class StructUtils {
     NOT_POSITIVE,
   };
 
-  FindResult GetString(const std::string& name, std::string* value);
+  FindResult GetString(const std::string& name, std::string* str_value);
 
-  FindResult GetUInt64(const std::string& name, uint64_t* value);
+  FindResult GetUInt64(const std::string& name, uint64_t* int_value);
 
-  FindResult GetBoolean(const std::string& name, bool* value);
-
-  FindResult GetStruct(const std::string& name,
-                       ::google::protobuf::Struct* value);
+  FindResult GetBoolean(const std::string& name, bool* bool_value);
 
   // Get string or list of string, designed to get "aud" field
   // "aud" can be either string array or string.
@@ -47,6 +44,9 @@ class StructUtils {
 
  private:
   const ::google::protobuf::Struct& struct_pb_;
+
+  FindResult FindNestedField(const std::string& name,
+                             const google::protobuf::Value*& value);
 };
 
 }  // namespace jwt_verify
