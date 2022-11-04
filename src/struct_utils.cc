@@ -24,7 +24,7 @@ StructUtils::StructUtils(const ::google::protobuf::Struct& struct_pb)
 StructUtils::FindResult StructUtils::GetString(const std::string& name,
                                                std::string* str_value) {
   const ::google::protobuf::Value* found;
-  FindResult result = FindNestedField(name, found);
+  FindResult result = GetValue(name, found);
   if (result != OK) {
     return result;
   }
@@ -38,7 +38,7 @@ StructUtils::FindResult StructUtils::GetString(const std::string& name,
 StructUtils::FindResult StructUtils::GetDouble(const std::string& name,
                                                double* double_value) {
   const ::google::protobuf::Value* found;
-  FindResult result = FindNestedField(name, found);
+  FindResult result = GetValue(name, found);
   if (result != OK) {
     return result;
   }
@@ -68,7 +68,7 @@ StructUtils::FindResult StructUtils::GetUInt64(const std::string& name,
 StructUtils::FindResult StructUtils::GetBoolean(const std::string& name,
                                                 bool* bool_value) {
   const ::google::protobuf::Value* found;
-  FindResult result = FindNestedField(name, found);
+  FindResult result = GetValue(name, found);
   if (result != OK) {
     return result;
   }
@@ -82,7 +82,7 @@ StructUtils::FindResult StructUtils::GetBoolean(const std::string& name,
 StructUtils::FindResult StructUtils::GetStringList(
     const std::string& name, std::vector<std::string>* list) {
   const ::google::protobuf::Value* found;
-  FindResult result = FindNestedField(name, found);
+  FindResult result = GetValue(name, found);
   if (result != OK) {
     return result;
   }
@@ -102,7 +102,7 @@ StructUtils::FindResult StructUtils::GetStringList(
   return WRONG_TYPE;
 }
 
-StructUtils::FindResult StructUtils::FindNestedField(
+StructUtils::FindResult StructUtils::GetValue(
     const std::string& nested_names, const google::protobuf::Value*& found) {
   const std::vector<absl::string_view> name_vector =
       absl::StrSplit(nested_names, '.');

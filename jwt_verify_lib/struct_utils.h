@@ -46,11 +46,11 @@ class StructUtils {
   FindResult GetStringList(const std::string& name,
                            std::vector<std::string>* list);
 
- private:
-  // Find the value field with nested names.
-  FindResult FindNestedField(const std::string& nested_names,
-                             const google::protobuf::Value*& found);
+  // Find the value with nested names.
+  FindResult GetValue(const std::string& nested_names,
+                      const google::protobuf::Value*& found);
 
+ private:
   const ::google::protobuf::Struct& struct_pb_;
 };
 
