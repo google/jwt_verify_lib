@@ -13,6 +13,7 @@
 // limitations under the License.
 
 #include "jwt_verify_lib/struct_utils.h"
+#include "absl/strings/str_format.h"
 #include "absl/strings/str_split.h"
 
 namespace google {
@@ -96,6 +97,37 @@ StructUtils::FindResult StructUtils::GetStringList(
         return WRONG_TYPE;
       }
       list->push_back(v.string_value());
+    }
+    return OK;
+  }
+  return WRONG_TYPE;
+}
+
+StructUtils::FindResult StructUtils::GetPrimitiveFieldToString(
+    const std::string& name, std::string* out_string) {
+  const ::google::protobuf::Value* found;
+  FindResult result = FindNestedField(name, found);
+  if (result != OK) {
+    return result;
+  }
+  if (found->kind_case() == google::protobuf::Value::kNumberValue) {
+    if (found->number_value() < 0 ||
+        found->number_value() >=
+            static_cast<double>(std::numeric_limits<uint64_t>::max())) {
+      return OUT_OF_RANGE;
+    }
+    *out_string = std::to_string(static_cast<uint64_t>(found->number_value()));
+    return OK;
+  }
+  if (found->kind_case() == google::protobuf::Value::kStringValue) {
+    *out_string = found->string_value();
+    return OK;
+  }
+  if (found->kind_case() == google::protobuf::Value::kBoolValue) {
+    if (found->bool_value()) {
+      *out_string = "true";
+    } else {
+      *out_string = "false";
     }
     return OK;
   }
