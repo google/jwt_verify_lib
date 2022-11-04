@@ -46,16 +46,11 @@ class StructUtils {
   FindResult GetStringList(const std::string& name,
                            std::vector<std::string>* list);
 
-  // This will fetch the field with primitive type, int, bool and string into a
-  // string
-  FindResult GetPrimitiveFieldToString(const std::string& name,
-                                       std::string* out_string);
+  // Find the value with nested names.
+  FindResult GetValue(const std::string& nested_names,
+                      const google::protobuf::Value*& found);
 
  private:
-  // Find the value field with nested names.
-  FindResult FindNestedField(const std::string& nested_names,
-                             const google::protobuf::Value*& found);
-
   const ::google::protobuf::Struct& struct_pb_;
 };
 

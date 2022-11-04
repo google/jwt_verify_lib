@@ -569,24 +569,6 @@ TEST(JwtParseTest, GoodNestedJwt) {
   EXPECT_EQ(payload_getter.GetUInt64("nested.nested-2.key-4", &int_value),
             StructUtils::OK);
   EXPECT_EQ(int_value, 9999);
-
-  // fetching: nested.nested-2.key-2 = value2
-  EXPECT_EQ(payload_getter.GetPrimitiveFieldToString("nested.nested-2.key-2",
-                                                     &string_value),
-            StructUtils::OK);
-  EXPECT_EQ(string_value, "value2");
-
-  // fetching: nested.nested-2.key-3 = true as a string
-  EXPECT_EQ(payload_getter.GetPrimitiveFieldToString("nested.nested-2.key-3",
-                                                     &string_value),
-            StructUtils::OK);
-  EXPECT_EQ(string_value, "true");
-
-  // fetching: nested.nested-2.key-4 = 9999 as a string
-  EXPECT_EQ(payload_getter.GetPrimitiveFieldToString("nested.nested-2.key-4",
-                                                     &string_value),
-            StructUtils::OK);
-  EXPECT_EQ(string_value, "9999");
 }
 
 }  // namespace
