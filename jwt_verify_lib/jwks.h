@@ -18,7 +18,6 @@
 #include <vector>
 
 #include "jwt_verify_lib/status.h"
-
 #include "openssl/ec.h"
 #include "openssl/evp.h"
 #include "openssl/pem.h"
