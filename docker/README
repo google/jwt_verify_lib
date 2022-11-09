@@ -17,8 +17,8 @@ documentation](https://docs.docker.com/engine/reference/commandline/push/#push-a
 This image is used to run OSS Prow CI jobs.
 ```sh
 # Build image
-docker build -f Dockerfile-prow-env  . -t gcr.io/cloudesf-testing/gcpproxy-prow:v${YYYYMMDD}-jwt-verify-lib
+docker build -f Dockerfile-prow-env -t gcr.io/cloudesf-testing/jwt-verify-lib-prow:v{YYYYMMDD} .
 # Push image to GCR
-docker image push gcr.io/cloudesf-testing/gcpproxy-prow:v${YYYYMMDD}-jwt-verify-lib
+docker image push gcr.io/cloudesf-testing/jwt-verify-lib-prow:v{YYYYMMDD}
 ```
 
