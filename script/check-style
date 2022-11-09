@@ -20,7 +20,6 @@ ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 
 CLANG_VERSION_REQUIRED="13.0.0"
 CLANG_FORMAT=$(which clang-format-${CLANG_VERSION_REQUIRED%%.*})
-echo "which clang-format-${CLANG_VERSION_REQUIRED%.*}"
 if [[ ! -x "${CLANG_FORMAT}" ]]; then
   # Install required clang version to a folder and cache it.
   CLANG_DIRECTORY="${HOME}/clang"
@@ -37,7 +36,6 @@ if [[ ! -x "${CLANG_FORMAT}" ]]; then
   echo "clang-bin: https://github.com/llvm/llvm-project/releases/download/llvmorg-${CLANG_VERSION_REQUIRED}/clang+llvm-${CLANG_VERSION_REQUIRED}-${CLANG_BIN}"
 
   CLANG_VERSION="$(${CLANG_FORMAT} -version | cut -d ' ' -f 3)"
-  echo "CLANG_VERSION: ${CLANG_VERSION}"
   if [[ "${CLANG_VERSION}" != "${CLANG_VERSION_REQUIRED}" ]]; then
     echo "Installing required clang-format ${CLANG_VERSION_REQUIRED} to ${CLANG_DIRECTORY}"
     mkdir -p ${CLANG_DIRECTORY}
