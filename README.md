@@ -1,3 +1,4 @@
+[![CI Status](https://oss.gprow.dev/badge.svg?jobs=jwt-verify-lib-periodic)](https://testgrid.k8s.io/googleoss-jwt-verify-lib#Summary)
 
 This repository stores JWT verification files for c++.
 These files are originally created in [istio/proxy jwt_auth folder](https://github.com/istio/proxy/blob/master/src/envoy/http/jwt_auth/jwt.h).
