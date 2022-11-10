@@ -12,14 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.#pragma once
 
-#include "jwt_verify_lib/jwks.h"
-#include "jwt_verify_lib/jwt.h"
-#include "jwt_verify_lib/verify.h"
-
 #include <cstddef>
 #include <cstdint>
 #include <string>
 
+#include "jwt_verify_lib/jwks.h"
+#include "jwt_verify_lib/jwt.h"
+#include "jwt_verify_lib/verify.h"
 #include "src/libfuzzer/libfuzzer_macro.h"
 #include "test/fuzz/jwt_verify_lib_fuzz_input.pb.h"
 

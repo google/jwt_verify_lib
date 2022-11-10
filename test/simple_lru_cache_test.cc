@@ -17,10 +17,10 @@ limitations under the License.
 // Tests fo SimpleLRUCache
 
 #include "simple_lru_cache/simple_lru_cache.h"
-#include "simple_lru_cache/simple_lru_cache_inl.h"
 
 #include <math.h>
 #include <unistd.h>
+
 #include <algorithm>
 #include <cmath>
 #include <iostream>
@@ -30,6 +30,7 @@ limitations under the License.
 
 #include "gmock/gmock.h"
 #include "gtest/gtest.h"
+#include "simple_lru_cache/simple_lru_cache_inl.h"
 
 using ::testing::HasSubstr;
 using ::testing::NotNull;

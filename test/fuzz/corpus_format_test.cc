@@ -1,14 +1,11 @@
-#include "jwt_verify_lib/jwks.h"
-#include "jwt_verify_lib/jwt.h"
-#include "jwt_verify_lib/verify.h"
-
 #include <fstream>
 
 #include "absl/strings/str_cat.h"
 #include "google/protobuf/text_format.h"
-
 #include "gtest/gtest.h"
-
+#include "jwt_verify_lib/jwks.h"
+#include "jwt_verify_lib/jwt.h"
+#include "jwt_verify_lib/verify.h"
 #include "test/fuzz/jwt_verify_lib_fuzz_input.pb.h"
 
 namespace google {

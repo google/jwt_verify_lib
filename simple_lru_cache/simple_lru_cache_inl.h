@@ -899,22 +899,22 @@ void SimpleLRUCacheBase<Key, Value, MapType, EQ>::discardIdle(
   int64_t last = 0;
 #endif
   while ((e != &head_) && (e->last_use_ < threshold)) {
-  // Sanity check: LRU list should be sorted by last_use_. We could
-  // check the entire list, but that gives quadratic behavior.
-  //
-  // TSCs on different cores of multi-core machines sometime get slightly out
-  // of sync; compensate for this by allowing clock to go backwards by up to
-  // kAcceptableClockSynchronizationDriftCycles CPU cycles.
-  //
-  // A kernel bug (http://b/issue?id=777807) sometimes causes TSCs to become
-  // widely unsynchronized, in which case this CHECK will fail. As a
-  // temporary work-around, running
-  //
-  //  $ sudo bash
-  //  # echo performance>/sys/devices/system/cpu/cpu0/cpufreq/scaling_governor
-  //  # /etc/init.d/cpufrequtils restart
-  //
-  // fixes the problem.
+    // Sanity check: LRU list should be sorted by last_use_. We could
+    // check the entire list, but that gives quadratic behavior.
+    //
+    // TSCs on different cores of multi-core machines sometime get slightly out
+    // of sync; compensate for this by allowing clock to go backwards by up to
+    // kAcceptableClockSynchronizationDriftCycles CPU cycles.
+    //
+    // A kernel bug (http://b/issue?id=777807) sometimes causes TSCs to become
+    // widely unsynchronized, in which case this CHECK will fail. As a
+    // temporary work-around, running
+    //
+    //  $ sudo bash
+    //  # echo performance>/sys/devices/system/cpu/cpu0/cpufreq/scaling_governor
+    //  # /etc/init.d/cpufrequtils restart
+    //
+    // fixes the problem.
 #ifndef NDEBUG
     assert(last <= e->last_use_ + kAcceptableClockSynchronizationDriftCycles);
     last = e->last_use_;

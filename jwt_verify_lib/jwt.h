@@ -18,7 +18,6 @@
 #include <vector>
 
 #include "google/protobuf/struct.pb.h"
-
 #include "jwt_verify_lib/status.h"
 
 namespace google {

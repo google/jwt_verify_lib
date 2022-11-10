@@ -13,6 +13,7 @@
 // limitations under the License.
 
 #include "jwt_verify_lib/check_audience.h"
+
 #include "absl/strings/match.h"
 
 namespace google {
