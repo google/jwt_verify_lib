@@ -510,6 +510,7 @@ TEST(JwtParseTest, GoodNestedJwt) {
   /*
    * jwt with payload
    * {
+   *  "iss":"https://example.com",
    *  "sub": "test@example.com",
    *  "aud": "example_service",
    *  "exp": 2001001001,
@@ -520,27 +521,31 @@ TEST(JwtParseTest, GoodNestedJwt) {
    *      "key-3": true,
    *      "key-4": 9999
    *    }
-   *  }
+   *  },
+   *  "https://namespaced.example.com/claim": "namespaced-string-claim",
+   *  "https://namespaced.example.com/claims": {
+   *     "nested": {
+   *        "key": "namespaced-nested-claim"
+   *     }
+   *   }
    * }
    */
+  // Signed with
+  // https://github.com/istio/istio/blob/master/security/tools/jwt/samples/key.pem.
   const std::string jwt_text =
       "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9."
       "eyJpc3MiOiJodHRwczovL2V4YW1wbGUuY29tIiwic3ViIjoidGVzdEBleGFtcGxlLmNvbSIs"
-      "ImF1ZCI6ImV4YW1wbGVfc2"
-      "V"
-      "ydmljZSIsImV4cCI6MjAwMTAwMTAwMSwibmVzdGVkIjp7ImtleS0xIjoidmFsdWUxIiwibmV"
-      "zdGVkLTIiOnsia2V5LTIiO"
-      "iJ"
-      "2YWx1ZTIiLCJrZXktMyI6dHJ1ZSwia2V5LTQiOjk5OTl9fX0."
-      "IWZiZ0dCqFG13fGKSu8t7nBHTFTXvtBXOp68gIcO-"
-      "1K3k0dhuWwX6umIDm_1W9Y8NdztS-"
-      "4jH4ULqRdR9QQFkxE7727USTHexN2sAqqxmAa1zdu2F-v3__VD8yONngWEWmw_"
-      "n-RbP0H1NEBcQf4uYuLIXWi-buGBzcyxwpEPLFnCRarunCEMSp3loPCm-SOBNf2ISeQ0h_"
-      "dpQ9dnWWxVvVA8T_AxROSto_"
-      "8eF_"
-      "o1zEnAbr8emLHDeeSFJNqhktT0ZTvv0__"
-      "stILRAobYRO5ztRBUs4WJ6cgX7rGSMFo5cgP1RMrQKpfHKP9WFHpHhogQ4UXi7ndCxTM6r0G"
-      "BinZRiA";
+      "ImF1ZCI6ImV4YW1wbGVfc2VydmljZSIsImV4cCI6MjAwMTAwMTAwMSwibmVzdGVkIjp7Imtl"
+      "eS0xIjoidmFsdWUxIiwibmVzdGVkLTIiOnsia2V5LTIiOiJ2YWx1ZTIiLCJrZXktMyI6dHJ1"
+      "ZSwia2V5LTQiOjk5OTl9fSwiaHR0cHM6Ly9uYW1lc3BhY2VkLmV4YW1wbGUuY29tL2NsYWlt"
+      "IjoibmFtZXNwYWNlZC1zdHJpbmctY2xhaW0iLCJodHRwczovL25hbWVzcGFjZWQuZXhhbXBs"
+      "ZS5jb20vY2xhaW1zIjp7Im5lc3RlZCI6eyJrZXkiOiJuYW1lc3BhY2VkLW5lc3RlZC1jbGFp"
+      "bSJ9fX0.LyUlbVCA40JTh1Em8DZBz6ZMjQZ8AvzoNpGSCFlJXyksBcPn89Vphi1T_"
+      "lYUBnRYwI_gFGyExrpm5l4dwJap3iegaSzHuPG3WmzQv-44cEJHIAx0gtLUItBF5vdk_"
+      "f5YAmt4YkFDE34jlu0ZRu3QuoBZ1ZAmokBj6qhoe8X68t7CU9BNeEP7H7nuCQtS448VFVXO8"
+      "l3oWsxu4PlB4Gb5s_"
+      "UD9WgcaX1rgR1eX9R0AMn4HE0UGLFU4xcgBYGidlvEGCwaJVa2BARy4GDnthX4N12Xje-"
+      "rGqrHB5k6BKMixBBY1PHtFi_3s_Un56qaGT_VoyxmqSMGNfZIuw-0lH32oA";
 
   Jwt jwt;
   ASSERT_EQ(jwt.parseFromString(jwt_text), Status::Ok);
