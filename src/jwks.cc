@@ -104,8 +104,8 @@ class KeyGetter : public WithStatus {
       updateStatus(Status::JwksRsaParseError);
       return nullptr;
     }
-    if (BN_cmp_word(rsa->e, 3) != 0 && BN_cmp_word(rsa->e, 65537) != 0) {
-      // non-standard key; reject it early.
+    if (BN_cmp_word(rsa->e, 3) < 0) {
+      // invalid key exponent; reject it early.
       updateStatus(Status::JwksRsaParseError);
       return nullptr;
     }
