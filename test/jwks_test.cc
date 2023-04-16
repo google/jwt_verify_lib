@@ -425,7 +425,7 @@ TEST(JwksParseTest, JwksECWrongXY) {
   EXPECT_EQ(jwks->getStatus(), Status::JwksEcParseError);
 }
 
-TEST(JwksParseTest, JwksRSAWrongNE) {
+TEST(JwksParseTest, ValidLargeExponent) {
   const std::string jwks_text = R"(
      {
         "keys": [
@@ -433,6 +433,40 @@ TEST(JwksParseTest, JwksRSAWrongNE) {
                "kty": "RSA",
                "n": "EB54wykhS7YJFD6RYJNnwbW",
                "e": "92bCBTvMFQ8lKbS2MbgjT3YfmY",
+               "alg": "RS256"
+           }
+        ]
+     }
+)";
+  auto jwks = Jwks::createFrom(jwks_text, Jwks::JWKS);
+  EXPECT_EQ(jwks->getStatus(), Status::Ok);
+}
+
+TEST(JwksParseTest, ValidExponentIs3) {
+  const std::string jwks_text = R"(
+     {
+        "keys": [
+           {
+               "kty": "RSA",
+               "n": "EB54wykhS7YJFD6RYJNnwbW",
+               "e": "Aw==",
+               "alg": "RS256"
+           }
+        ]
+     }
+)";
+  auto jwks = Jwks::createFrom(jwks_text, Jwks::JWKS);
+  EXPECT_EQ(jwks->getStatus(), Status::Ok);
+}
+
+TEST(JwksParseTest, JwksRSAWrongNE) {
+  const std::string jwks_text = R"(
+     {
+        "keys": [
+           {
+               "kty": "RSA",
+               "n": "EB54wykhS7YJFD6RYJNnwbW",
+               "e": "Ag==",
                "alg": "RS256"
            }
         ]

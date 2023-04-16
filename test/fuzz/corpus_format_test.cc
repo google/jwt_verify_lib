@@ -40,7 +40,7 @@ std::string ReadTestBaseline(const std::string& input_file_name) {
 // to be more efficient.
 // This test verifies the following corpus files satisfy above conditions.
 TEST(JwksParseTest, FuzzTestJwksCorpusFile) {
-  std::vector<std::string> files = {"jwks_ec.txt",   "jwks_rsa.txt",
+  std::vector<std::string> files = {"jwks_ec.txt",   "jwks_rsa.txt", "jwks_rsa_non_standard_exponent.txt",
                                     "jwks_hmac.txt", "jwks_okp.txt",
                                     "jwks_x509.txt", "jwks_pem.txt"};
   for (const auto& file : files) {
