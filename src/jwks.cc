@@ -96,16 +96,34 @@ class KeyGetter : public WithStatus {
 
   bssl::UniquePtr<RSA> createRsaFromJwk(const std::string& n,
                                         const std::string& e) {
-    bssl::UniquePtr<RSA> rsa(RSA_new());
-    rsa->n = createBigNumFromBase64UrlString(n).release();
-    rsa->e = createBigNumFromBase64UrlString(e).release();
-    if (rsa->n == nullptr || rsa->e == nullptr) {
+    bssl::UniquePtr<BIGNUM> n_bn = createBigNumFromBase64UrlString(n);
+    bssl::UniquePtr<BIGNUM> e_bn = createBigNumFromBase64UrlString(e);
+    if (n_bn == nullptr || e_bn == nullptr) {
       // RSA public key field is missing or has parse error.
       updateStatus(Status::JwksRsaParseError);
       return nullptr;
     }
-    if (BN_cmp_word(rsa->e, 3) != 0 && BN_cmp_word(rsa->e, 65537) != 0) {
+    if (BN_cmp_word(e_bn.get(), 3) != 0 &&
+        BN_cmp_word(e_bn.get(), 65537) != 0) {
       // non-standard key; reject it early.
+      updateStatus(Status::JwksRsaParseError);
+      return nullptr;
+    }
+    // When jwt_verify_lib's minimum supported BoringSSL revision is past
+    // https://boringssl-review.googlesource.com/c/boringssl/+/59386 (May 2023),
+    // replace all this with `RSA_new_public_key` instead.
+    bssl::UniquePtr<RSA> rsa(RSA_new());
+    if (rsa == nullptr ||
+        !RSA_set0_key(rsa.get(), n_bn.get(), e_bn.get(), /*d=*/nullptr)) {
+      // Allocation or programmer error.
+      updateStatus(Status::JwksRsaParseError);
+      return nullptr;
+    }
+    // `RSA_set0_key` takes ownership, but only on success.
+    n_bn.release();
+    e_bn.release();
+    if (!RSA_check_key(rsa.get())) {
+      // Not a valid RSA public key.
       updateStatus(Status::JwksRsaParseError);
       return nullptr;
     }
