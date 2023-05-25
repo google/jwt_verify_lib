@@ -14,6 +14,10 @@
 
 #include "jwt_verify_lib/struct_utils.h"
 
+#include <string>
+
+#include "absl/strings/str_cat.h"
+#include "absl/strings/str_join.h"
 #include "absl/strings/str_split.h"
 
 namespace google {
@@ -105,8 +109,29 @@ StructUtils::FindResult StructUtils::GetStringList(
 
 StructUtils::FindResult StructUtils::GetValue(
     const std::string& nested_names, const google::protobuf::Value*& found) {
-  const std::vector<absl::string_view> name_vector =
-      absl::StrSplit(nested_names, '.');
+  std::vector<std::string> name_vector;
+
+  // Handle namespaced custom claims that by convention start with a URL - as
+  // most URLs contain dots, we extract the URL up to the FQDN and then split
+  // only the URL path by dots.
+  //
+  // e.g. for nested_names "https://example.com/claims.nested.key", name_vector
+  // would be {"https://example.com/claims", "nested", "key"}
+  if (absl::StartsWith(nested_names, "http://") ||
+      absl::StartsWith(nested_names, "https://")) {
+    const std::vector<std::string> url_components =
+        absl::StrSplit(nested_names, absl::MaxSplits('/', 3));
+    const std::string left = absl::StrJoin(
+        {url_components[0], url_components[1], url_components[2]}, "/");
+    const std::vector<std::string> path_components =
+        absl::StrSplit(url_components[3], '.');
+    name_vector = {absl::StrCat(left, "/", path_components[0])};
+    name_vector.insert(std::end(name_vector),
+                       std::next(std::begin(path_components)),
+                       std::end(path_components));
+  } else {
+    name_vector = absl::StrSplit(nested_names, '.');
+  }
 
   const google::protobuf::Struct* current_struct = &struct_pb_;
   for (int i = 0; i < name_vector.size(); ++i) {
