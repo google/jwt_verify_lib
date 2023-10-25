@@ -128,7 +128,7 @@ def _zlib_repositories():
         build_file = "@com_google_protobuf//:third_party/zlib.BUILD",
         sha256 = ZLIB_SHA256,
         strip_prefix = "zlib-" + ZLIB_RELEASE,
-        urls = ["https://zlib.net/zlib-" + ZLIB_RELEASE + ".tar.gz"],
+        urls = ["https://github.com/madler/zlib/releases/download/v" + ZLIB_RELEASE +"/zlib-"+ ZLIB_RELEASE + ".tar.gz"],
     )
 
 PROTOBUF_RELEASE = "3.16.0"  # Mar 04, 2021
